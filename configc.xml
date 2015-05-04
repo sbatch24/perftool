@@ -1,0 +1,6 @@
+<config>
+	<client>
+		<port>12000</port>
+		<remoteHost>localhost</remoteHost>
+	</client>
+</config>
