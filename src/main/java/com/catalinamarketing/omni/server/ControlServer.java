@@ -242,7 +242,7 @@ public class ControlServer {
 					}
 					resp.close();
 					client.close();
-					Thread.sleep(15);
+					Thread.sleep(10);
 				}
 				logger.info("Time taken to publish wallet information for " +  customerWallet.size()+" ids is "+ watch.elapsed(TimeUnit.SECONDS) + " seconds");
 				

@@ -83,6 +83,7 @@
 		<setup>
 			<retailerInfo>
 				<networkId>0046</networkId>
+				<retailerId>489</retailerId>
 			</retailerInfo>
 			<programSetupList>
 				<programSetup>

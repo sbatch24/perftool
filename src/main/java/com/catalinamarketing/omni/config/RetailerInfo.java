@@ -13,6 +13,7 @@ public class RetailerInfo {
 	}
 	
 	private String networkId;
+	private String retailerId;
 
 	public String getNetworkId() {
 		return networkId;
@@ -20,5 +21,13 @@ public class RetailerInfo {
 
 	public void setNetworkId(String networkId) {
 		this.networkId = networkId;
+	}
+
+	public String getRetailerId() {
+		return retailerId;
+	}
+
+	public void setRetailerId(String retailerId) {
+		this.retailerId = retailerId;
 	}
 }

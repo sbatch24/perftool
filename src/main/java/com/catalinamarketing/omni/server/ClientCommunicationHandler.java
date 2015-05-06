@@ -76,11 +76,6 @@ public class ClientCommunicationHandler implements Runnable {
 	public Message marshalIncomingMessage(String data) {
 		Message message = null;
 		try {
-			/*JAXBContext context = JAXBContext.newInstance(StandByPeriodExpired.class, HandShakeMsg.class, 
-					ShutdownMsg.class, TestPlanMsg.class);
-			Unmarshaller unMarshaller = context.createUnmarshaller();
-			StringReader reader = new StringReader(data);
-			message = (Message)unMarshaller.unmarshal(reader);	*/
 			message = MessageMarshaller.unMarshalMessage(data);
 		}catch(Exception ex) {
 			logger.error("Problem unmarshalling message from client. Error: " + ex.getMessage());
