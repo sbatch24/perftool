@@ -3,16 +3,19 @@ package com.catalinamarketing.omni.protocol.message;
 import java.math.BigInteger;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
+@XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name="testPlanMsg")
 public class TestPlanMsg extends Message {
 	@XmlElementWrapper(name="cardRangeList")
 	@XmlElement(name="cardRange")
 	private List<BigInteger> cardRange;
-	private String retailerId;
+	private String networkId;
 	private int targetingThreadCount;
 	private int cappingThreadCount;
 	private int eventReportFrequency;
@@ -22,13 +25,12 @@ public class TestPlanMsg extends Message {
 	
 	
 	public TestPlanMsg() {
-		
 	}
 	
 	public TestPlanMsg(List<BigInteger> cardRange, String retailerId, int tTC, 
 			int cTC, int eRF, int cRF) {
 		this.cardRange = cardRange;
-		this.retailerId = retailerId;
+		this.networkId = retailerId;
 		this.targetingThreadCount = tTC;
 		this.cappingThreadCount = cTC;
 		this.eventReportFrequency = eRF;
@@ -41,11 +43,11 @@ public class TestPlanMsg extends Message {
 	public void setCardRangeList(List<BigInteger> cardRange) {
 		this.cardRange = cardRange;
 	}
-	public String getRetailerId() {
-		return retailerId;
+	public String getNetworkId() {
+		return networkId;
 	}
-	public void setRetailerId(String retailerId) {
-		this.retailerId = retailerId;
+	public void setNetworkId(String retailerId) {
+		this.networkId = retailerId;
 	}
 	public int getTargetingThreadCount() {
 		return targetingThreadCount;
@@ -86,5 +88,19 @@ public class TestPlanMsg extends Message {
 
 	public void setCappingCallCount(int cappingCallCount) {
 		this.cappingCallCount = cappingCallCount;
+	}
+	
+	public String printMessage() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("Test Plan to execute - \n");
+		buffer.append("\nCid Range - (" + this.cardRange.get(0) +" - " + cardRange.get(1) + " )");
+		buffer.append("\nTargeting Thread count - " + this.targetingThreadCount);
+		buffer.append("\nCapping Thread count - " + this.cappingThreadCount);
+		buffer.append("\nCap usage report frequency - " + this.capReportFrequency +" seconds");
+		buffer.append("\nTargeting event report frequency - "+ this.eventReportFrequency + " seconds");
+		buffer.append("\nUsage report call count - "+this.cappingCallCount);
+		buffer.append("\nTargeting call count - "+ this.targetingCallCount);
+		buffer.append("\nTest performed for networkId - "+ this.networkId);
+		return buffer.toString();
 	}
 }

@@ -11,6 +11,12 @@ public class Config {
 	@XmlElementWrapper(name="environments")
 	@XmlElement(name="environment")
 	private List<Environment> environment;
+	private Client client;
+	private Server server;
+
+	public Config() {
+		
+	}
 	
 	public List<Environment> getEnvironments() {
 		return environment;
@@ -25,6 +31,15 @@ public class Config {
 		for(Environment environment : this.environment) {
 			if(environment.getType().equalsIgnoreCase(getServer().getEnvironment())) {
 				return environment;
+			}
+		}
+		return null;
+	}
+	
+	public Simulation getConfiguredSimulation() {
+		for(Simulation simulation : getServer().getSimulation()) {
+			if(simulation.getType().equalsIgnoreCase(getServer().getSimulationType())) {
+				return simulation;
 			}
 		}
 		return null;
@@ -47,13 +62,6 @@ public class Config {
 		this.environment = environment;
 	}
 
-	private Client client;
-	private Server server;
-
-	public Config() {
-		
-	}
-	
 	public Config(Client client, Server server) {
 		this.client = client;
 		this.server = server;
@@ -132,5 +140,13 @@ public class Config {
 	 */
 	public String getDmpPassword() {
 		return getConfiguredEnvironment().getDmpConfig().getPassword();
+	}
+	
+	/**
+	 * Returns the card setup list configured for this environment.
+	 * @return List<CardSetup>
+	 */
+	public List<CardSetup> getCardSetupList() {
+		return getServer().getSetup().getCardSetup();
 	}
 }

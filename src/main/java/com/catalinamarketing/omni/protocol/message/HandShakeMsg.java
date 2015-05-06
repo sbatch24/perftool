@@ -7,7 +7,18 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name="handshake")
 public class HandShakeMsg extends Message {
+	
+	private String initializationMessage;
+	
 	public HandShakeMsg() {
 		
+	}
+
+	public String getInitializationMessage() {
+		return initializationMessage;
+	}
+
+	public void setInitializationMessage(String initializationMessage) {
+		this.initializationMessage = initializationMessage;
 	}
 }

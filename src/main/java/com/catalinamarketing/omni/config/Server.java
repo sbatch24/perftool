@@ -17,6 +17,8 @@ public class Server {
 	private String environment;
 	@XmlElement(defaultValue="true")
 	private boolean publishData = true;
+	private String simulationType;
+
 	@XmlElementWrapper(name="simulations")
 	@XmlElement(name="simulation")
 	private List<Simulation> simulation;
@@ -75,5 +77,13 @@ public class Server {
 
 	public void setSetupData(boolean setupData) {
 		this.publishData = setupData;
+	}
+
+	public String getSimulationType() {
+		return simulationType;
+	}
+
+	public void setSimulationType(String simulationType) {
+		this.simulationType = simulationType;
 	}
 }

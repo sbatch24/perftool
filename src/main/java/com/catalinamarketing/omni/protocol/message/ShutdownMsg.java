@@ -1,5 +1,7 @@
 package com.catalinamarketing.omni.protocol.message;
 
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -8,8 +10,9 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author achavan
  *
  */
+@XmlAccessorType(XmlAccessType.FIELD)
 @XmlRootElement(name="shutdown")
-public class ShutdownMsg {
+public class ShutdownMsg extends Message {
 	private String message;
 	
 	public ShutdownMsg() {

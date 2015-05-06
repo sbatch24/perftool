@@ -42,12 +42,12 @@
 		</environment>
 	</environments>
 	<client>
-		<port></port>
-		<remoteHost></remoteHost>
+		<port>12000</port>
+		<remoteHost>localhost</remoteHost>
 	</client>
 	<server>
 		<port>12000</port>
-		<standby>300</standby>
+		<standby>10</standby>
 		<environment>sqa</environment>
 		<simulationType>high</simulationType>
 		<publishData>false</publishData>
@@ -132,11 +132,11 @@
 			</promotionSetupList>
 			<cardSetupList>
 				<cardSetup>
-					<cardRange>7081329999552903-7081329999552904</cardRange>
+					<cardRange>100-200</cardRange>
 					<cardRangeId>70001</cardRangeId>
 				</cardSetup>
 				<cardSetup>
-					<cardRange>7081329999552803-7081329999552804</cardRange>
+					<cardRange>201-400</cardRange>
 					<cardRangeId>80001</cardRangeId>
 				</cardSetup>
 			</cardSetupList>

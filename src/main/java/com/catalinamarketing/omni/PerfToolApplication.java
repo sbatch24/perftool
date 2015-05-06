@@ -80,31 +80,24 @@ public class PerfToolApplication  {
 	 * @param args
 	 */
 	public static void main(String args[]) {
-		//PerftoolApplication tool = new PerftoolApplication();
-		//tool.printsetupmessage();
-		List<BigInteger> range = new ArrayList<BigInteger>();
-		range.add(new BigInteger("7081329999552803"));
-		range.add(new BigInteger("7081329999552805"));
 		if(args.length == 1 && args[0].contains("server")) {
 			try {
-				//System.out.println(System.getProperty("user.name"));
 				JAXBContext context = JAXBContext.newInstance(Config.class);
 				Unmarshaller um = context.createUnmarshaller();
 			    Config config = (Config) um.unmarshal(new FileReader("config.xml"));
 			    ControlServer cs = new ControlServer(config);
-				cs.run();
+				cs.runServer();
 			}catch(Exception e) {
 				e.printStackTrace();
 			}
 				
 		} else {
-			// TODO run the client program.
 			try {
 				JAXBContext context = JAXBContext.newInstance(Config.class);
 				Unmarshaller um = context.createUnmarshaller();
 			    Config config = (Config) um.unmarshal(new FileReader("configc.xml"));
 			    PerfToolClient client = new PerfToolClient();
-			    client.launch(config.getClient().getRemoteHost(), config.getClient().getPort());
+			    client.launchClient(config.getClient().getRemoteHost(), config.getClient().getPort());
 			}catch(Exception e) {
 				e.printStackTrace();
 			}

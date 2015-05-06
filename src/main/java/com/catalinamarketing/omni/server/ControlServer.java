@@ -9,6 +9,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -24,6 +26,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
@@ -40,6 +44,9 @@ import com.catalinamarketing.omni.pmr.setup.ChannelMediaInfo;
 import com.catalinamarketing.omni.pmr.setup.MediaInfo;
 import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
 import com.catalinamarketing.omni.pmr.setup.ProgramInfo;
+import com.catalinamarketing.omni.protocol.message.HandShakeMsg;
+import com.catalinamarketing.omni.protocol.message.StandByPeriodExpired;
+import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.ChannelTypeTranslator;
 import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
@@ -67,39 +74,105 @@ public class ControlServer {
 	private List<PmrSetupMessage> pmrSetupMessageList;
 	private Map<String, List<Wallet>> customerWallet;
 	private ChannelFuture serverChannelFuture;
+	private List<ClientCommunicationHandler> clientCommunicationHandlerList;
+	private TestPlanDispatcherThread testPlanDispatcherThread;
+	private ServerSocket serverSocket;
+	
+	
 	
 	public ControlServer(Config configuration) {
+		this.clientCommunicationHandlerList = new ArrayList<ClientCommunicationHandler>();
 		this.config = configuration;
 	}
-
+	
+	public String standbyStartTime() {
+		return testPlanDispatcherThread.getStartPollDateTime();
+	}
+	
+	public List<ClientCommunicationHandler> getClientCommunicationHandlerList() {
+		return clientCommunicationHandlerList;
+	}
+	
+	/**
+	 * Returns the number of available machines to execute the test plan for this server.
+	 * @return int
+	 */
+	public int availableExecutorCount() {
+		return this.clientCommunicationHandlerList.size();
+	}
+	
+	/**
+	 * Shutdown socket and exit
+	 */
+	public void shutdown() {
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 	public void runServer() {
 		try {
-			ServerSocket listener = new ServerSocket(config.getServer().getPort());
+			dataSetup();
+			testPlanDispatcherThread = new TestPlanDispatcherThread(config, this); 
+			new Thread(testPlanDispatcherThread).start();
+			serverSocket = new ServerSocket(config.getServer().getPort());
 	        try {
 	            while (true) {
 	            	System.out.println("Listening on port "+ config.getServer().getPort());
-	                Socket socket = listener.accept();
-	                System.out.println("Got connection request");
-	                BufferedReader input =
-	                        new BufferedReader(new InputStreamReader(socket.getInputStream()));
-	                String answer = input.readLine();
-	                System.out.println("Message " + answer);
+	                Socket socket = serverSocket.accept();
+	                System.out.println("Got connection request from " + socket.getRemoteSocketAddress());
+	                if(testPlanDispatcherThread.hasStandbyPeriodExpired()) {
+	                	rejectPostPollConnection(socket);
+	                }else {
+	                	ClientCommunicationHandler handler = new ClientCommunicationHandler(socket, this, config);
+		                clientCommunicationHandlerList.add(handler);
+		                new Thread(handler).start();	
+	                }
 	            }
 	        }
 	        finally {
-	            listener.close();
+	            serverSocket.close();
 	        }
 		}catch(Exception ex) {
-			
+			logger.error("Problem occured in server. Error: " + ex.getMessage());
 		}
-		
+	}
+	
+	/**
+	 * 
+	 * @param socket
+	 */
+	private void rejectPostPollConnection(Socket socket) {
+		try {
+			logger.info("Rejecting client connection from " + socket.getRemoteSocketAddress() + " since standby period has expired");
+			StandByPeriodExpired msg = new StandByPeriodExpired();
+			msg.setStartPollDateTime(testPlanDispatcherThread.getStartPollDateTime());
+			msg.setEndPollDateTime(testPlanDispatcherThread.getEndPollDateTime());
+			msg.setUserName(System.getProperty("user.name"));
+			StringWriter writer = new StringWriter();
+			JAXBContext context = JAXBContext.newInstance(StandByPeriodExpired.class);
+			Marshaller marshaller = context.createMarshaller();
+			marshaller.marshal(msg, writer);
+			PrintWriter pWriter  = new PrintWriter(socket.getOutputStream(), true);
+			pWriter.println(writer.toString());
+			pWriter.flush();
+			Thread.sleep(50);
+			socket.close();
+		}catch(Exception ex) {
+			logger.error("Error while rejecting post poll client connections. Error: "+ ex.getMessage() );
+		}
 	}
 	
 	/**
 	 * Spin up the server waiting to accept incoming connections.
 	 */
 	public void run() {
-		//dataSetup();
+		
+		dataSetup();
+		new Thread(new TestPlanDispatcherThread(config, this)).run();
 		EventLoopGroup bossGroup = new NioEventLoopGroup(1);
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 		try {
@@ -139,10 +212,12 @@ public class ControlServer {
 	 * data to create the consumer profiles.
 	 */
 	private void dataSetup() {
+		logger.info("Data setup will involve publishing data to PMR and to the DMP");
 		initializePmrDataSetup();
 		publishPmrData();
 		initializeDmpData();
 		publishDmpData();
+		logger.info("Finished publishing data. Server will go in Standby mode("+ config.getServer().getStandby()+" seconds) for clients to connect.");
 	}
 
 	/**
@@ -167,7 +242,7 @@ public class ControlServer {
 					}
 					resp.close();
 					client.close();
-					Thread.sleep(70);
+					Thread.sleep(15);
 				}
 				logger.info("Time taken to publish wallet information for " +  customerWallet.size()+" ids is "+ watch.elapsed(TimeUnit.SECONDS) + " seconds");
 				
@@ -198,15 +273,14 @@ public class ControlServer {
 	private void initializeDmpData() {
 		logger.info("Initializing profile data");
 		customerWallet = new HashMap<String, List<Wallet>>();
-		List<CardSetup> cardSetupList = config.getServer().getSetup()
-				.getCardSetup();
+		List<CardSetup> cardSetupList = config.getCardSetupList();
 		for (CardSetup cardSetup : cardSetupList) {
 			PromotionSetup promotionSetup = config
 					.getPromotionSetupByCardRangeId(cardSetup.getCardRangeId());
 			List<Wallet> walletList = prepareWalletForId(promotionSetup, config.getNetworkId());
 			BigInteger firstId = new BigInteger(cardSetup.cardRange().get(0));
 			BigInteger lastId = new BigInteger(cardSetup.cardRange().get(1));
-			for (; firstId.compareTo(lastId) <= 0; firstId = firstId.add(new BigInteger("1"))) {
+			for (; firstId.compareTo(lastId) <= 0; firstId = firstId.add(BigInteger.ONE)) {
 				customerWallet.put("USA-"
 						+ config.getNetworkId() + "-" + firstId, walletList);
 			}
