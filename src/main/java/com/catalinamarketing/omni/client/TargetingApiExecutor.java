@@ -49,7 +49,7 @@ public class TargetingApiExecutor extends ApiExecutor {
 		List<String> medias = Arrays.asList("6012", "6013", "6014", "6015", "6016");
 		int count = 0;
 		try {
-			while(count < callCount) {
+			while(count < callCount && !halted()) {
 				try {
 					logger.info("Making targeting call");
 					Thread.sleep(reportEventDelay*1000);

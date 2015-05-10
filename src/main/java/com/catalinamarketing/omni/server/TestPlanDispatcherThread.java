@@ -3,14 +3,11 @@ package com.catalinamarketing.omni.server;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.catalinamarketing.omni.config.CardSetup;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
@@ -28,30 +25,20 @@ public class TestPlanDispatcherThread implements Runnable {
 	
 	private final Config config;
 	private final ControlServer controlServer;
-	private boolean standbyExpired;
-	private String startPollDateTime;
-	private String endPollDateTime;
 	private List<List<BigInteger>> cardRangeList;
 	private Random RANDOM = new Random();
 
 	public TestPlanDispatcherThread(Config config, ControlServer cs) {
 		this.config = config;
 		this.controlServer = cs;
-		this.standbyExpired = false;
 		this.cardRangeList = new ArrayList<List<BigInteger>>();
 	}
 	
 	@Override
 	public void run() {
 		try {
-			Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
-			startPollDateTime = calendar.getTime().toString();
-			Thread.sleep(this.config.getServer().getStandby()*1000);
-			this.standbyExpired = true;
-			endPollDateTime = new Date().toString();
-			// TODO Formulate the plan  and pass the data to the clients listening.
 			List<TestPlanMsg> testPlanMsgList = formulateTestPlanSetup();
-			logger.info("Server will now dispatch test plan to clients available in the pool.");
+			logger.info(""+controlServer.getClientCommunicationHandlerList().size()+" clients in the pool.Server will now dispatch test plan to clients available in the pool. Time " + Calendar.getInstance().getTime().toString());
 			Map<String,ClientCommunicationHandler> clientList = controlServer.getClientCommunicationHandlerList();
 			int clientHandlerCount = 0;
 			for(Map.Entry<String, ClientCommunicationHandler> entry : clientList.entrySet()) {
@@ -59,7 +46,7 @@ public class TestPlanDispatcherThread implements Runnable {
 				clientHandlerCount++;
 			}
 			if(clientHandlerCount == 0) {
-				logger.warn("No clients available. Server will exit since no client available to execute test plan.");
+				logger.warn("No clients available. Retry again when clients are available.");
 			}
 		} catch (Exception ex) {
 			logger.error("Problem occured in TestPlanDispatcherThread. Error: " + ex.getMessage());
@@ -68,13 +55,10 @@ public class TestPlanDispatcherThread implements Runnable {
 	}
 	
 	/**
-	 * Method returns if standbyPeriod has expired.
-	 * @return true or false
+	 * Based on number of clients available in pool and the type of setup a TestPlan will be formulated
+	 * and distributed to each client.
+	 * @return List of TestPlanMsg.
 	 */
-	public boolean hasStandbyPeriodExpired() {
-		return standbyExpired == true;
-	}
-	
 	public List<TestPlanMsg> formulateTestPlanSetup() {
 		List<TestPlanMsg> msgList = new ArrayList<TestPlanMsg>();
 		prepareCardRange();
@@ -97,6 +81,7 @@ public class TestPlanDispatcherThread implements Runnable {
 				msg.setNetworkId(config.getServer().getSetup().getRetailerInfo().getNetworkId());
 				msg.setTargetingCallCount(config.getConfiguredSimulation().getTargetingCallCount());
 				msg.setTargetingThreadCount(config.getConfiguredSimulation().getTargetingThreadCount());
+				msg.setTestPlanVersion(config.getServer().getTestPlanVersion());
 				msg.setUserName(System.getProperty("user.name"));
 				msgList.add(msg);
 			}
@@ -164,21 +149,5 @@ public class TestPlanDispatcherThread implements Runnable {
 			cardRangeList.add(cardRangeIds);
 		}
 		
-	}
-
-	public String getStartPollDateTime() {
-		return startPollDateTime;
-	}
-
-	public void setStartPollDateTime(String startPollDateTime) {
-		this.startPollDateTime = startPollDateTime;
-	}
-
-	public String getEndPollDateTime() {
-		return endPollDateTime;
-	}
-
-	public void setEndPollDateTime(String endPollDateTime) {
-		this.endPollDateTime = endPollDateTime;
 	}
 }

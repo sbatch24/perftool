@@ -13,7 +13,6 @@ import javax.xml.bind.annotation.XmlType;
 public class Server {
 	
 	private int port;
-	private int standby;
 	private String environment;
 	@XmlElement(defaultValue="true")
 	private boolean publishData = true;
@@ -30,9 +29,8 @@ public class Server {
 		
 	}
 	
-	public Server(int port, int standby, List<Simulation> simulations, Setup setup) {
+	public Server(int port, List<Simulation> simulations, Setup setup) {
 		this.port = port;
-		this.standby = standby;
 		this.simulation = simulations;
 		this.setup = setup;
 	}
@@ -42,12 +40,6 @@ public class Server {
 	}
 	public void setPort(int port) {
 		this.port = port;
-	}
-	public int getStandby() {
-		return standby;
-	}
-	public void setStandby(int standby) {
-		this.standby = standby;
 	}
 	public List<Simulation> getSimulation() {
 		return simulation;

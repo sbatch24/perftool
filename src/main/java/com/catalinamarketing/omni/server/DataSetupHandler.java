@@ -62,7 +62,7 @@ public class DataSetupHandler {
 		publishPmrData();
 		initializeDmpData();
 		publishDmpData();
-		logger.info("Finished publishing data. Server will go in Standby mode("+ config.getServer().getStandby()+" seconds) for clients to connect.");
+		logger.info("Finished publishing data");
 	}
 
 	/**

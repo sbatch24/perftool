@@ -1,5 +1,7 @@
 package com.catalinamarketing.omni.client;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -15,10 +17,13 @@ public class TestPlanExecutor implements Runnable {
 
 	private final TestPlanMsg testPlan;
 	private boolean finishedTestExecution;
+	@SuppressWarnings("unused")
+	private List<ApiExecutor> apiExecutorList;
 	
 	public TestPlanExecutor(TestPlanMsg msg) {
 		this.testPlan = msg;
 		finishedTestExecution = false;
+		apiExecutorList = new ArrayList<ApiExecutor>();
 	}
 
 	/**
@@ -41,19 +46,15 @@ public class TestPlanExecutor implements Runnable {
 	 * Kick off API threads which will execute the test plan prescribed by the server.
 	 */
 	public void executeTestPlan() {
-		// TODO kick start test plan execution.
-		// 1. Spawn threads and initialize data structures.
 		int targetingCallCountPerThread = targetingCallsPerThread();
 		int targetingThreadCountPerCapThread = testPlan.getTargetingThreadCount() / testPlan.getCappingThreadCount();
 		int cappingCallCountPerThread = cappingCallsPerThread();
 		logger.info("One capping usage report thread for "+ targetingThreadCountPerCapThread +" targeting threads");
 		int count = 1;
-		String threadGroupIdentifier = null;// = UUID.randomUUID().toString();
+		String threadGroupIdentifier = null;
 		MediaUsageRepository mediaUsageRepository = new MediaUsageRepository();
 		HttpResponseRepository responseRepository = new HttpResponseRepository();
-		//logger.info("ThreadGroupIdentifier : " + threadGroupIdentifier);
 		CountDownLatch finishedSignal = new CountDownLatch(testPlan.getTargetingThreadCount() + testPlan.getCappingThreadCount());
-		
 		for(int i = 0; i < testPlan.getTargetingThreadCount(); i++, count++) {
 			if ((i%targetingThreadCountPerCapThread) == 0) {
 				threadGroupIdentifier = UUID.randomUUID().toString();
@@ -63,18 +64,20 @@ public class TestPlanExecutor implements Runnable {
 					ApiExecutor api = new CappingApiExecutor(count, testPlan.getCapReportFrequency(), cappingCallCountPerThread, 
 							threadGroupIdentifier, finishedSignal, mediaUsageRepository,responseRepository);
 					new Thread(api).start();
+					apiExecutorList.add(api);
 				}
 			}
 			
 			logger.info("Targeting thread " + threadGroupIdentifier);
 			ApiExecutor api = new TargetingApiExecutor(count,testPlan.getEventReportFrequency(), 
 					targetingCallCountPerThread, threadGroupIdentifier,finishedSignal, mediaUsageRepository,responseRepository);
-			
 			new Thread(api).start();
+			apiExecutorList.add(api);
 		}
 		try {
-			logger.info("Waiting for targeting threads to finish");
+			logger.info("Waiting for api threads to finish");
 			finishedSignal.await();
+			finishedTestExecution = true;
 			logger.info("Api threads done executing");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -93,7 +96,6 @@ public class TestPlanExecutor implements Runnable {
 			count = testPlan.getTargetingCallCount();
 		}
 		return count;
-		
 	}
 	
 	/**
@@ -113,5 +115,19 @@ public class TestPlanExecutor implements Runnable {
 	@Override
 	public void run() {
 		executeTestPlan();
+	}
+	
+	public String testPlanStatus() {
+		if(finishedTestExecution) {
+			return "Finished Execution";
+		}else {
+			return "Executing test plan";
+		}
+	}
+	
+	public void haltApiThread() {
+		for (ApiExecutor apiExecutor : apiExecutorList) {
+			apiExecutor.halt();
+		}
 	}
 }

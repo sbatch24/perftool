@@ -46,7 +46,7 @@ public class CappingApiExecutor  extends ApiExecutor {
 	public void run() {
 		int count = 0;
 		try {
-			while(count < counter) {
+			while(count < counter && !halted()) {
 				try {
 					//logger.info("Making capping usage call");
 					Thread.sleep(reportEventDelay*1000);

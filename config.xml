@@ -51,7 +51,7 @@
 		<environment>sqa</environment>
 		<simulationType>high</simulationType>
 		<publishData>false</publishData>
-		<testPlanVersion></testPlanVersion>
+		<testPlanVersion>amit</testPlanVersion>
 		<simulations>
 			<simulation>
 				<type>high</type>

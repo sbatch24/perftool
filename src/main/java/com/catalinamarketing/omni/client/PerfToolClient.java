@@ -6,17 +6,20 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Date;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.catalinamarketing.omni.protocol.message.HaltExecutionMsg;
 import com.catalinamarketing.omni.protocol.message.HandShakeMsg;
 import com.catalinamarketing.omni.protocol.message.Message;
-import com.catalinamarketing.omni.protocol.message.StandByPeriodExpired;
+import com.catalinamarketing.omni.protocol.message.StatusMsg;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.MessageMarshaller;
 public class PerfToolClient {
 	
 	final static Logger logger = LoggerFactory.getLogger(PerfToolClient.class);
-
+	private TestPlanExecutor testPlanExecutor;
 	
 	public void launchClient(String hostName, int port) {
 		Socket socket = null;
@@ -29,10 +32,6 @@ public class PerfToolClient {
 			HandShakeMsg handShakeMsg = new HandShakeMsg();
 			handShakeMsg.setInitializationMessage("Available for test plan execution");
 			handShakeMsg.setUserName(System.getProperty("user.name"));
-			/*StringWriter writer = new StringWriter();
-			JAXBContext context = JAXBContext.newInstance(HandShakeMsg.class, StandByPeriodExpired.class, TestPlanMsg.class);
-			Marshaller marshaller = context.createMarshaller();
-			marshaller.marshal(handShakeMsg, writer);*/
 			out.println(MessageMarshaller.marshalMessage(handShakeMsg).toString());
 			out.flush();
 			try {
@@ -40,26 +39,32 @@ public class PerfToolClient {
 					BufferedReader input =
 			                new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			        String msg = input.readLine();
-			        System.out.println("Client message received : "+ msg);
 			        if(msg != null) {
-			        	
-			        	//Unmarshaller unMarshaller = context.createUnmarshaller();
-						//Object message = unMarshaller.unmarshal(new StringReader(msg));
 			        	Message message = MessageMarshaller.unMarshalMessage(msg);
-						if(message instanceof StandByPeriodExpired) {
-							StandByPeriodExpired standByPeriodExpired = (StandByPeriodExpired)message;
-							logger.warn("Server rejected client request to join the pool for test. Will exit now");
-							logger.info("Poll start time " +standByPeriodExpired.getStartPollDateTime() + " and end time " + standByPeriodExpired.getEndPollDateTime());
-							socket.close();
-						} else if(message instanceof TestPlanMsg) {
-							TestPlanMsg testPlanMessage = (TestPlanMsg)message;
-							logger.info(testPlanMessage.printMessage());
+						if(message instanceof TestPlanMsg) {
+							logger.info(message.printMessage());
 							logger.info("Received TestPlanMsg from Server. Will begin execution of the test plan");
-							TestPlanExecutor testPlanExecutor = new TestPlanExecutor(testPlanMessage);
+							this.testPlanExecutor = new TestPlanExecutor((TestPlanMsg)message);
 							new Thread(testPlanExecutor).start();
-						}	
-			        }else {
-			        	System.out.println("Server " + msg);
+						} else if(message instanceof StatusMsg) {
+							if(this.testPlanExecutor != null ) {
+								StatusMsg statusMsg = new StatusMsg();
+								statusMsg.setTestPlanVersion(testPlanExecutor.getTestPlan().getTestPlanVersion());
+								statusMsg.setExecutionStatus(testPlanExecutor.testPlanStatus());
+								out.println(MessageMarshaller.marshalMessage(statusMsg).toString());
+								out.flush();
+							}
+						} else if(message instanceof HaltExecutionMsg) {
+							if(this.testPlanExecutor != null ) {
+								testPlanExecutor.haltApiThread();
+								logger.info(message.printMessage());
+								StatusMsg statusMsg = new StatusMsg();
+								statusMsg.setTestPlanVersion(testPlanExecutor.getTestPlan().getTestPlanVersion());
+								statusMsg.setExecutionStatus("Api threads stoped");
+								out.println(MessageMarshaller.marshalMessage(statusMsg).toString());
+								out.flush();
+							}
+						}
 			        }
 				}
 			}catch(Exception ex) {

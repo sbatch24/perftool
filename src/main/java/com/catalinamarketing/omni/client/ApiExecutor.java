@@ -8,11 +8,13 @@ public abstract class ApiExecutor implements Runnable {
 	private final String apiType;
 	HttpResponseRepository httpResponseRepository;
 	protected final int threadIndex;
+	private boolean halt;
 	
 	public ApiExecutor(int threadIndex, String apiType, HttpResponseRepository httpResponseRepository) {
 		this.threadIndex = threadIndex;
 		this.apiType = apiType;
 		this.httpResponseRepository = httpResponseRepository;
+		this.halt = false;
 	}
 	
 	public void incrementResponseCounter(Response.Status status) {
@@ -26,4 +28,13 @@ public abstract class ApiExecutor implements Runnable {
 	public String getApiType() {
 		return apiType;
 	}
+	
+	protected void halt() {
+		this.halt = true;
+	}
+	
+	protected boolean halted() {
+		return this.halt;
+	}
+	
 }

@@ -21,4 +21,13 @@ public class HandShakeMsg extends Message {
 	public void setInitializationMessage(String initializationMessage) {
 		this.initializationMessage = initializationMessage;
 	}
+
+	@Override
+	public String printMessage() {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("\nHostName  - " +this.userName);
+		buffer.append("\nMessage - "+ this.initializationMessage);
+		return buffer.toString();
+	}
+	
 }

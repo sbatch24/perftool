@@ -22,6 +22,7 @@ public class TestPlanMsg extends Message {
 	private int capReportFrequency;
 	private int targetingCallCount;
 	private int cappingCallCount;
+	private String testPlanVersion;
 	
 	
 	public TestPlanMsg() {
@@ -101,6 +102,15 @@ public class TestPlanMsg extends Message {
 		buffer.append("\nUsage report call count - "+this.cappingCallCount);
 		buffer.append("\nTargeting call count - "+ this.targetingCallCount);
 		buffer.append("\nTest performed for networkId - "+ this.networkId);
+		buffer.append("\nTest plan version - "+this.testPlanVersion);
 		return buffer.toString();
+	}
+
+	public String getTestPlanVersion() {
+		return testPlanVersion;
+	}
+
+	public void setTestPlanVersion(String testPlanVersion) {
+		this.testPlanVersion = testPlanVersion;
 	}
 }

@@ -11,10 +11,15 @@ import javax.xml.bind.Unmarshaller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.core.status.Status;
+import ch.qos.logback.core.status.StatusManager;
+
+import com.catalinamarketing.omni.protocol.message.HaltExecutionMsg;
 import com.catalinamarketing.omni.protocol.message.HandShakeMsg;
 import com.catalinamarketing.omni.protocol.message.Message;
 import com.catalinamarketing.omni.protocol.message.ShutdownMsg;
 import com.catalinamarketing.omni.protocol.message.StandByPeriodExpired;
+import com.catalinamarketing.omni.protocol.message.StatusMsg;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 
 /**
@@ -31,8 +36,7 @@ public class MessageMarshaller {
 	private MessageMarshaller() {
 		try {
 			context = JAXBContext.newInstance(StandByPeriodExpired.class, HandShakeMsg.class, 
-					ShutdownMsg.class, TestPlanMsg.class);
-			System.out.println("Initializing MessageMarshaller");
+					ShutdownMsg.class, TestPlanMsg.class, StatusMsg.class, HaltExecutionMsg.class);
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}

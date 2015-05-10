@@ -5,14 +5,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Calendar;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.catalinamarketing.omni.protocol.message.HandShakeMsg;
 import com.catalinamarketing.omni.protocol.message.Message;
-import com.catalinamarketing.omni.protocol.message.ShutdownMsg;
+import com.catalinamarketing.omni.protocol.message.StatusMsg;
 import com.catalinamarketing.omni.util.MessageMarshaller;
 
 public class ClientCommunicationHandler implements Runnable {
@@ -73,15 +72,12 @@ public class ClientCommunicationHandler implements Runnable {
 	public void processMessage(Message message) {
 		synchronized (mutex) {
 			if(message instanceof HandShakeMsg) {
-				Calendar calendar = Calendar.getInstance();
-				//Date et = new Date(controlServer.standbyStartTime());
-				//calendar.setTime(et);
-				//calendar.add(Calendar.SECOND, config.getServer().getStandby());
 				HandShakeMsg msg = new HandShakeMsg();
-				msg.setInitializationMessage("Server waiting for clients to join poll. Will distribute test plan at " + calendar.getTime().toString());
+				msg.setInitializationMessage("Test plan will be delivered by the server.");
 				writeMessage(msg);
-			} else if(message instanceof ShutdownMsg) {
-				// TODO
+			} else if(message instanceof StatusMsg) {
+				StatusMsg statusMessage = (StatusMsg) message;
+				logger.info(statusMessage.printMessage());
 			}
 		}
 	}

@@ -4,24 +4,31 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Map;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.catalinamarketing.omni.config.Config;
+import com.catalinamarketing.omni.protocol.message.HaltExecutionMsg;
 
 /**
  * Class reads commands from the console and executes them.
+ * 
  * @author achavan
  *
  */
 public class ConsoleReaderThread implements Runnable {
-	
-	final static Logger logger = LoggerFactory.getLogger(ConsoleReaderThread.class);
+
+	final static Logger logger = LoggerFactory
+			.getLogger(ConsoleReaderThread.class);
 
 	private Config config;
 	private final ControlServer controlServer;
-	
+
 	public ConsoleReaderThread(ControlServer server) {
 		this.controlServer = server;
 	}
@@ -34,28 +41,57 @@ public class ConsoleReaderThread implements Runnable {
 			try {
 				System.out.println("\nEnter commands :");
 				line = in.readLine();
-				if(line.equalsIgnoreCase("exit")) {
-					// TODO exit server.
-				}else if(line.equalsIgnoreCase("reload")) {
+				if (line.equalsIgnoreCase("exit")) {
+					controlServer.shutdown();
+					break;
+				} else if (line.equalsIgnoreCase("load")) {
 					try {
-						JAXBContext context = JAXBContext.newInstance(Config.class);
+						JAXBContext context = JAXBContext
+								.newInstance(Config.class);
 						Unmarshaller um = context.createUnmarshaller();
-					    config = (Config) um.unmarshal(new FileReader("config.xml"));
-					    logger.info("Configuration reloaded. You can kick off test anytime now.");	
-					}catch(Exception ex) {
+						config = (Config) um.unmarshal(new FileReader(
+								"config.xml"));
+						logger.info("Configuration reloaded. You can kick off test anytime now.");
+					} catch (Exception ex) {
 						logger.error("Problem reloading configuration");
 					}
-				}else if(line.equalsIgnoreCase("start")) {
+				} else if (line.equalsIgnoreCase("start")) {
 					DataSetupHandler handler = new DataSetupHandler(config);
 					handler.dataSetup();
-					TestPlanDispatcherThread testPlanDispatcherThread = new TestPlanDispatcherThread(config, controlServer); 
+					TestPlanDispatcherThread testPlanDispatcherThread = new TestPlanDispatcherThread(
+							config, controlServer);
 					new Thread(testPlanDispatcherThread).start();
+				} else if (line.equalsIgnoreCase("clients")) {
+					Map<String, ClientCommunicationHandler> clientList = controlServer
+							.getClientCommunicationHandlerList();
+					for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
+							.entrySet()) {
+						logger.info("Client hostname : "
+								+ entry.getValue().getClientIdentifier());
+					}
+				} else if(line.contains("halt")) {
+					String[] tokens = line.split("\\s+");
+					HaltExecutionMsg msg = new HaltExecutionMsg();
+					msg.setHalt(true);
+					if(tokens.length >=1 ) {
+						StringBuffer bf = new StringBuffer();
+						for(int i=1; i < tokens.length; i++) {
+							bf.append(tokens[i] +" ");
+						}
+						msg.setReason(bf.toString());	
+					}
+					Map<String, ClientCommunicationHandler> clientList = controlServer
+							.getClientCommunicationHandlerList();
+					for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
+							.entrySet()) {
+						entry.getValue().writeMessage(msg);
+					}
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 		}
 	}
 
