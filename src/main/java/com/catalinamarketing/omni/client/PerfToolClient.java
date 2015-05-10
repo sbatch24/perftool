@@ -50,7 +50,13 @@ public class PerfToolClient {
 							if(this.testPlanExecutor != null ) {
 								StatusMsg statusMsg = new StatusMsg();
 								statusMsg.setTestPlanVersion(testPlanExecutor.getTestPlan().getTestPlanVersion());
-								statusMsg.setExecutionStatus(testPlanExecutor.testPlanStatus());
+								statusMsg.setExecutionStatus(testPlanExecutor.testPlanStatus());	
+								out.println(MessageMarshaller.marshalMessage(statusMsg).toString());
+								out.flush();
+							}else {
+								StatusMsg statusMsg = new StatusMsg();
+								statusMsg.setTestPlanVersion("NA");
+								statusMsg.setExecutionStatus("Test plan not received yet.");
 								out.println(MessageMarshaller.marshalMessage(statusMsg).toString());
 								out.flush();
 							}

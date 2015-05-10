@@ -32,6 +32,7 @@ public class StatusMsg extends Message {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("\nStatus - "+this.executionStatus);
 		buffer.append("\nTest plan version - "+ this.testPlanVersion);
+		buffer.append("Client (hostName) - " + this.userName);
 		return buffer.toString();
 	}
 

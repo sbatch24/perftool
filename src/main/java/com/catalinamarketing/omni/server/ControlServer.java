@@ -42,7 +42,7 @@ public class ControlServer {
 	 * @param identifier
 	 */
 	public void removeClientCommunicationHandler(String identifier) {
-		logger.warn("Client " );
+		logger.warn("Client " + identifier + " disconnected" );
 		clientCommunicationHandlerList.remove(identifier);
 	}
 	

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.protocol.message.HaltExecutionMsg;
+import com.catalinamarketing.omni.protocol.message.StatusMsg;
 
 /**
  * Class reads commands from the console and executes them.
@@ -64,10 +65,13 @@ public class ConsoleReaderThread implements Runnable {
 				} else if (line.equalsIgnoreCase("clients")) {
 					Map<String, ClientCommunicationHandler> clientList = controlServer
 							.getClientCommunicationHandlerList();
+					
+					StatusMsg statusMessage = new StatusMsg();
 					for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
 							.entrySet()) {
-						logger.info("Client hostname : "
-								+ entry.getValue().getClientIdentifier());
+						logger.info("Requestion status for client hostname : "
+								+ entry.getValue().getHostName() + " client Id : " + entry.getValue().getClientIdentifier());
+						entry.getValue().writeMessage(statusMessage);
 					}
 				} else if(line.contains("halt")) {
 					String[] tokens = line.split("\\s+");

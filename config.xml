@@ -57,8 +57,8 @@
 				<type>high</type>
 				<targetingThreadCount>100</targetingThreadCount>
 				<cappingThreadCount>20</cappingThreadCount>
-				<eventReportFrequency>5</eventReportFrequency>
-				<capReportFrequency>20</capReportFrequency>
+				<eventReportFrequency>50</eventReportFrequency>
+				<capReportFrequency>200</capReportFrequency>
 				<targetingCallCount>500</targetingCallCount>
 				<cappingCallCount>100</cappingCallCount>
 			</simulation>

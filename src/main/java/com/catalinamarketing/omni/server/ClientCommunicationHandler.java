@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +24,13 @@ public class ClientCommunicationHandler implements Runnable {
 	private final Socket socket;
 	private final ControlServer controlServer;
 	private final String clientIdentifier;
+	private final String hostName;
 
 	public ClientCommunicationHandler(Socket socket, ControlServer controlServer) {
 		this.socket = socket;
 		this.controlServer = controlServer;
-		this.clientIdentifier = socket.getInetAddress().getHostName();
+		this.clientIdentifier = UUID.randomUUID().toString();
+		this.hostName  = socket.getInetAddress().getHostName();
 		mutex = new Object();
 	}
 	
@@ -72,6 +75,7 @@ public class ClientCommunicationHandler implements Runnable {
 	public void processMessage(Message message) {
 		synchronized (mutex) {
 			if(message instanceof HandShakeMsg) {
+				logger.info(message.printMessage());
 				HandShakeMsg msg = new HandShakeMsg();
 				msg.setInitializationMessage("Test plan will be delivered by the server.");
 				writeMessage(msg);
@@ -85,13 +89,16 @@ public class ClientCommunicationHandler implements Runnable {
 	@Override
 	public void run() {
 		try {
+			BufferedReader input =
+	                new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			while(true) {
-				BufferedReader input =
-		                new BufferedReader(new InputStreamReader(socket.getInputStream()));
 		        String incomingMessage = input.readLine();
 		        if(incomingMessage != null) {
 		        	Message message = marshalIncomingMessage(incomingMessage);
 			        processMessage(message);	
+		        }else {
+		        	controlServer.removeClientCommunicationHandler(clientIdentifier);
+		        	break;
 		        }
 			}
 		}catch(Exception ex) {
@@ -109,5 +116,9 @@ public class ClientCommunicationHandler implements Runnable {
 
 	public String getClientIdentifier() {
 		return clientIdentifier;
+	}
+
+	public String getHostName() {
+		return hostName;
 	}
 }
