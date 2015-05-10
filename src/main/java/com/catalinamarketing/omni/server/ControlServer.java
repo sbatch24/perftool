@@ -70,6 +70,8 @@ public class ControlServer {
 		try {
 			serverSocket = new ServerSocket(portNumber);
 			logger.info("Listening on port "+ portNumber);
+			ConsoleReaderThread consoleReader = new ConsoleReaderThread(this);
+			new Thread(consoleReader).start();
 	        try {
 	            while (true) {
 	                Socket socket = serverSocket.accept();

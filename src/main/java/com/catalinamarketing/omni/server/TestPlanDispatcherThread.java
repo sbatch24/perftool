@@ -43,7 +43,6 @@ public class TestPlanDispatcherThread implements Runnable {
 	
 	@Override
 	public void run() {
-		//Sleep for standby amount of seconds.
 		try {
 			Calendar calendar = Calendar.getInstance(); // gets a calendar using the default time zone and locale.
 			startPollDateTime = calendar.getTime().toString();
