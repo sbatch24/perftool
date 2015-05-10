@@ -52,4 +52,20 @@ public class ProgramInfo {
 	public void setAwards(List<AwardInfo> awards) {
 		this.awards = awards;
 	}
+	
+	/**
+	 * Returns the channelMediaId under an award.
+	 * @param awardNumber
+	 * @return String
+	 */
+	public String getChannelMediaId(String awardNumber) {
+		String channelMediaId = null;
+		for(AwardInfo award : awards) {
+			if(award.getAwardID().equalsIgnoreCase(awardNumber)) {
+				channelMediaId = award.getChannelMediaId();
+				break;
+			}
+		}
+		return channelMediaId;
+	}
 }

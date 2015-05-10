@@ -38,4 +38,20 @@ public class PmrSetupMessage {
 		}
 		this.programs.add(program);
 	}
+	
+	/**
+	 * Find the channelMediaId for an Award.
+	 * @param awardNumber
+	 * @return the channelMediaId. null if cannot find channelId.
+	 */
+	public String getChannelMediaId(String awardNumber) {
+		String channelMedia = null;
+		for(ProgramInfo info : programs) {
+			channelMedia = info.getChannelMediaId(awardNumber);
+			if(channelMedia != null) {
+				break;
+			}
+		}
+		return channelMedia;
+	}
 }

@@ -18,6 +18,7 @@ public class Server {
 	@XmlElement(defaultValue="true")
 	private boolean publishData = true;
 	private String simulationType;
+	private String testPlanVersion;
 
 	@XmlElementWrapper(name="simulations")
 	@XmlElement(name="simulation")
@@ -85,5 +86,13 @@ public class Server {
 
 	public void setSimulationType(String simulationType) {
 		this.simulationType = simulationType;
+	}
+
+	public String getTestPlanVersion() {
+		return testPlanVersion;
+	}
+
+	public void setTestPlanVersion(String testPlanVersion) {
+		this.testPlanVersion = testPlanVersion;
 	}
 }

@@ -2,16 +2,12 @@ package com.catalinamarketing.omni;
 
 
 import java.io.FileReader;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.catalinamarketing.omni.client.PerfToolClient;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.pmr.setup.AwardInfo;
@@ -86,7 +82,7 @@ public class PerfToolApplication  {
 				Unmarshaller um = context.createUnmarshaller();
 			    Config config = (Config) um.unmarshal(new FileReader("config.xml"));
 			    ControlServer cs = new ControlServer(config);
-				cs.runServer();
+				cs.runServer(config.getServerPort());
 			}catch(Exception e) {
 				e.printStackTrace();
 			}

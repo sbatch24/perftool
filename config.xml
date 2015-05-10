@@ -7,7 +7,7 @@
 				<targetingUrl></targetingUrl>
 			</omniConfig>
 			<queueInfo>
-				<host>stpsrabmqv01</host>
+				<hostName>stpsrabmqv01</hostName>
 				<port>15672</port>
 				<userName>guest</userName>
 				<password>guest</password>
@@ -27,7 +27,7 @@
 				<targetingUrl></targetingUrl>
 			</omniConfig>
 			<queueInfo>
-				<host>stptrabmqv01</host>
+				<hostName>stptrabmqv01</hostName>
 				<port>15672</port>
 				<userName>guest</userName>
 				<password>guest</password>
@@ -51,15 +51,16 @@
 		<environment>sqa</environment>
 		<simulationType>high</simulationType>
 		<publishData>false</publishData>
+		<testPlanVersion></testPlanVersion>
 		<simulations>
 			<simulation>
 				<type>high</type>
 				<targetingThreadCount>100</targetingThreadCount>
-				<cappingThreadCount>10</cappingThreadCount>
+				<cappingThreadCount>20</cappingThreadCount>
 				<eventReportFrequency>5</eventReportFrequency>
-				<capReportFrequency>200</capReportFrequency>
-				<targetingCallCount>4000</targetingCallCount>
-				<cappingCallCount>4000</cappingCallCount>
+				<capReportFrequency>20</capReportFrequency>
+				<targetingCallCount>500</targetingCallCount>
+				<cappingCallCount>100</cappingCallCount>
 			</simulation>
 			<simulation>
 				<type>medium</type>
@@ -90,54 +91,54 @@
 					<billNo>12345</billNo>
 					<contractId>1111</contractId>
 					<programId>2222</programId>
-					<cap>2</cap>
+					<cap>10000</cap>
 					<variance>2.0</variance>
 				</programSetup>
 				<programSetup>
 					<billNo>54321</billNo>
 					<contractId>3333</contractId>
 					<programId>4444</programId>
-					<cap>40000</cap>
+					<cap>10000</cap>
 					<variance>2</variance>
 				</programSetup>
 			</programSetupList>
 			<promotionSetupList>
 				<promotionSetup>
-					<awardRange>60000-60003</awardRange>
-					<mediaIdRange>6000-6003</mediaIdRange>
-					<cap></cap>
+					<awardRange>60012-60015</awardRange>
+					<mediaIdRange>6012-6015</mediaIdRange>
+					<cap>60000</cap>
 					<variance>2</variance>
-					<mediaCap>60000</mediaCap>
-					<mediaVariance></mediaVariance>
+					<mediaCap>0</mediaCap>
+					<mediaVariance>0</mediaVariance>
 					<channelType>LOAD_TO_CARD</channelType>
 					<cardRangeId>80001</cardRangeId>
 					<consumerCap>3</consumerCap>
 					<billNo>12345</billNo>
-					<startDate>2014-03-21</startDate>
-					<endDate>2014-04-21</endDate>
+					<startDate>2015-05-06T00:00:00-05:00</startDate>
+					<endDate>2016-12-28T00:00:00-05:00</endDate>
 				</promotionSetup>
 				<promotionSetup>
-					<awardRange>70000-70010</awardRange>
-					<mediaIdRange>7000-7010</mediaIdRange>
+					<awardRange>70012-70015</awardRange>
+					<mediaIdRange>7012-7015</mediaIdRange>
 					<cap>70000</cap>
 					<variance>2</variance>
-					<mediaCap>60000</mediaCap>
-					<mediaVariance></mediaVariance>
+					<mediaCap>0</mediaCap>
+					<mediaVariance>0</mediaVariance>
 					<channelType>LOAD_TO_CARD</channelType>
 					<cardRangeId>70001</cardRangeId>
 					<consumerCap>7</consumerCap>
 					<billNo>54321</billNo>
-					<startDate>2014-03-21</startDate>
-					<endDate>2014-04-21</endDate>
+					<startDate>2015-05-06T00:00:00-05:00</startDate>
+					<endDate>2016-12-28T00:00:00-05:00</endDate>
 				</promotionSetup>
 			</promotionSetupList>
 			<cardSetupList>
 				<cardSetup>
-					<cardRange>100-200</cardRange>
+					<cardRange>50000-50005</cardRange>
 					<cardRangeId>70001</cardRangeId>
 				</cardSetup>
 				<cardSetup>
-					<cardRange>201-400</cardRange>
+					<cardRange>60000-60005</cardRange>
 					<cardRangeId>80001</cardRangeId>
 				</cardSetup>
 			</cardSetupList>

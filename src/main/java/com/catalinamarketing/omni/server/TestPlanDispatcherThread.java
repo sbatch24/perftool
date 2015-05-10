@@ -1,14 +1,12 @@
 package com.catalinamarketing.omni.server;
 
-import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
+import java.util.Map;
+import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,11 +31,14 @@ public class TestPlanDispatcherThread implements Runnable {
 	private boolean standbyExpired;
 	private String startPollDateTime;
 	private String endPollDateTime;
-	
+	private List<List<BigInteger>> cardRangeList;
+	private Random RANDOM = new Random();
+
 	public TestPlanDispatcherThread(Config config, ControlServer cs) {
 		this.config = config;
 		this.controlServer = cs;
 		this.standbyExpired = false;
+		this.cardRangeList = new ArrayList<List<BigInteger>>();
 	}
 	
 	@Override
@@ -52,15 +53,14 @@ public class TestPlanDispatcherThread implements Runnable {
 			// TODO Formulate the plan  and pass the data to the clients listening.
 			List<TestPlanMsg> testPlanMsgList = formulateTestPlanSetup();
 			logger.info("Server will now dispatch test plan to clients available in the pool.");
-			List<ClientCommunicationHandler> clientList = controlServer.getClientCommunicationHandlerList();
+			Map<String,ClientCommunicationHandler> clientList = controlServer.getClientCommunicationHandlerList();
 			int clientHandlerCount = 0;
-			for(ClientCommunicationHandler handler : clientList) {
-				handler.writeMessage(testPlanMsgList.get(clientHandlerCount));
+			for(Map.Entry<String, ClientCommunicationHandler> entry : clientList.entrySet()) {
+				entry.getValue().writeMessage(testPlanMsgList.get(clientHandlerCount));
 				clientHandlerCount++;
 			}
 			if(clientHandlerCount == 0) {
-				logger.error("No clients available. Server will exit since no client available to execute test plan.");
-				controlServer.shutdown();
+				logger.warn("No clients available. Server will exit since no client available to execute test plan.");
 			}
 		} catch (Exception ex) {
 			logger.error("Problem occured in TestPlanDispatcherThread. Error: " + ex.getMessage());
@@ -78,26 +78,22 @@ public class TestPlanDispatcherThread implements Runnable {
 	
 	public List<TestPlanMsg> formulateTestPlanSetup() {
 		List<TestPlanMsg> msgList = new ArrayList<TestPlanMsg>();
+		prepareCardRange();
 		int cidCount =  totalNumberOfIdsInPlay(config.getServer().getSetup().getCardSetup());
 		logger.info("Total number of customer Id's involved in this test are - " + cidCount);
-		if(controlServer.availableExecutorCount() > 0) {
-			List<BigInteger> cidList = createCidList();
-			int cidDistributionCount = cidList.size() / controlServer.availableExecutorCount();
-			for(int startIndex = 0;startIndex < cidList.size() ; startIndex += cidDistributionCount) {
-				List<BigInteger> cardRange = new ArrayList<BigInteger>();
-				cardRange.add(cidList.get(startIndex));
-				
-				if(((cidList.size()) - (startIndex+cidDistributionCount)) < cidDistributionCount ) {
-					cardRange.add(cidList.get(cidList.size()-1));
-					startIndex += (cidList.size() - (startIndex + cidDistributionCount));
-				} else {
-					cardRange.add(cidList.get(startIndex+cidDistributionCount));
-				}
+		int clientCount = controlServer.availableExecutorCount();
+		boolean randomCardRangeSelection = false;
+		if(clientCount < cardRangeList.size()) {
+			randomCardRangeSelection = true;
+		}
+		
+		if(clientCount > 0) {
+			for(int i=0; i < clientCount; i++) {
 				TestPlanMsg msg = new TestPlanMsg();
 				msg.setCappingCallCount(config.getConfiguredSimulation().getCappingCallCount());
 				msg.setCappingThreadCount(config.getConfiguredSimulation().getCappingThreadCount());
 				msg.setCapReportFrequency(config.getConfiguredSimulation().getCapReportFrequency());
-				msg.setCardRangeList(cardRange);
+				msg.setCardRangeList(getCardRange(randomCardRangeSelection, i));
 				msg.setEventReportFrequency(config.getConfiguredSimulation().getEventReportFrequency());
 				msg.setNetworkId(config.getServer().getSetup().getRetailerInfo().getNetworkId());
 				msg.setTargetingCallCount(config.getConfiguredSimulation().getTargetingCallCount());
@@ -105,8 +101,22 @@ public class TestPlanDispatcherThread implements Runnable {
 				msg.setUserName(System.getProperty("user.name"));
 				msgList.add(msg);
 			}
-		} 
+		}
 		return msgList;
+	}
+	
+	/**
+	 * Returns  the card range to be used for test plan execution.
+	 * @param randomCardRangeSelection
+	 * @param currentIndex
+	 * @return cardRange
+	 */
+	public List<BigInteger> getCardRange(boolean randomCardRangeSelection, int currentIndex) {
+		if(randomCardRangeSelection) {
+			return cardRangeList.get(RANDOM.nextInt(cardRangeList.size()));
+		}else {
+			return cardRangeList.get(currentIndex % cardRangeList.size());
+		}
 	}
 	
 	/**
@@ -141,6 +151,21 @@ public class TestPlanDispatcherThread implements Runnable {
 		}
 		return count;
 	}
+	
+	/**
+	 * Prepare card range list
+	 */
+	public void prepareCardRange() {
+		for(CardSetup cardSetup : config.getCardSetupList()) {
+			BigInteger firstId = new BigInteger(cardSetup.cardRange().get(0));
+			BigInteger lastId = new BigInteger(cardSetup.cardRange().get(1));
+			List<BigInteger> cardRangeIds = new ArrayList<BigInteger>();
+			cardRangeIds.add(firstId);
+			cardRangeIds.add(lastId);
+			cardRangeList.add(cardRangeIds);
+		}
+		
+	}
 
 	public String getStartPollDateTime() {
 		return startPollDateTime;
@@ -157,5 +182,4 @@ public class TestPlanDispatcherThread implements Runnable {
 	public void setEndPollDateTime(String endPollDateTime) {
 		this.endPollDateTime = endPollDateTime;
 	}
-
 }

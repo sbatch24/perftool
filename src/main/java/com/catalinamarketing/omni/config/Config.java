@@ -21,6 +21,14 @@ public class Config {
 	public List<Environment> getEnvironments() {
 		return environment;
 	}
+	
+	/**
+	 * Returns the server port number.
+	 * @return port Number
+	 */
+	public int getServerPort() {
+		return getServer().getPort();
+	}
 
 	/**
 	 * Returns the qualified environment based on the env identifier passed in.

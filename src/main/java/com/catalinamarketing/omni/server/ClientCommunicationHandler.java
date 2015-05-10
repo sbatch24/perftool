@@ -4,25 +4,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.Socket;
 import java.util.Calendar;
-import java.util.Date;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.protocol.message.HandShakeMsg;
 import com.catalinamarketing.omni.protocol.message.Message;
 import com.catalinamarketing.omni.protocol.message.ShutdownMsg;
-import com.catalinamarketing.omni.protocol.message.StandByPeriodExpired;
-import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.MessageMarshaller;
 
 public class ClientCommunicationHandler implements Runnable {
@@ -33,11 +23,12 @@ public class ClientCommunicationHandler implements Runnable {
 	
 	private final Socket socket;
 	private final ControlServer controlServer;
-	private final Config config;
-	public ClientCommunicationHandler(Socket socket, ControlServer cs, Config config) {
+	private final String clientIdentifier;
+
+	public ClientCommunicationHandler(Socket socket, ControlServer controlServer) {
 		this.socket = socket;
-		this.controlServer = cs;
-		this.config = config;
+		this.controlServer = controlServer;
+		this.clientIdentifier = socket.getInetAddress().getHostName();
 		mutex = new Object();
 	}
 	
@@ -48,15 +39,6 @@ public class ClientCommunicationHandler implements Runnable {
 	public  void  writeMessage(Message message) {
 		synchronized (mutex) {
 			try{
-				/*StringWriter writer = new StringWriter();
-				JAXBContext context = JAXBContext.newInstance(TestPlanMsg.class, HandShakeMsg.class,
-										StandByPeriodExpired.class, ShutdownMsg.class);
-				Marshaller marshaller = context.createMarshaller();
-				marshaller.marshal(message, writer);
-				if(this.writer == null) {
-					this.writer  = new PrintWriter(socket.getOutputStream(), true);
-				}
-				System.out.println("Message to be sent " + writer.toString());*/
 				if(this.writer == null) {
 					this.writer  = new PrintWriter(socket.getOutputStream(), true);
 				}
@@ -92,9 +74,9 @@ public class ClientCommunicationHandler implements Runnable {
 		synchronized (mutex) {
 			if(message instanceof HandShakeMsg) {
 				Calendar calendar = Calendar.getInstance();
-				Date et = new Date(controlServer.standbyStartTime());
-				calendar.setTime(et);
-				calendar.add(Calendar.SECOND, config.getServer().getStandby());
+				//Date et = new Date(controlServer.standbyStartTime());
+				//calendar.setTime(et);
+				//calendar.add(Calendar.SECOND, config.getServer().getStandby());
 				HandShakeMsg msg = new HandShakeMsg();
 				msg.setInitializationMessage("Server waiting for clients to join poll. Will distribute test plan at " + calendar.getTime().toString());
 				writeMessage(msg);
@@ -114,8 +96,6 @@ public class ClientCommunicationHandler implements Runnable {
 		        if(incomingMessage != null) {
 		        	Message message = marshalIncomingMessage(incomingMessage);
 			        processMessage(message);	
-		        }else {
-		        	System.out.println("Server " + incomingMessage);
 		        }
 			}
 		}catch(Exception ex) {
@@ -124,9 +104,14 @@ public class ClientCommunicationHandler implements Runnable {
 		}finally {
 			try {
 				socket.close();
+				controlServer.removeClientCommunicationHandler(clientIdentifier);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public String getClientIdentifier() {
+		return clientIdentifier;
 	}
 }
