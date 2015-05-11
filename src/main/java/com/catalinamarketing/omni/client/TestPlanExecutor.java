@@ -61,16 +61,18 @@ public class TestPlanExecutor implements Runnable {
 				logger.info("ThreadGroupIdentifier : " + threadGroupIdentifier);
 				if(!mediaUsageRepository.isMediaCounterRepositoryCreated(threadGroupIdentifier)) {
 					mediaUsageRepository.createMediaRepository(threadGroupIdentifier);
-					ApiExecutor api = new CappingApiExecutor(count, testPlan.getCapReportFrequency(), cappingCallCountPerThread, 
-							threadGroupIdentifier, finishedSignal, mediaUsageRepository,responseRepository);
+					ApiExecutor api = new CappingApiExecutor(count, cappingCallCountPerThread, 
+							threadGroupIdentifier, finishedSignal, mediaUsageRepository,
+							responseRepository, testPlan);
 					new Thread(api).start();
 					apiExecutorList.add(api);
 				}
 			}
 			
 			logger.info("Targeting thread " + threadGroupIdentifier);
-			ApiExecutor api = new TargetingApiExecutor(count,testPlan.getEventReportFrequency(), 
-					targetingCallCountPerThread, threadGroupIdentifier,finishedSignal, mediaUsageRepository,responseRepository);
+			ApiExecutor api = new TargetingApiExecutor(count, 
+					targetingCallCountPerThread, threadGroupIdentifier,finishedSignal, mediaUsageRepository,responseRepository,
+					testPlan);
 			new Thread(api).start();
 			apiExecutorList.add(api);
 		}

@@ -6,10 +6,22 @@ import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.catalinamarketing.omni.api.CustomerMediaEvent;
+import com.catalinamarketing.omni.api.DirectDeposit;
+import com.catalinamarketing.omni.api.DirectDepositStatus;
+import com.catalinamarketing.omni.api.MediaEvents;
+import com.catalinamarketing.omni.api.TargetedMediaResponse;
 import com.catalinamarketing.omni.config.Config;
+import com.google.gson.Gson;
 
 /**
  * Control server is a class that manages setup for the performance tool and
@@ -61,7 +73,6 @@ public class ControlServer {
 		try {
 			serverSocket.close();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

@@ -3,8 +3,9 @@
 		<environment>
 			<type>uat</type>
 			<omniConfig>
-				<cappingUrl></cappingUrl>
-				<targetingUrl></targetingUrl>
+				<cappingUrl>http://smeplv01:8080/mts/res/gc/mediausage/LOAD_TO_CARD/%s</cappingUrl>
+				<targetingUrl>http://smeplv01:8080/omni-mep/targeting/v1/media/countrycode/USA/retailerid/%s/cid/%s</targetingUrl>
+				<eventsUrl>http://smeplv01:8080/omni-mep/events/v1/media/countrycode/USA/retailerid/%s</eventsUrl>
 			</omniConfig>
 			<queueInfo>
 				<hostName>stpsrabmqv01</hostName>
@@ -23,8 +24,9 @@
 		<environment>
 			<type>sqa</type>
 			<omniConfig>
-				<cappingUrl></cappingUrl>
-				<targetingUrl></targetingUrl>
+				<cappingUrl>http://qmeplv01:8080/mts/res/gc/mediausage/LOAD_TO_CARD/%s</cappingUrl>
+				<targetingUrl>http://qmeplv01:8080/omni-mep/targeting/v1/media/countrycode/USA/retailerid/%s/cid/%s</targetingUrl>
+				<eventsUrl>http://qmeplv01:8080/omni-mep/events/v1/media/countrycode/USA/retailerid/%s</eventsUrl>
 			</omniConfig>
 			<queueInfo>
 				<hostName>stptrabmqv01</hostName>
@@ -42,15 +44,15 @@
 		</environment>
 	</environments>
 	<client>
-		<port>12000</port>
+		<port>8000</port>
 		<remoteHost>localhost</remoteHost>
 	</client>
 	<server>
-		<port>12000</port>
+		<port>8000</port>
 		<standby>10</standby>
 		<environment>sqa</environment>
 		<simulationType>high</simulationType>
-		<publishData>false</publishData>
+		<publishData>true</publishData>
 		<testPlanVersion>amit</testPlanVersion>
 		<simulations>
 			<simulation>
@@ -108,8 +110,8 @@
 					<mediaIdRange>6012-6015</mediaIdRange>
 					<cap>60000</cap>
 					<variance>2</variance>
-					<mediaCap>0</mediaCap>
-					<mediaVariance>0</mediaVariance>
+					<!-- <mediaCap>0</mediaCap>
+					<mediaVariance>0</mediaVariance> -->
 					<channelType>LOAD_TO_CARD</channelType>
 					<cardRangeId>80001</cardRangeId>
 					<consumerCap>3</consumerCap>
@@ -120,10 +122,8 @@
 				<promotionSetup>
 					<awardRange>70012-70015</awardRange>
 					<mediaIdRange>7012-7015</mediaIdRange>
-					<cap>70000</cap>
-					<variance>2</variance>
-					<mediaCap>0</mediaCap>
-					<mediaVariance>0</mediaVariance>
+					<mediaCap>100</mediaCap>
+					<mediaVariance>1</mediaVariance>
 					<channelType>LOAD_TO_CARD</channelType>
 					<cardRangeId>70001</cardRangeId>
 					<consumerCap>7</consumerCap>

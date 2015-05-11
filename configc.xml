@@ -1,6 +1,6 @@
 <config>
 	<client>
-		<port>12000</port>
+		<port>8000</port>
 		<remoteHost>localhost</remoteHost>
 	</client>
 </config>

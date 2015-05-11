@@ -25,6 +25,7 @@ public class ClientCommunicationHandler implements Runnable {
 	private final ControlServer controlServer;
 	private final String clientIdentifier;
 	private final String hostName;
+	private String userName;
 
 	public ClientCommunicationHandler(Socket socket, ControlServer controlServer) {
 		this.socket = socket;
@@ -75,6 +76,7 @@ public class ClientCommunicationHandler implements Runnable {
 	public void processMessage(Message message) {
 		synchronized (mutex) {
 			if(message instanceof HandShakeMsg) {
+				setUserName(message.getUserName());
 				logger.info(message.printMessage());
 				HandShakeMsg msg = new HandShakeMsg();
 				msg.setInitializationMessage("Test plan will be delivered by the server.");
@@ -120,5 +122,13 @@ public class ClientCommunicationHandler implements Runnable {
 
 	public String getHostName() {
 		return hostName;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 }

@@ -1,45 +1,47 @@
 package com.catalinamarketing.omni.client;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.HttpResponseRepository;
 import com.catalinamarketing.omni.util.MediaUsageRepository;
+import com.google.gson.Gson;
 
 
 public class CappingApiExecutor  extends ApiExecutor {
 	
 	final static Logger logger = LoggerFactory.getLogger(CappingApiExecutor.class);
-
 	private final int reportEventDelay;
 	private final String threadGroupIdentifier;
 	private MediaUsageRepository mediaUsageRepository;
 	private CountDownLatch finishedSignal;
 	private final int counter;
-	//TODO remove this
-	private static final List<Response.Status> VALUES =
-		    Collections.unmodifiableList(Arrays.asList(Response.Status.values()));
-	private static final int SIZE = VALUES.size();
-	private static final Random RANDOM = new Random();
+	private TestPlanMsg testPlan;
 	
-	public CappingApiExecutor(int threadIndex ,int reportEventDelay,int callCount, 
+	public CappingApiExecutor(int threadIndex ,int callCount, 
 			String threadGroupIdentifier, CountDownLatch finishedSignal, 
-			MediaUsageRepository mediaUsageRepository, HttpResponseRepository responseRepository) {
-		super(threadIndex, "CappingApi", responseRepository);
-		this.reportEventDelay =  reportEventDelay;
+			MediaUsageRepository mediaUsageRepository, 
+			HttpResponseRepository responseRepository, TestPlanMsg testPlan) {
+		super(threadIndex, responseRepository);
+		this.reportEventDelay =  testPlan.getCapReportFrequency();
 		this.threadGroupIdentifier = threadGroupIdentifier;
 		this.mediaUsageRepository = mediaUsageRepository;
 		this.finishedSignal = finishedSignal;
 		this.counter = callCount;
+		this.testPlan = testPlan;
 	}
 	
 	@Override
@@ -48,16 +50,30 @@ public class CappingApiExecutor  extends ApiExecutor {
 		try {
 			while(count < counter && !halted()) {
 				try {
-					//logger.info("Making capping usage call");
+					Gson gson = new Gson();
 					Thread.sleep(reportEventDelay*1000);
-					incrementResponseCounter(VALUES.get(RANDOM.nextInt(SIZE)));
+					List<UsageReport> usageReportList = new ArrayList<UsageReport>();
 					Map<String, Integer>channelMediaCapList = mediaUsageRepository.getMediaCounter(threadGroupIdentifier);
 					for (Map.Entry<String, Integer> entry : channelMediaCapList.entrySet()) {
-					    String key = entry.getKey();
-					    Integer value = entry.getValue();
-					    logger.info("Cap reported ChannelMedia Id " + key + " cap " + value.toString());
+					    String channelMediaId = entry.getKey();
+					    Integer usedCounter = entry.getValue();
+					    UsageReport usageReport = new UsageReport();
+					    usageReport.setChannelMediaID(channelMediaId);
+					    usageReport.setUsed(usedCounter);
+					    usageReportList.add(usageReport);
+					    
 					}
-					mediaUsageRepository.resetMediaCounters(threadGroupIdentifier);
+					Client client = ClientBuilder.newClient();
+					Response response = client.target(String.format(this.testPlan.getEventsApiUrl(), testPlan.getRetailerId()))
+		            .queryParam("channel", "web")
+		            .request()
+		            .accept(MediaType.APPLICATION_JSON)
+		            .header("Content-Type", MediaType.APPLICATION_JSON)
+		            .put(Entity.entity(gson.toJson(""), MediaType.APPLICATION_JSON));
+					incrementResponseCounter("ReportUsage", Status.fromStatusCode(response.getStatus()));
+					if(response.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()) {
+						mediaUsageRepository.resetMediaCounters(threadGroupIdentifier);
+					}
 					count++;
 				}catch(Exception ex) {
 					logger.error("Problem occured in Capping API Executor thread. Error: "+ ex.getMessage());

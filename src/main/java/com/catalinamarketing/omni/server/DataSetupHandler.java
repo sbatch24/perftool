@@ -212,7 +212,6 @@ public class DataSetupHandler {
 	 */
 	private void initializePmrDataSetup() {
 		logger.info("Initializing PMR data");
-	//	pmrSetupMessageList = new ArrayList<PmrSetupMessage>();
 		pmrDataOrganizer = new PmrDataOrganizer();
 		List<PromotionSetup> promotionSetupList = config.getServer().getSetup()
 				.getPromotionSetup();
@@ -222,7 +221,7 @@ public class DataSetupHandler {
 			if (programSetup != null) {
 				PmrSetupMessage pmrSetupMessage = new PmrSetupMessage();
 				pmrSetupMessage.setLocale("US");
-				pmrSetupMessage.setSetupSystemID("MXP");
+				pmrSetupMessage.setSetupSystemID("MXP-US");
 				ProgramInfo programSetupMessage = new ProgramInfo();
 				programSetupMessage.setProgramID(programSetup.getProgramId());
 				programSetupMessage.setContractID(programSetup.getContractId());
@@ -259,6 +258,7 @@ public class DataSetupHandler {
 			channelMediaInfo.setChannelMediaID(mediaInfo.getMediaID());
 			channelMediaInfo.setChannelType(promotionSetup.getChannelType());
 			channelMediaInfo.setStartDate(promotionSetup.getStartDate());
+			channelMediaInfo.setEndDate(promotionSetup.getEndDate());
 			mediaInfo.addChannelMedia(channelMediaInfo);
 			awardSetup.addMedia(mediaInfo);
 			awardSetupList.add(awardSetup);

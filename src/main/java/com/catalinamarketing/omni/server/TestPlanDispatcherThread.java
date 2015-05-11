@@ -6,10 +6,17 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.catalinamarketing.omni.config.CardSetup;
 import com.catalinamarketing.omni.config.Config;
+import com.catalinamarketing.omni.pmr.setup.AwardInfo;
+import com.catalinamarketing.omni.pmr.setup.PmrDataOrganizer;
+import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
+import com.catalinamarketing.omni.pmr.setup.ProgramInfo;
+import com.catalinamarketing.omni.protocol.message.AwardData;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 
 /**
@@ -25,12 +32,14 @@ public class TestPlanDispatcherThread implements Runnable {
 	
 	private final Config config;
 	private final ControlServer controlServer;
+	private final PmrDataOrganizer pmrDataOrganizer;
 	private List<List<BigInteger>> cardRangeList;
 	private Random RANDOM = new Random();
 
-	public TestPlanDispatcherThread(Config config, ControlServer cs) {
+	public TestPlanDispatcherThread(Config config, ControlServer cs, PmrDataOrganizer pmrDataOrganizer) {
 		this.config = config;
 		this.controlServer = cs;
+		this.pmrDataOrganizer = pmrDataOrganizer;
 		this.cardRangeList = new ArrayList<List<BigInteger>>();
 	}
 	
@@ -78,11 +87,24 @@ public class TestPlanDispatcherThread implements Runnable {
 				msg.setCapReportFrequency(config.getConfiguredSimulation().getCapReportFrequency());
 				msg.setCardRangeList(getCardRange(randomCardRangeSelection, i));
 				msg.setEventReportFrequency(config.getConfiguredSimulation().getEventReportFrequency());
-				msg.setNetworkId(config.getServer().getSetup().getRetailerInfo().getNetworkId());
+				msg.setRetailerId(config.getServer().getSetup().getRetailerInfo().getRetailerId());
 				msg.setTargetingCallCount(config.getConfiguredSimulation().getTargetingCallCount());
 				msg.setTargetingThreadCount(config.getConfiguredSimulation().getTargetingThreadCount());
 				msg.setTestPlanVersion(config.getServer().getTestPlanVersion());
+				msg.setTargetingApiUrl(config.getTargetingApiUrl());
+				msg.setCappingUsageApiUrl(config.getCappingApiUrl());
+				msg.setEventsApiUrl(config.getEventsApiUrl());
 				msg.setUserName(System.getProperty("user.name"));
+				for(PmrSetupMessage pmrSetupMessage : pmrDataOrganizer.getPmrSetupMessageList()) {
+					for(ProgramInfo programInfo :pmrSetupMessage.getPrograms()) {
+						for(AwardInfo awardInfo  : programInfo.getAwards()) {
+							AwardData awardData = new AwardData();
+							awardData.setAwardId(awardInfo.getAwardID());
+							awardData.setChannelMediaId(awardInfo.getChannelMediaId());
+							msg.addAwardData(awardData);
+						}
+					}
+				}
 				msgList.add(msg);
 			}
 		}

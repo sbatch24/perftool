@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.catalinamarketing.omni.config.Config;
+import com.catalinamarketing.omni.pmr.setup.PmrDataOrganizer;
 import com.catalinamarketing.omni.protocol.message.HaltExecutionMsg;
 import com.catalinamarketing.omni.protocol.message.StatusMsg;
 
@@ -59,8 +60,9 @@ public class ConsoleReaderThread implements Runnable {
 				} else if (line.equalsIgnoreCase("start")) {
 					DataSetupHandler handler = new DataSetupHandler(config);
 					handler.dataSetup();
+					PmrDataOrganizer pmrDataOrganizer = handler.getPmrDataOrganizer();
 					TestPlanDispatcherThread testPlanDispatcherThread = new TestPlanDispatcherThread(
-							config, controlServer);
+							config, controlServer, pmrDataOrganizer);
 					new Thread(testPlanDispatcherThread).start();
 				} else if (line.equalsIgnoreCase("clients")) {
 					Map<String, ClientCommunicationHandler> clientList = controlServer
@@ -70,7 +72,8 @@ public class ConsoleReaderThread implements Runnable {
 					for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
 							.entrySet()) {
 						logger.info("Requestion status for client hostname : "
-								+ entry.getValue().getHostName() + " client Id : " + entry.getValue().getClientIdentifier());
+								+ entry.getValue().getHostName() + " client Id : " + entry.getValue().getClientIdentifier()
+								+ " userName : " + entry.getValue().getUserName());
 						entry.getValue().writeMessage(statusMessage);
 					}
 				} else if(line.contains("halt")) {

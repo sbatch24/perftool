@@ -157,4 +157,16 @@ public class Config {
 	public List<CardSetup> getCardSetupList() {
 		return getServer().getSetup().getCardSetup();
 	}
+
+	public String getTargetingApiUrl() {
+		return getConfiguredEnvironment().getOmniConfig().getTargetingUrl();
+	}
+	
+	public String getCappingApiUrl() {
+		return getConfiguredEnvironment().getOmniConfig().getCappingUrl();
+	}
+	
+	public String getEventsApiUrl() {
+		return getConfiguredEnvironment().getOmniConfig().getEventsUrl();
+	}
 }

@@ -9,6 +9,7 @@ import javax.xml.bind.annotation.XmlType;
 public class OmniConfig {
 	private String cappingUrl;
 	private String targetingUrl;
+	private String eventsUrl;
 
 	public OmniConfig() {
 	}
@@ -27,5 +28,13 @@ public class OmniConfig {
 
 	public void setCappingUrl(String cappingUrl) {
 		this.cappingUrl = cappingUrl;
+	}
+
+	public String getEventsUrl() {
+		return eventsUrl;
+	}
+
+	public void setEventsUrl(String eventsUrl) {
+		this.eventsUrl = eventsUrl;
 	}
 }

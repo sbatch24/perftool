@@ -49,10 +49,10 @@ public class MediaUsageRepository {
 	 */
 	public void createMediaRepository(String threadGroupIdentifier) {
 		synchronized (mutex) {
-			MediaCounter counter = new MediaCounter();
 			if(repository.containsKey(threadGroupIdentifier)) {
 				logger.error("MediaCounter exists for threadGroupIdentifier " + threadGroupIdentifier);
 			} else{
+				MediaCounter counter = new MediaCounter();
 				repository.put(threadGroupIdentifier, counter);	
 			}
 		}
