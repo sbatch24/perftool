@@ -14,8 +14,6 @@ public class Server {
 	
 	private int port;
 	private String environment;
-	@XmlElement(defaultValue="true")
-	private boolean publishData = true;
 	private String simulationType;
 	private String testPlanVersion;
 
@@ -62,14 +60,6 @@ public class Server {
 
 	public void setEnvironment(String environment) {
 		this.environment = environment;
-	}
-
-	public boolean isSetupData() {
-		return publishData;
-	}
-
-	public void setSetupData(boolean setupData) {
-		this.publishData = setupData;
 	}
 
 	public String getSimulationType() {

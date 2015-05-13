@@ -4,8 +4,8 @@ package com.catalinamarketing.omni.pmr.setup;
 public class ChannelMediaInfo {
 	private String channelMediaID;
 	private String channelType;
-	private int cap;
-	private int variance;
+	private Integer cap;
+	private Integer variance;
 	private String startDate;
 	private String endDate;
 	
@@ -21,16 +21,16 @@ public class ChannelMediaInfo {
 	public void setChannelType(String channelType) {
 		this.channelType = channelType;
 	}
-	public int getCap() {
+	public Integer getCap() {
 		return cap;
 	}
-	public void setCap(int cap) {
+	public void setCap(Integer cap) {
 		this.cap = cap;
 	}
-	public int getVariance() {
+	public Integer getVariance() {
 		return variance;
 	}
-	public void setVariance(int variance) {
+	public void setVariance(Integer variance) {
 		this.variance = variance;
 	}
 	public String getStartDate() {

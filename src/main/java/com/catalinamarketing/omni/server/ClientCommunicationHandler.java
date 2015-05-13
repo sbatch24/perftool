@@ -58,13 +58,12 @@ public class ClientCommunicationHandler implements Runnable {
 	 * @param message
 	 * @return Message
 	 */
-	public Message marshalIncomingMessage(String data) {
+	private Message marshalIncomingMessage(String data) {
 		Message message = null;
 		try {
 			message = MessageMarshaller.unMarshalMessage(data);
 		}catch(Exception ex) {
 			logger.error("Problem unmarshalling message from client. Error: " + ex.getMessage());
-			ex.printStackTrace();
 		}
 		return message;
 	}

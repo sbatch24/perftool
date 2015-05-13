@@ -8,8 +8,16 @@ import javax.ws.rs.core.Response;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.Multiset;
 
+/**
+ * 
+ * @author achavan
+ *
+ */
 public class HttpResponseRepository {
 	private Object mutex;
+	/**
+	 * Map<ApiCallName, MultiSet<httpresponseCodes>>
+	 */
 	private Map<String,Multiset<Response.Status>> httpResponseCodes;
 	
 	

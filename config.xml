@@ -9,7 +9,7 @@
 			</omniConfig>
 			<queueInfo>
 				<hostName>stpsrabmqv01</hostName>
-				<port>15672</port>
+				<port>5672</port>
 				<userName>guest</userName>
 				<password>guest</password>
 				<queueName>occ.setup.uat</queueName>
@@ -17,8 +17,7 @@
 			<dmpConfig>
 				<userName>catalyst</userName>
 				<password>lm33716</password>
-				<dmpUrl>https://uat.data.personalization.catalinamarketing.com/dmp/rest/profiles/%s/wallet
-				</dmpUrl>
+				<dmpUrl>https://uat.data.personalization.catalinamarketing.com/dmp/rest/profiles/%s/wallet</dmpUrl>
 			</dmpConfig>
 		</environment>
 		<environment>
@@ -30,7 +29,7 @@
 			</omniConfig>
 			<queueInfo>
 				<hostName>stptrabmqv01</hostName>
-				<port>15672</port>
+				<port>5672</port>
 				<userName>guest</userName>
 				<password>guest</password>
 				<queueName>occ.setup.sqa</queueName>
@@ -38,30 +37,28 @@
 			<dmpConfig>
 				<userName>catalyst</userName>
 				<password>lm33716</password>
-				<dmpUrl>https://sqa.data.personalization.catalinamarketing.com/dmp/rest/profiles/%s/wallet
-				</dmpUrl>
+				<dmpUrl>https://sqa.data.personalization.catalinamarketing.com/dmp/rest/profiles/%s/wallet</dmpUrl>
 			</dmpConfig>
 		</environment>
 	</environments>
 	<client>
-		<port>8000</port>
+		<port>10000</port>
 		<remoteHost>localhost</remoteHost>
 	</client>
 	<server>
-		<port>8000</port>
+		<port>10000</port>
 		<standby>10</standby>
-		<environment>sqa</environment>
+		<environment>uat</environment>
 		<simulationType>high</simulationType>
-		<publishData>true</publishData>
 		<testPlanVersion>amit</testPlanVersion>
 		<simulations>
 			<simulation>
 				<type>high</type>
 				<targetingThreadCount>100</targetingThreadCount>
 				<cappingThreadCount>20</cappingThreadCount>
-				<eventReportFrequency>50</eventReportFrequency>
-				<capReportFrequency>200</capReportFrequency>
-				<targetingCallCount>500</targetingCallCount>
+				<eventReportFrequency>3</eventReportFrequency>
+				<capReportFrequency>5</capReportFrequency>
+				<targetingCallCount>2000</targetingCallCount>
 				<cappingCallCount>100</cappingCallCount>
 			</simulation>
 			<simulation>
@@ -86,25 +83,49 @@
 		<setup>
 			<retailerInfo>
 				<networkId>0046</networkId>
-				<retailerId>489</retailerId>
+				<retailerId>924</retailerId>
 			</retailerInfo>
 			<programSetupList>
 				<programSetup>
-					<billNo>12345</billNo>
+					<id>123456</id>
+					<contractId>91111</contractId>
+					<programId>92222</programId>
+					<cap>10000</cap>
+					<variance>2.0</variance>
+				</programSetup>
+				<programSetup>
+					<id>12345</id>
 					<contractId>1111</contractId>
 					<programId>2222</programId>
 					<cap>10000</cap>
 					<variance>2.0</variance>
 				</programSetup>
 				<programSetup>
-					<billNo>54321</billNo>
+					<id>54321</id>
 					<contractId>3333</contractId>
 					<programId>4444</programId>
 					<cap>10000</cap>
 					<variance>2</variance>
 				</programSetup>
+				<programSetup>
+					<id>99999</id>
+					<contractId>99882</contractId>
+					<programId>992022</programId>
+				</programSetup>
 			</programSetupList>
 			<promotionSetupList>
+				<promotionSetup>
+					<awardRange>600-610</awardRange>
+					<mediaIdRange>60-70</mediaIdRange>
+					<awardCap>60000</awardCap>
+					<awardVariance>2</awardVariance>
+					<channelType>LOAD_TO_CARD</channelType>
+					<cardRangeId>B100</cardRangeId>
+					<consumerCap>3000</consumerCap>
+					<programSetupId>123456</programSetupId>
+					<startDate>2015-05-06T00:00:00-05:00</startDate>
+					<endDate>2016-12-28T00:00:00-05:00</endDate>
+				</promotionSetup>
 				<promotionSetup>
 					<awardRange>60012-60015</awardRange>
 					<mediaIdRange>6012-6015</mediaIdRange>
@@ -115,31 +136,39 @@
 					<channelType>LOAD_TO_CARD</channelType>
 					<cardRangeId>80001</cardRangeId>
 					<consumerCap>3</consumerCap>
-					<billNo>12345</billNo>
+					<programSetupId>12345</programSetupId>
+					<startDate>2015-05-06T00:00:00-05:00</startDate>
+					<endDate>2016-12-28T00:00:00-05:00</endDate>
+				</promotionSetup>
+				<promotionSetup>
+					<awardRange>900020-900030</awardRange>
+					<mediaIdRange>90020-90030</mediaIdRange>
+					<awardCap>5000</awardCap>>
+					<awardVariance>1</awardVariance>
+					<channelType>LOAD_TO_CARD</channelType>
+					<programSetupId>99999</programSetupId>
+					<cardRangeId>80002</cardRangeId>
+					<consumerCap>4</consumerCap>
 					<startDate>2015-05-06T00:00:00-05:00</startDate>
 					<endDate>2016-12-28T00:00:00-05:00</endDate>
 				</promotionSetup>
 				<promotionSetup>
 					<awardRange>70012-70015</awardRange>
 					<mediaIdRange>7012-7015</mediaIdRange>
-					<mediaCap>100</mediaCap>
+					<mediaCap>1000</mediaCap>
 					<mediaVariance>1</mediaVariance>
 					<channelType>LOAD_TO_CARD</channelType>
 					<cardRangeId>70001</cardRangeId>
 					<consumerCap>7</consumerCap>
-					<billNo>54321</billNo>
+					<programSetupId>54321</programSetupId>
 					<startDate>2015-05-06T00:00:00-05:00</startDate>
 					<endDate>2016-12-28T00:00:00-05:00</endDate>
 				</promotionSetup>
 			</promotionSetupList>
 			<cardSetupList>
 				<cardSetup>
-					<cardRange>50000-50005</cardRange>
-					<cardRangeId>70001</cardRangeId>
-				</cardSetup>
-				<cardSetup>
-					<cardRange>60000-60005</cardRange>
-					<cardRangeId>80001</cardRangeId>
+					<cardRange>918-1012</cardRange>
+					<cardRangeId>B100</cardRangeId>
 				</cardSetup>
 			</cardSetupList>
 		</setup>

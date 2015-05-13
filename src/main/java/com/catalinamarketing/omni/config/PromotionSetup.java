@@ -12,14 +12,14 @@ import javax.xml.bind.annotation.XmlType;
 public class PromotionSetup {
 	private String awardRange;
 	private String mediaIdRange;
-	private int cap;
-	private int variance;
-	private int mediaCap;
-	private int mediaVariance;
+	private Integer awardCap;
+	private Integer awardVariance;
+	private Integer mediaCap;
+	private Integer mediaVariance;
 	private String channelType;
 	private String cardRangeId;
 	private int consumerCap;
-	private String billNo;
+	private String programSetupId;
 	private String startDate;
 	private String endDate;
 	
@@ -89,17 +89,17 @@ public class PromotionSetup {
 	public void setAwardRange(String awardRange) {
 		this.awardRange = awardRange;
 	}
-	public int getCap() {
-		return cap;
+	public Integer getAwardCap() {
+		return awardCap;
 	}
-	public void setCap(int cap) {
-		this.cap = cap;
+	public void setAwardCap(Integer cap) {
+		this.awardCap = cap;
 	}
-	public int getVariance() {
-		return variance;
+	public Integer getAwardVariance() {
+		return awardVariance;
 	}
-	public void setVariance(int variance) {
-		this.variance = variance;
+	public void setAwardVariance(Integer variance) {
+		this.awardVariance = variance;
 	}
 	public String getCardRangeId() {
 		return cardRangeId;
@@ -107,17 +107,17 @@ public class PromotionSetup {
 	public void setCardRangeId(String cardRangeId) {
 		this.cardRangeId = cardRangeId;
 	}
-	public int getConsumerCap() {
+	public Integer getConsumerCap() {
 		return consumerCap;
 	}
-	public void setConsumerCap(int consumerCap) {
+	public void setConsumerCap(Integer consumerCap) {
 		this.consumerCap = consumerCap;
 	}
-	public String getBillNo() {
-		return billNo;
+	public String getProgramSetupId() {
+		return programSetupId;
 	}
-	public void setBillNo(String billNo) {
-		this.billNo = billNo;
+	public void setProgramSetupId(String id) {
+		this.programSetupId = id;
 	}
 
 	public String getMediaIdRange() {
@@ -128,19 +128,19 @@ public class PromotionSetup {
 		this.mediaIdRange = mediaIdRange;
 	}
 
-	public int getMediaCap() {
+	public Integer getMediaCap() {
 		return mediaCap;
 	}
 
-	public void setMediaCap(int cap) {
+	public void setMediaCap(Integer cap) {
 		this.mediaCap = cap;
 	}
 
-	public int getMediaVariance() {
+	public Integer getMediaVariance() {
 		return mediaVariance;
 	}
 
-	public void setMediaVariance(int mediaVariance) {
+	public void setMediaVariance(Integer mediaVariance) {
 		this.mediaVariance = mediaVariance;
 	}
 

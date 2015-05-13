@@ -5,15 +5,15 @@ import java.util.List;
 
 public class AwardInfo {
 	private String awardID;
-	private int cap;
-	private int variance;
+	private Integer cap;
+	private Integer variance;
 	private List<MediaInfo> mediaList;
 	
 	public AwardInfo() {
 		
 	}
 	
-	public AwardInfo(String awardId, int cap, int variance, List<MediaInfo> list) {
+	public AwardInfo(String awardId, Integer cap, Integer variance, List<MediaInfo> list) {
 		this.awardID = awardId;
 		this.cap = cap;
 		this.variance = variance;
@@ -26,16 +26,16 @@ public class AwardInfo {
 	public void setAwardID(String awardID) {
 		this.awardID = awardID;
 	}
-	public int getCap() {
+	public Integer getCap() {
 		return cap;
 	}
-	public void setCap(int cap) {
+	public void setCap(Integer cap) {
 		this.cap = cap;
 	}
-	public int getVariance() {
+	public Integer getVariance() {
 		return variance;
 	}
-	public void setVariance(int variance) {
+	public void setVariance(Integer variance) {
 		this.variance = variance;
 	}
 	public List<MediaInfo> getMediaList() {

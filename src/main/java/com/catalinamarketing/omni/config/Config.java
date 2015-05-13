@@ -104,7 +104,7 @@ public class Config {
 	public ProgramSetup getProgramSetup(String billNo) {
 		List<ProgramSetup> programSetupList = getServer().getSetup().getProgramSetup();
 		for(ProgramSetup setup : programSetupList) {
-			if(setup.getBillNo().equalsIgnoreCase(billNo)) {
+			if(setup.getId().equalsIgnoreCase(billNo)) {
 				return setup;
 			}
 		}

@@ -21,8 +21,12 @@ public class MediaCounter {
 		this.mediaList = HashMultiset.create();
 	}
 	
-	public void add(String media) {
-		mediaList.add(media);
+	/**
+	 * Add channelMediaId
+	 * @param channelMediaId
+	 */
+	public void add(String channelMediaId) {
+		mediaList.add(channelMediaId);
 	}
 	
 	/**

@@ -5,8 +5,8 @@ import java.util.List;
 public class ProgramInfo {
 	private String programID;
 	private String contractID;
-	private int cap;
-	private int variance;
+	private Integer cap;
+	private Integer variance;
 	private List<AwardInfo> awards;
 	
 	public ProgramInfo(){
@@ -34,16 +34,16 @@ public class ProgramInfo {
 	public void setContractID(String contractID) {
 		this.contractID = contractID;
 	}
-	public int getCap() {
+	public Integer getCap() {
 		return cap;
 	}
-	public void setCap(int cap) {
+	public void setCap(Integer cap) {
 		this.cap = cap;
 	}
-	public int getVariance() {
+	public Integer getVariance() {
 		return variance;
 	}
-	public void setVariance(int variance) {
+	public void setVariance(Integer variance) {
 		this.variance = variance;
 	}
 	public List<AwardInfo> getAwards() {

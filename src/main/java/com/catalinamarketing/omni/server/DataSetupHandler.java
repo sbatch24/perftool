@@ -44,10 +44,12 @@ public class DataSetupHandler {
 	private Config config;
 	private PmrDataOrganizer pmrDataOrganizer;
 	private Map<String, List<Wallet>> customerWallet;
+	private boolean publish;
 
 	
-	public DataSetupHandler(Config config) {
+	public DataSetupHandler(Config config, boolean publish) {
 		this.config = config;
+		this.publish = publish;
 	}
 	
 	/**
@@ -62,14 +64,13 @@ public class DataSetupHandler {
 		publishPmrData();
 		initializeDmpData();
 		publishDmpData();
-		logger.info("Finished publishing data");
 	}
 
 	/**
 	 * Publish wallet information to the dmp
 	 */
 	private void publishDmpData() {
-		if (config.getServer().isSetupData()) {
+		if (publish) {
 			logger.info("Publishing data to the consumer DMP");
 			Gson gson = new Gson();
 			try {
@@ -95,8 +96,6 @@ public class DataSetupHandler {
 				logger.error("Problem post wallet data. Error " + ex.getMessage());
 				ex.printStackTrace();
 			}
-		} else{
-			logger.info("Server configured to not publish data to the consumer DMP");
 		}
 	}
 
@@ -162,7 +161,7 @@ public class DataSetupHandler {
 	 * Publish the media data to the pmr.
 	 */
 	private void publishPmrData() {
-		if (config.getServer().isSetupData()) {
+		if (publish) {
 			logger.info("Publishing PMR data to the " + config.getConfiguredEnvironmentName());
 			Environment environment = config.getConfiguredEnvironment();
 			ConnectionFactory factory = new ConnectionFactory();
@@ -188,8 +187,6 @@ public class DataSetupHandler {
 							.contentType("application/json").headers(headers)
 							.build(), jsonMessage.getBytes());
 				}
-				channel.close();
-				connection.close();
 			} catch (IOException e) {
 				logger.error("Problem publish pmr data. Error :"+ e.getMessage());
 				e.printStackTrace();
@@ -198,12 +195,9 @@ public class DataSetupHandler {
 					channel.close();
 					connection.close();
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
-		} else {
-			logger.info("Server configured to not publish data to the PMR");
 		}
 	}
 
@@ -217,7 +211,7 @@ public class DataSetupHandler {
 				.getPromotionSetup();
 		for (PromotionSetup promoSetup : promotionSetupList) {
 			ProgramSetup programSetup = config.getProgramSetup(promoSetup
-					.getBillNo());
+					.getProgramSetupId());
 			if (programSetup != null) {
 				PmrSetupMessage pmrSetupMessage = new PmrSetupMessage();
 				pmrSetupMessage.setLocale("US");
@@ -247,8 +241,8 @@ public class DataSetupHandler {
 		for (Integer awardId : awardRange) {
 			AwardInfo awardSetup = new AwardInfo();
 			awardSetup.setAwardID("" + awardId);
-			awardSetup.setCap(promotionSetup.getCap());
-			awardSetup.setVariance(promotionSetup.getVariance());
+			awardSetup.setCap(promotionSetup.getAwardCap());
+			awardSetup.setVariance(promotionSetup.getAwardVariance());
 			MediaInfo mediaInfo = new MediaInfo();
 			mediaInfo.setMediaID(mediaRange.get(index).toString());
 			mediaInfo.setCap(promotionSetup.getMediaCap());

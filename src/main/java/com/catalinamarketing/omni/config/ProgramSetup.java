@@ -8,20 +8,20 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name="programSetup")
 public class ProgramSetup {
 	
-	private String billNo;
+	private String id;
 	private String contractId;
 	private String programId;
-	private int cap;
-	private int variance;
+	private Integer cap;
+	private Integer variance;
 	
 	public ProgramSetup() {
 	}
 	
-	public String getBillNo() {
-		return billNo;
+	public String getId() {
+		return id;
 	}
-	public void setBillNo(String billNo) {
-		this.billNo = billNo;
+	public void setId(String id) {
+		this.id = id;
 	}
 	public String getContractId() {
 		return contractId;
@@ -35,16 +35,16 @@ public class ProgramSetup {
 	public void setProgramId(String programId) {
 		this.programId = programId;
 	}
-	public int getCap() {
+	public Integer getCap() {
 		return cap;
 	}
-	public void setCap(int cap) {
+	public void setCap(Integer cap) {
 		this.cap = cap;
 	}
-	public int getVariance() {
+	public Integer getVariance() {
 		return variance;
 	}
-	public void setVariance(int variance) {
+	public void setVariance(Integer variance) {
 		this.variance = variance;
 	}
 }

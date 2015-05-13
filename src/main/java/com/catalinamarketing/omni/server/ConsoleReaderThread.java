@@ -31,8 +31,11 @@ public class ConsoleReaderThread implements Runnable {
 	private Config config;
 	private final ControlServer controlServer;
 
+	private PmrDataOrganizer pmrDataOrganizer;
+
 	public ConsoleReaderThread(ControlServer server) {
 		this.controlServer = server;
+		pmrDataOrganizer = null;
 	}
 
 	@Override
@@ -54,27 +57,37 @@ public class ConsoleReaderThread implements Runnable {
 						config = (Config) um.unmarshal(new FileReader(
 								"config.xml"));
 						logger.info("Configuration reloaded. You can kick off test anytime now.");
+						DataSetupHandler handler = new DataSetupHandler(config, false);
+						handler.dataSetup();
+						pmrDataOrganizer = handler.getPmrDataOrganizer();
 					} catch (Exception ex) {
 						logger.error("Problem reloading configuration");
 					}
-				} else if (line.equalsIgnoreCase("start")) {
-					DataSetupHandler handler = new DataSetupHandler(config);
+				} else if(line.equalsIgnoreCase("publish")) {
+					DataSetupHandler handler = new DataSetupHandler(config, true);
 					handler.dataSetup();
-					PmrDataOrganizer pmrDataOrganizer = handler.getPmrDataOrganizer();
-					TestPlanDispatcherThread testPlanDispatcherThread = new TestPlanDispatcherThread(
-							config, controlServer, pmrDataOrganizer);
-					new Thread(testPlanDispatcherThread).start();
-				} else if (line.equalsIgnoreCase("clients")) {
+					pmrDataOrganizer = handler.getPmrDataOrganizer();
+				} else if (line.equalsIgnoreCase("start")) {
+					if(pmrDataOrganizer != null) {
+						TestPlanDispatcherThread testPlanDispatcherThread = new TestPlanDispatcherThread(
+								config, controlServer, pmrDataOrganizer);
+						new Thread(testPlanDispatcherThread).start();	
+					} 
+					
+				} else if (line.equalsIgnoreCase("status")) {
 					Map<String, ClientCommunicationHandler> clientList = controlServer
 							.getClientCommunicationHandlerList();
-					
-					StatusMsg statusMessage = new StatusMsg();
-					for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
-							.entrySet()) {
-						logger.info("Requestion status for client hostname : "
-								+ entry.getValue().getHostName() + " client Id : " + entry.getValue().getClientIdentifier()
-								+ " userName : " + entry.getValue().getUserName());
-						entry.getValue().writeMessage(statusMessage);
+					if(clientList.size() == 0) {
+						logger.info("No clients connected");
+					} else {
+						StatusMsg statusMessage = new StatusMsg();
+						for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
+								.entrySet()) {
+							logger.info("Requestion status for client hostname : "
+									+ entry.getValue().getHostName() + " client Id : " + entry.getValue().getClientIdentifier()
+									+ " userName : " + entry.getValue().getUserName());
+							entry.getValue().writeMessage(statusMessage);
+						}
 					}
 				} else if(line.contains("halt")) {
 					String[] tokens = line.split("\\s+");

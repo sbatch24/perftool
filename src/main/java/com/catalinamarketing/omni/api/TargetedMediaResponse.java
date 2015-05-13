@@ -1,8 +1,8 @@
 package com.catalinamarketing.omni.api;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -13,6 +13,9 @@ public class TargetedMediaResponse {
 	private List<DirectDeposit> directDeposit;
 	
 	public List<DirectDeposit> getDirectDeposits() {
+		if(directDeposit == null) {
+			directDeposit = new ArrayList<DirectDeposit>();
+		}
 		return directDeposit;
 	}
 
