@@ -2,18 +2,12 @@ package com.catalinamarketing.omni;
 
 
 import java.io.FileReader;
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.catalinamarketing.omni.client.PerfToolClient;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.pmr.setup.AwardInfo;
@@ -22,13 +16,7 @@ import com.catalinamarketing.omni.pmr.setup.MediaInfo;
 import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
 import com.catalinamarketing.omni.pmr.setup.ProgramInfo;
 import com.catalinamarketing.omni.server.ControlServer;
-import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.Metric;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import com.google.gson.Gson;
-
 
 /**
  * <h1>Performance tool for testing Pin,Targeting functionality in omni.
@@ -88,7 +76,6 @@ public class PerfToolApplication  {
 	 */
 	public static void main(String args[]) {
 		/*MetricRegistry metrics = new MetricRegistry();
-//		MetricRegistry metrics = new MetricRegistry();
 		final ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics)
                 .convertRatesTo(TimeUnit.MILLISECONDS)
                 .convertDurationsTo(TimeUnit.SECONDS)
@@ -98,11 +85,11 @@ public class PerfToolApplication  {
 		Timer TEST = metrics.timer("GetTargetedMedia");
 		Histogram hist = metrics.histogram("Something");
 		Random random = new Random();
-		for(int i=0; i < 10; i++) {
+		for(int i=0; i < 2000; i++) {
 			try {
 				Timer.Context eventContext = TEST.time();
 				int t = random.nextInt(1000);
-				System.out.println(t);
+				//System.out.println(t);
 				Thread.sleep(t);
 				long tt = eventContext.stop();
 				hist.update(tt);
@@ -110,7 +97,7 @@ public class PerfToolApplication  {
 			}
 		}
 		
-		System.out.println("\n Count " + TEST.getCount() + " Fifteen " + TEST.getFifteenMinuteRate() + " mean " + TEST.getMeanRate());
+		System.out.println("\n Count " + TEST.getCount() + " Fifteen " + TEST.getFifteenMinuteRate() + " mean " + TEST.getMeanRate() " ");
 		
 		System.out.println("\n Count " + hist.getCount() + " 95th " + hist.getSnapshot().get95thPercentile() + 
 				" mean " + hist.getSnapshot().getMean() + " max " + hist.getSnapshot().getMax() + 

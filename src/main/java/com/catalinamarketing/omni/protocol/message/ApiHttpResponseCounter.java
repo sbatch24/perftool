@@ -11,8 +11,6 @@ import javax.xml.bind.annotation.XmlType;
 public class ApiHttpResponseCounter {
 	private String apiType;
 	private List<HttpResponseCodeCounter> httpResposeCodeCounter;
-	private float averageResponseTime;
-	private int count;
 	
 	public ApiHttpResponseCounter(){
 	}
@@ -21,7 +19,16 @@ public class ApiHttpResponseCounter {
 		if(httpResposeCodeCounter == null) {
 			httpResposeCodeCounter = new ArrayList<HttpResponseCodeCounter>();
 		}
-		httpResposeCodeCounter.add(counter);
+		boolean found = false;
+		for(HttpResponseCodeCounter item : httpResposeCodeCounter) {
+			if(item.getResponseCode() == counter.getResponseCode()) {
+				item.setCount(item.getCount() + counter.getCount());
+				found = true;
+			}
+		}
+		if(!found) {
+			httpResposeCodeCounter.add(counter);
+		}
 	}
 	
 	public List<HttpResponseCodeCounter> getHttpResposeCodeCounter() {

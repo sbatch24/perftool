@@ -2,8 +2,6 @@ package com.catalinamarketing.omni.client;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -14,7 +12,6 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +24,7 @@ import com.catalinamarketing.omni.api.TargetedMediaResponse;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.HttpResponseRepository;
 import com.catalinamarketing.omni.util.MediaUsageRepository;
+import com.codahale.metrics.Timer;
 import com.google.gson.Gson;
 
 
@@ -40,9 +38,7 @@ public class TargetingApiExecutor extends ApiExecutor {
 	final static Logger logger = LoggerFactory.getLogger(TargetingApiExecutor.class);
 
 	private final int callCount;
-	private final String threadGroupIdentifier;
 	private MediaUsageRepository mediaUsageRepository;
-	private CountDownLatch finishedSignal;
 	private List<BigInteger> customerIds;
 	private static  Random rand = new Random();
 	private final TestPlanMsg testPlan;
@@ -50,10 +46,8 @@ public class TargetingApiExecutor extends ApiExecutor {
 	public TargetingApiExecutor(int threadNumber, int callCount, 
 			String threadGroupIdentifier, CountDownLatch finishedSignal, MediaUsageRepository mediaUsageRepository, 
 			HttpResponseRepository responseRepository, TestPlanMsg testPlan) {
-		super(threadNumber, responseRepository);
+		super(threadNumber,threadGroupIdentifier, responseRepository, finishedSignal);
 		this.callCount = callCount;
-		this.threadGroupIdentifier = threadGroupIdentifier;
-		this.finishedSignal = finishedSignal;
 		this.mediaUsageRepository = mediaUsageRepository;
 		this.customerIds = new ArrayList<BigInteger>();
 		this.testPlan = testPlan;
@@ -82,17 +76,29 @@ public class TargetingApiExecutor extends ApiExecutor {
 	 * @return Cid as bigInteger
 	 */
 	private BigInteger getRandomCidFromRange() {
-		return customerIds.get(randInt(0, this.customerIds.size()));
+		return customerIds.get(randInt(0, (this.customerIds.size()-1)));
 	}
 	
 	
 	private Response callTargetingApi(Client client, BigInteger customerId) {
-		Response resp  = client.target(String.format(this.testPlan.getTargetingApiUrl(), testPlan.getRetailerId(),customerId))
-	            .queryParam("channel", "web")
-	            .queryParam("transactionid", customerId)  // Use customer id as transaction id
-	            .request()
-	            .accept(MediaType.APPLICATION_XML)
-	            .get();
+		Response resp = null;
+		try {
+			resp = client.target(String.format(this.testPlan.getTargetingApiUrl(), testPlan.getRetailerId(),customerId))
+		            .queryParam("channel", "web")
+		            .queryParam("transactionid", customerId)  // Use customer id as transaction id
+		            .request()
+		            .accept(MediaType.APPLICATION_XML)
+		            .get();
+		}catch(Exception ex) {
+			logger.error("Problem occured during call to MEP targeting api. Error : " + ex.getMessage());
+			if(ex.getMessage() == null) {
+				haltedOnException();
+			}
+			if(ex.getMessage() != null && ex.getMessage().contains("UnknownHostException")) {
+				haltedOnException();
+			}
+			seriousException("GetTargetedMedia", ex.getMessage());	
+		}
 		return resp;
 	}
 	
@@ -136,52 +142,63 @@ public class TargetingApiExecutor extends ApiExecutor {
 	}
 	
 	@Override
-	public void run() {
+	public void run()  {
 		populateCids();
 		int count = 0;
-		try {
-			while(count < callCount && !halted()) {
-				try {
-					
-					Client client = ClientBuilder.newClient();
-					BigInteger customerId = getRandomCidFromRange();
-					Response resp = callTargetingApi(client, customerId);
-					incrementResponseCounter("GetTargetedMedia",Status.fromStatusCode(resp.getStatus()));
-					Thread.sleep(testPlan.getEventReportFrequency()*1000);
-					if(resp.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()) {
-						TargetedMediaResponse targetMediaResponse = resp.readEntity(TargetedMediaResponse.class);
-						resp.close();
+		Client client = ClientBuilder.newClient();
+		int r = 0;
+		while(count < callCount && !halted()) {
+			try {
+				BigInteger customerId = getRandomCidFromRange();
+				//System.out.println("Getting historical offers for cid " + customerId.toString());
+				final Timer.Context context = TARGET_API_REQUEST.time();
+				Response resp = callTargetingApi(client, customerId);
+				context.stop();
+				incrementResponseCounter("GetTargetedMedia",resp.getStatus());
+				Thread.sleep(testPlan.getEventReportFrequency()*1000);
+				if(resp.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()) {
+					TargetedMediaResponse targetMediaResponse = resp.readEntity(TargetedMediaResponse.class);
+					resp.close();
+					if(targetMediaResponse != null && targetMediaResponse.getDirectDeposits().size() > 0) {
 						MediaEvents mediaEvent = prepareMediaEvent(targetMediaResponse, customerId.toString());
 						Gson gson = new Gson();
+						final Timer.Context eventContext = EVENT_API_REQUEST.time();
 						resp  = client.target(String.format(this.testPlan.getEventsApiUrl(), testPlan.getRetailerId()))
 					            .queryParam("channel", "web")
 					            .request()
 					            .accept(MediaType.APPLICATION_JSON)
 					            .header("Content-Type", MediaType.APPLICATION_JSON)
 					            .post(Entity.entity(gson.toJson(mediaEvent), MediaType.APPLICATION_JSON));
-						incrementResponseCounter("ReportEvents",Status.fromStatusCode(resp.getStatus()));
-
-						if(resp.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()) {
+						eventContext.stop();
+						incrementResponseCounter("ReportEvents",resp.getStatus());
+						if(resp.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode() || 
+							resp.getStatusInfo().getStatusCode() == Response.Status.ACCEPTED.getStatusCode()) {
 							for(DirectDepositStatus directDepositStatus : mediaEvent.getMediaPrintEventForCustomer(customerId.toString())) {
 								mediaUsageRepository.incrementMediaCounter(threadGroupIdentifier, testPlan.getChannelMediaId(directDepositStatus.getAwardId()));
 							}
 						}
 						resp.close();
 					}
-					client.close();
-					count++;
-				}catch(Exception ex) {
-					logger.error("Problem occured in Targeting API Executor thread. Error: "+ ex.getMessage());
-					ex.printStackTrace();
 				}
+			}catch (Exception e) {
+				logger.error("Problem occured in Targeting API thread. Error : " + e.getMessage());
+				if(e.getMessage() == null) {
+					haltedOnException();
+				}
+				if(e.getMessage() != null && e.getMessage().contains("UnknownHostException")) {
+					haltedOnException();
+				} 
+				seriousException("ReportEvents", e.getMessage());
+			}finally{
+				count++;
 			}
-		}catch(Exception ex) {
-			logger.error("Problem occured in Capping API Executor thread. Error: "+ ex.getMessage());
-			ex.printStackTrace();
-		}finally {
-			logger.info("Capping API thread#"+this.threadIndex() +" finish execution. ThreadGroup Identifier "+ threadGroupIdentifier + " countdown " + finishedSignal.getCount());
-			finishedSignal.countDown();	
 		}
+		if(count >= callCount) {
+			completedExecution();
+		}
+		logger.info(runStatus());
+		finishedRun();
+		client.close();
 	}
 
 	/**
@@ -191,11 +208,11 @@ public class TargetingApiExecutor extends ApiExecutor {
 		BigInteger firstCid = new BigInteger(testPlan.getCardRangeList().get(0).toString());
 		BigInteger lastCid = new BigInteger(testPlan.getCardRangeList().get(1).toString());
 		
-		for(; firstCid.compareTo(lastCid) <= 0; firstCid.add(BigInteger.ONE)) {
+		for(; firstCid.compareTo(lastCid) <= 0; firstCid = firstCid.add(BigInteger.ONE)) {
 			this.customerIds.add(firstCid);
 		}
 	}
-
+	
 	public int getCallCount() {
 		return callCount;
 	}
@@ -210,5 +227,10 @@ public class TargetingApiExecutor extends ApiExecutor {
 
 	public void setMediaUsageRepository(MediaUsageRepository mediaUsageRepository) {
 		this.mediaUsageRepository = mediaUsageRepository;
+	}
+
+	@Override
+	public String apiName() {
+		return "TargetingApi";
 	}
 }

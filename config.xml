@@ -47,19 +47,18 @@
 	</client>
 	<server>
 		<port>10000</port>
-		<standby>10</standby>
 		<environment>uat</environment>
 		<simulationType>high</simulationType>
-		<testPlanVersion>amit</testPlanVersion>
+		<testPlanVersion>first-test</testPlanVersion>
 		<simulations>
 			<simulation>
 				<type>high</type>
-				<targetingThreadCount>100</targetingThreadCount>
-				<cappingThreadCount>20</cappingThreadCount>
-				<eventReportFrequency>3</eventReportFrequency>
-				<capReportFrequency>5</capReportFrequency>
-				<targetingCallCount>2000</targetingCallCount>
-				<cappingCallCount>100</cappingCallCount>
+				<targetingThreadCount>50</targetingThreadCount>
+				<cappingThreadCount>10</cappingThreadCount>
+				<eventReportFrequency>2</eventReportFrequency>
+				<capReportFrequency>2</capReportFrequency>
+				<targetingCallCount>10000</targetingCallCount>
+				<cappingCallCount>60</cappingCallCount>
 			</simulation>
 			<simulation>
 				<type>medium</type>
@@ -120,7 +119,7 @@
 					<awardCap>60000</awardCap>
 					<awardVariance>2</awardVariance>
 					<channelType>LOAD_TO_CARD</channelType>
-					<cardRangeId>B100</cardRangeId>
+					<cardRangeId>B200</cardRangeId>
 					<consumerCap>3000</consumerCap>
 					<programSetupId>123456</programSetupId>
 					<startDate>2015-05-06T00:00:00-05:00</startDate>
@@ -129,8 +128,8 @@
 				<promotionSetup>
 					<awardRange>60012-60015</awardRange>
 					<mediaIdRange>6012-6015</mediaIdRange>
-					<cap>60000</cap>
-					<variance>2</variance>
+					<awardCap>60000</awardCap>
+					<awardVariance>2</awardVariance>
 					<!-- <mediaCap>0</mediaCap>
 					<mediaVariance>0</mediaVariance> -->
 					<channelType>LOAD_TO_CARD</channelType>
@@ -143,8 +142,8 @@
 				<promotionSetup>
 					<awardRange>900020-900030</awardRange>
 					<mediaIdRange>90020-90030</mediaIdRange>
-					<awardCap>5000</awardCap>>
-					<awardVariance>1</awardVariance>
+					<mediaCap>50000</mediaCap>
+					<mediaVariance>1</mediaVariance>
 					<channelType>LOAD_TO_CARD</channelType>
 					<programSetupId>99999</programSetupId>
 					<cardRangeId>80002</cardRangeId>
@@ -167,8 +166,8 @@
 			</promotionSetupList>
 			<cardSetupList>
 				<cardSetup>
-					<cardRange>918-1012</cardRange>
-					<cardRangeId>B100</cardRangeId>
+					<cardRange>1700-1800</cardRange>
+					<cardRangeId>B200</cardRangeId>
 				</cardSetup>
 			</cardSetupList>
 		</setup>

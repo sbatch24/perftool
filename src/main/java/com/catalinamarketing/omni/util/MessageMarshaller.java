@@ -15,6 +15,7 @@ import com.catalinamarketing.omni.protocol.message.HaltExecutionMsg;
 import com.catalinamarketing.omni.protocol.message.HandShakeMsg;
 import com.catalinamarketing.omni.protocol.message.Message;
 import com.catalinamarketing.omni.protocol.message.StatusMsg;
+import com.catalinamarketing.omni.protocol.message.TestExecutionResultMsg;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 
 /**
@@ -30,7 +31,7 @@ public class MessageMarshaller {
 	private static MessageMarshaller instance = new MessageMarshaller();
 	private MessageMarshaller() {
 		try {
-			context = JAXBContext.newInstance( HandShakeMsg.class, TestPlanMsg.class, StatusMsg.class, HaltExecutionMsg.class);
+			context = JAXBContext.newInstance( HandShakeMsg.class, TestPlanMsg.class, StatusMsg.class, HaltExecutionMsg.class, TestExecutionResultMsg.class);
 		} catch (JAXBException e) {
 			e.printStackTrace();
 		}

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.catalinamarketing.omni.protocol.message.HandShakeMsg;
 import com.catalinamarketing.omni.protocol.message.Message;
 import com.catalinamarketing.omni.protocol.message.StatusMsg;
+import com.catalinamarketing.omni.protocol.message.TestExecutionResultMsg;
 import com.catalinamarketing.omni.util.MessageMarshaller;
 
 public class ClientCommunicationHandler implements Runnable {
@@ -83,6 +84,9 @@ public class ClientCommunicationHandler implements Runnable {
 			} else if(message instanceof StatusMsg) {
 				StatusMsg statusMessage = (StatusMsg) message;
 				logger.info(statusMessage.printMessage());
+			} else if(message instanceof TestExecutionResultMsg) {
+				TestExecutionResultMsg executionResult = (TestExecutionResultMsg) message;
+				logger.info(executionResult.printMessage());
 			}
 		}
 	}

@@ -18,11 +18,13 @@ public class HttpResponseRepository {
 	/**
 	 * Map<ApiCallName, MultiSet<httpresponseCodes>>
 	 */
-	private Map<String,Multiset<Response.Status>> httpResponseCodes;
+	private Map<String,Multiset<Integer>> httpResponseCodes;
 	
+	private Map<String,Multiset<String>> exceptionMessageList;
 	
 	public HttpResponseRepository() {
 		httpResponseCodes = new HashMap<>();
+		exceptionMessageList = new HashMap<>();
 		mutex = new Object();
 	}
 	
@@ -32,15 +34,38 @@ public class HttpResponseRepository {
 	 * @param apiType
 	 * @param status
 	 */
-	public void addHttpResponseCode(String apiType, Response.Status status) {
+	public void addHttpResponseCode(String apiType, int status) {
 		synchronized (mutex) {
 			if(!httpResponseCodes.containsKey(apiType)) {
-				 Multiset<Response.Status> responseCodes = HashMultiset.create();
+				 Multiset<Integer> responseCodes = HashMultiset.create();
 				 httpResponseCodes.put(apiType, responseCodes);
 			}
 			
-			 Multiset<Response.Status> responseCodes = httpResponseCodes.get(apiType);
+			 Multiset<Integer> responseCodes = httpResponseCodes.get(apiType);
 			 responseCodes.add(status);
+		}
+	}
+	
+	public Map<String,Multiset<Integer>> getHttpCodeResponseRepository() {
+		return this.httpResponseCodes;
+	}
+
+	
+
+	public Map<String,Multiset<String>> getExceptionMessageList() {
+		return exceptionMessageList;
+	}
+
+	
+	
+	public void addException(String message, String apiType) {
+		synchronized (mutex) {
+			if(exceptionMessageList.get(apiType) == null) {
+				Multiset<String> exceptions = HashMultiset.create();
+				exceptionMessageList.put(apiType, exceptions);
+			}
+			Multiset<String> exceptions = exceptionMessageList.get(apiType);
+			exceptions.add(message);
 		}
 	}
 }

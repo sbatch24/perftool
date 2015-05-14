@@ -36,7 +36,11 @@ public abstract class ApiExecutor implements Runnable {
 		haltOnException = false;
 	}
 	
-	public void incrementResponseCounter(String apiType,Response.Status status) {
+	public void seriousException(String apiType, String exception) {
+		httpResponseRepository.addException(exception, apiType);
+	}
+	
+	public void incrementResponseCounter(String apiType,Integer status) {
 		httpResponseRepository.addHttpResponseCode(apiType, status);
 	}
 	
