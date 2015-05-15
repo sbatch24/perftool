@@ -106,6 +106,7 @@ public class TestPlanMsg extends Message {
 	public String printMessage() {
 		StringBuffer buffer = new StringBuffer();
 		buffer.append("Test Plan to execute - \n");
+		buffer.append("Test Plan version - " + this.testPlanVersion + "\n");
 		buffer.append("\nCid Range - (" + this.cardRange.get(0) +" - " + cardRange.get(1) + " )");
 		buffer.append("\nTargeting Thread count - " + this.targetingThreadCount);
 		buffer.append("\nCapping Thread count - " + this.cappingThreadCount);
@@ -114,7 +115,6 @@ public class TestPlanMsg extends Message {
 		buffer.append("\nUsage report call count - "+this.cappingCallCount);
 		buffer.append("\nTargeting call count - "+ this.targetingCallCount);
 		buffer.append("\nTest performed for retailer - "+ this.retailerId);
-		buffer.append("\nTest plan version - "+this.testPlanVersion);
 		return buffer.toString();
 	}
 

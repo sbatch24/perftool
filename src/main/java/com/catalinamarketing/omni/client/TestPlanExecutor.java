@@ -7,12 +7,11 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
-import javax.ws.rs.core.Response;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.catalinamarketing.omni.protocol.message.HttpResponseCodeCounter;
+import com.catalinamarketing.omni.protocol.message.StatusMsg;
 import com.catalinamarketing.omni.protocol.message.TestExecutionResultMsg;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.HttpResponseRepository;
@@ -27,14 +26,16 @@ public class TestPlanExecutor implements Runnable {
 	private boolean finishedTestExecution;
 	@SuppressWarnings("unused")
 	private List<ApiExecutor> apiExecutorList;
+	private boolean respondWithHaltedExecutionMessage;
 	
 	public TestPlanExecutor(TestPlanMsg msg, PrintWriter out) {
 		this.testPlan = msg;
 		this.out = out;
 		finishedTestExecution = false;
+		respondWithHaltedExecutionMessage = false;
 		apiExecutorList = new ArrayList<ApiExecutor>();
 	}
-
+	
 	/**
 	 * Returns true is testPlanExecution has finished or else false.
 	 * @return finishedTestExecution.
@@ -86,8 +87,16 @@ public class TestPlanExecutor implements Runnable {
 			logger.info("Waiting for api threads to finish");
 			finishedSignal.await();
 			finishedTestExecution = true;
-			logger.info("Api threads done executing");
-			aggregateTestResults(responseRepository);
+			if(isRespondWithHaltedExecutionMessage()) {
+				StatusMsg statusMsg = new StatusMsg();
+				statusMsg.setTestPlanVersion(getTestPlan().getTestPlanVersion());
+				statusMsg.setExecutionStatus("Execution of test plan - "+ getTestPlan().getTestPlanVersion() + " halted");
+				out.println(MessageMarshaller.marshalMessage(statusMsg));
+				out.flush();
+			} else {
+				logger.info("Api threads done executing");
+				aggregateTestResults(responseRepository);	
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -167,5 +176,15 @@ public class TestPlanExecutor implements Runnable {
 		for (ApiExecutor apiExecutor : apiExecutorList) {
 			apiExecutor.halt();
 		}
+		setRespondWithHaltedExecutionMessage(true);
+	}
+
+	public boolean isRespondWithHaltedExecutionMessage() {
+		return respondWithHaltedExecutionMessage;
+	}
+
+	public void setRespondWithHaltedExecutionMessage(
+			boolean respondWithHaltedExecutionMessage) {
+		this.respondWithHaltedExecutionMessage = respondWithHaltedExecutionMessage;
 	}
 }

@@ -196,7 +196,7 @@ public class TargetingApiExecutor extends ApiExecutor {
 		if(count >= callCount) {
 			completedExecution();
 		}
-		logger.info(runStatus());
+		//logger.info(runStatus());
 		finishedRun();
 		client.close();
 	}

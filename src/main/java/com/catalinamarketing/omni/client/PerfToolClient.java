@@ -50,13 +50,20 @@ public class PerfToolClient {
 	        if(msg != null) {
 	        	Message message = MessageMarshaller.unMarshalMessage(msg);
 				if(message instanceof TestPlanMsg) {
-					if(this.testPlanExecutor != null && this.testPlanExecutor.isTestPlanExecutionComplete())
-					logger.info(message.printMessage());
-					logger.info("Received TestPlanMsg from Server. Will begin execution of the test plan");
-					this.testPlanExecutor = new TestPlanExecutor((TestPlanMsg)message,out);
-					new Thread(testPlanExecutor).start();
+					if(this.testPlanExecutor == null || this.testPlanExecutor.isTestPlanExecutionComplete()) {
+						logger.info(message.printMessage());
+						logger.info("Received TestPlanMsg from Server. Will begin execution of the test plan");
+						this.testPlanExecutor = new TestPlanExecutor((TestPlanMsg)message,out);
+						new Thread(testPlanExecutor).start();	
+					} else if(this.testPlanExecutor != null && !this.testPlanExecutor.isTestPlanExecutionComplete()) {
+						StatusMsg statusMsg = new StatusMsg();
+						statusMsg.setTestPlanVersion(testPlanExecutor.getTestPlan().getTestPlanVersion());
+						statusMsg.setExecutionStatus(testPlanExecutor.testPlanStatus() + ". Try executing after test is finished");	
+						out.println(MessageMarshaller.marshalMessage(statusMsg));
+						out.flush();
+					}
 				} else if(message instanceof StatusMsg) {
-					if(testPlanExecutor != null && testPlanExecutor.isTestPlanExecutionComplete()) {
+					if(testPlanExecutor != null && !testPlanExecutor.isTestPlanExecutionComplete()) {
 						StatusMsg statusMsg = new StatusMsg();
 						statusMsg.setTestPlanVersion(testPlanExecutor.getTestPlan().getTestPlanVersion());
 						statusMsg.setExecutionStatus(testPlanExecutor.testPlanStatus());	
@@ -73,11 +80,7 @@ public class PerfToolClient {
 					if(this.testPlanExecutor != null ) {
 						testPlanExecutor.haltApiThread();
 						logger.info(message.printMessage());
-						StatusMsg statusMsg = new StatusMsg();
-						statusMsg.setTestPlanVersion(testPlanExecutor.getTestPlan().getTestPlanVersion());
-						statusMsg.setExecutionStatus("Api threads stoped");
-						out.println(MessageMarshaller.marshalMessage(statusMsg));
-						out.flush();
+						
 					}
 				}
 	        }else {
