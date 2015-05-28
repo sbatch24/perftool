@@ -4,10 +4,15 @@ package com.catalinamarketing.omni;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.catalinamarketing.omni.client.PerfToolClient;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.pmr.setup.AwardInfo;
@@ -16,6 +21,10 @@ import com.catalinamarketing.omni.pmr.setup.MediaInfo;
 import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
 import com.catalinamarketing.omni.pmr.setup.ProgramInfo;
 import com.catalinamarketing.omni.server.ControlServer;
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.google.gson.Gson;
 
 /**
@@ -85,7 +94,7 @@ public class PerfToolApplication  {
 		Timer TEST = metrics.timer("GetTargetedMedia");
 		Histogram hist = metrics.histogram("Something");
 		Random random = new Random();
-		for(int i=0; i < 2000; i++) {
+		for(int i=0; i < 100; i++) {
 			try {
 				Timer.Context eventContext = TEST.time();
 				int t = random.nextInt(1000);
@@ -97,12 +106,6 @@ public class PerfToolApplication  {
 			}
 		}
 		
-		System.out.println("\n Count " + TEST.getCount() + " Fifteen " + TEST.getFifteenMinuteRate() + " mean " + TEST.getMeanRate() " ");
-		
-		System.out.println("\n Count " + hist.getCount() + " 95th " + hist.getSnapshot().get95thPercentile() + 
-				" mean " + hist.getSnapshot().getMean() + " max " + hist.getSnapshot().getMax() + 
-				" min " + hist.getSnapshot().getMin() );
-		System.out.format("Median = %2.2f%n", hist.getSnapshot().getMedian());
 		reporter.forRegistry(metrics).outputTo(System.out);
 		reporter.report();*/
 		

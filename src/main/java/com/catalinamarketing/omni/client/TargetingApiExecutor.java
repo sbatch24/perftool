@@ -40,7 +40,6 @@ public class TargetingApiExecutor extends ApiExecutor {
 	private final int callCount;
 	private MediaUsageRepository mediaUsageRepository;
 	private List<BigInteger> customerIds;
-	private static  Random rand = new Random();
 	private final TestPlanMsg testPlan;
 	
 	public TargetingApiExecutor(int threadNumber, int callCount, 
@@ -51,24 +50,6 @@ public class TargetingApiExecutor extends ApiExecutor {
 		this.mediaUsageRepository = mediaUsageRepository;
 		this.customerIds = new ArrayList<BigInteger>();
 		this.testPlan = testPlan;
-	}
-	
-	/**
-	 * Returns a psuedo-random number between min and max, inclusive.
-	 * The difference between min and max can be at most
-	 * <code>Integer.MAX_VALUE - 1</code>.
-	 *
-	 * @param min Minimim value
-	 * @param max Maximim value.  Must be greater than min.
-	 * @return Integer between min and max, inclusive.
-	 * @see java.util.Random#nextInt(int)
-	 */
-	public static int randInt(int min, int max) {
-	    // nextInt is normally exclusive of the top value,
-	    // so add 1 to make it inclusive
-	    int randomNum = rand.nextInt((max - min) + 1) + min;
-
-	    return randomNum;
 	}
 	
 	/**
@@ -146,16 +127,14 @@ public class TargetingApiExecutor extends ApiExecutor {
 		populateCids();
 		int count = 0;
 		Client client = ClientBuilder.newClient();
-		int r = 0;
 		while(count < callCount && !halted()) {
 			try {
 				BigInteger customerId = getRandomCidFromRange();
-				//System.out.println("Getting historical offers for cid " + customerId.toString());
-				final Timer.Context context = TARGET_API_REQUEST.time();
+				final Timer.Context requestMediaContext = TARGET_API_REQUEST.time();
 				Response resp = callTargetingApi(client, customerId);
-				context.stop();
+				requestMediaContext.stop();
 				incrementResponseCounter("GetTargetedMedia",resp.getStatus());
-				Thread.sleep(testPlan.getEventReportFrequency()*1000);
+				Thread.sleep((randInt(0,testPlan.getEventReportFrequency()))*1000);
 				if(resp.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()) {
 					TargetedMediaResponse targetMediaResponse = resp.readEntity(TargetedMediaResponse.class);
 					resp.close();

@@ -1,11 +1,13 @@
 package com.catalinamarketing.omni.client;
 
 import java.io.PrintWriter;
+import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,6 +19,10 @@ import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.HttpResponseRepository;
 import com.catalinamarketing.omni.util.MediaUsageRepository;
 import com.catalinamarketing.omni.util.MessageMarshaller;
+import com.codahale.metrics.ConsoleReporter;
+import com.codahale.metrics.MetricFilter;
+import com.codahale.metrics.graphite.Graphite;
+import com.codahale.metrics.graphite.GraphiteReporter;
 import com.google.common.collect.Multiset;
 
 public class TestPlanExecutor implements Runnable {
@@ -85,7 +91,24 @@ public class TestPlanExecutor implements Runnable {
 		}
 		try {
 			logger.info("Waiting for api threads to finish");
+			/*final Graphite graphite = new Graphite(new InetSocketAddress("localhost", 8080));
+			final GraphiteReporter reporters = GraphiteReporter.forRegistry(apiExecutorList.get(0).metrics)
+			                                                  .prefixedWith("web1.example.com")
+			                                                  .convertRatesTo(TimeUnit.SECONDS)
+			                                                  .convertDurationsTo(TimeUnit.MILLISECONDS)
+			                                                  .filter(MetricFilter.ALL)
+			                                                  .build(graphite);
+			reporters.start(1, TimeUnit.MINUTES);*/
 			finishedSignal.await();
+			final ConsoleReporter reporter = ConsoleReporter.forRegistry(apiExecutorList.get(0).metrics)
+	                .convertRatesTo(TimeUnit.MILLISECONDS)
+	                .convertDurationsTo(TimeUnit.SECONDS)
+	                .build();
+			reporter.forRegistry(apiExecutorList.get(0).metrics).outputTo(System.out);
+			reporter.report();
+			
+			
+			
 			finishedTestExecution = true;
 			if(isRespondWithHaltedExecutionMessage()) {
 				StatusMsg statusMsg = new StatusMsg();

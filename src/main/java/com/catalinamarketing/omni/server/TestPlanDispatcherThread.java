@@ -32,14 +32,14 @@ public class TestPlanDispatcherThread implements Runnable {
 	
 	private final Config config;
 	private final ControlServer controlServer;
-	private final PmrDataOrganizer pmrDataOrganizer;
+	private final  List<PmrSetupMessage> pmrSetupMessageList;
 	private List<List<BigInteger>> cardRangeList;
 	private Random RANDOM = new Random();
 
-	public TestPlanDispatcherThread(Config config, ControlServer cs, PmrDataOrganizer pmrDataOrganizer) {
+	public TestPlanDispatcherThread(Config config, ControlServer cs, List<PmrSetupMessage> pmrSetupMessageList) {
 		this.config = config;
 		this.controlServer = cs;
-		this.pmrDataOrganizer = pmrDataOrganizer;
+		this.pmrSetupMessageList = pmrSetupMessageList;
 		this.cardRangeList = new ArrayList<List<BigInteger>>();
 	}
 	
@@ -95,7 +95,7 @@ public class TestPlanDispatcherThread implements Runnable {
 				msg.setCappingUsageApiUrl(config.getCappingApiUrl());
 				msg.setEventsApiUrl(config.getEventsApiUrl());
 				msg.setUserName(System.getProperty("user.name"));
-				for(PmrSetupMessage pmrSetupMessage : pmrDataOrganizer.getPmrSetupMessageList()) {
+				for(PmrSetupMessage pmrSetupMessage : this.pmrSetupMessageList) {
 					for(ProgramInfo programInfo :pmrSetupMessage.getPrograms()) {
 						for(AwardInfo awardInfo  : programInfo.getAwards()) {
 							AwardData awardData = new AwardData();

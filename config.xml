@@ -17,7 +17,8 @@
 			<dmpConfig>
 				<userName>catalyst</userName>
 				<password>lm33716</password>
-				<dmpUrl>https://uat.data.personalization.catalinamarketing.com/dmp/rest/profiles/%s/wallet</dmpUrl>
+				<dmpWalletUrl>https://uat.data.personalization.catalinamarketing.com/dmp/rest/profiles/%s/wallet</dmpWalletUrl>
+				<dmpProfileUrl>https://uat.data.personalization.catalinamarketing.com/dmp/rest/profiles/%s</dmpProfileUrl>
 			</dmpConfig>
 		</environment>
 		<environment>
@@ -37,7 +38,8 @@
 			<dmpConfig>
 				<userName>catalyst</userName>
 				<password>lm33716</password>
-				<dmpUrl>https://sqa.data.personalization.catalinamarketing.com/dmp/rest/profiles/%s/wallet</dmpUrl>
+				<dmpWalletUrl>https://sqa.data.personalization.catalinamarketing.com/dmp/rest/profiles/%s/wallet</dmpWalletUrl>
+				<dmpProfileUrl>https://sqa.data.personalization.catalinamarketing.com/dmp/rest/profiles/%s</dmpProfileUrl>
 			</dmpConfig>
 		</environment>
 	</environments>
@@ -53,12 +55,12 @@
 		<simulations>
 			<simulation>
 				<type>high</type>
-				<targetingThreadCount>50</targetingThreadCount>
-				<cappingThreadCount>10</cappingThreadCount>
+				<targetingThreadCount>300</targetingThreadCount>
+				<cappingThreadCount>30</cappingThreadCount>
 				<eventReportFrequency>2</eventReportFrequency>
-				<capReportFrequency>2</capReportFrequency>
+				<capReportFrequency>30</capReportFrequency>
 				<targetingCallCount>10000</targetingCallCount>
-				<cappingCallCount>60</cappingCallCount>
+				<cappingCallCount>300</cappingCallCount>
 			</simulation>
 			<simulation>
 				<type>medium</type>
@@ -166,7 +168,7 @@
 			</promotionSetupList>
 			<cardSetupList>
 				<cardSetup>
-					<cardRange>1700-1800</cardRange>
+					<cardRange>2000-12000</cardRange>
 					<cardRangeId>B200</cardRangeId>
 				</cardSetup>
 			</cardSetupList>

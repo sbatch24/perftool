@@ -57,22 +57,21 @@ public class ConsoleReaderThread implements Runnable {
 						config = (Config) um.unmarshal(new FileReader(
 								"config.xml"));
 						logger.info("Configuration reloaded. You can kick off test anytime now.");
-						DataSetupHandler handler = new DataSetupHandler(config, false);
-						handler.dataSetup();
-						pmrDataOrganizer = handler.getPmrDataOrganizer();
 					} catch (Exception ex) {
 						logger.error("Problem reloading configuration");
 					}
 				} else if(line.equalsIgnoreCase("publish")) {
 					DataSetupHandler handler = new DataSetupHandler(config, true);
 					handler.dataSetup();
-					pmrDataOrganizer = handler.getPmrDataOrganizer();
+				} else if(line.equalsIgnoreCase("reset")) {
+					DataSetupHandler handler = new DataSetupHandler(config, false);
+					handler.clearEventsFromProfile();
 				} else if (line.equalsIgnoreCase("start")) {
-					if(pmrDataOrganizer != null) {
-						TestPlanDispatcherThread testPlanDispatcherThread = new TestPlanDispatcherThread(
-								config, controlServer, pmrDataOrganizer);
-						new Thread(testPlanDispatcherThread).start();	
-					} 
+					pmrDataOrganizer = new PmrDataOrganizer(config);
+					pmrDataOrganizer.initializePmrDataSetup();
+					TestPlanDispatcherThread testPlanDispatcherThread = new TestPlanDispatcherThread(
+							config, controlServer, pmrDataOrganizer.getPmrSetupMessageList());
+					new Thread(testPlanDispatcherThread).start();	
 					
 				} else if (line.equalsIgnoreCase("status")) {
 					Map<String, ClientCommunicationHandler> clientList = controlServer

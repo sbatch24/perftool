@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.HttpResponseRepository;
 import com.catalinamarketing.omni.util.MediaUsageRepository;
+import com.codahale.metrics.Timer;
 import com.google.gson.Gson;
 
 /**
@@ -44,23 +45,20 @@ public class CappingApiExecutor  extends ApiExecutor {
 	@Override
 	public void run() {
 		int count = 0;
-		int r = 0;
 		Client client = ClientBuilder.newClient();
 		while(count < counter && !halted()) {
 			try {
 				Gson gson = new Gson();
-				Thread.sleep(capReportFrequency*1000);
+				Thread.sleep((randInt(0,capReportFrequency))*1000);
 				List<UsageReport> usageReportList = mediaUsageRepository.prepareMediaUsageReportList(threadGroupIdentifier);
+				final Timer.Context eventContext = CAPPING_API_REQUEST.time();
 				Response response = client.target(String.format(this.testPlan.getCappingUsageApiUrl(), testPlan.getRetailerId()))
 	            .request()
 	            .accept(MediaType.APPLICATION_JSON)
 	            .header("Content-Type", MediaType.APPLICATION_JSON)
 	            .put(Entity.entity(gson.toJson(usageReportList), MediaType.APPLICATION_JSON));
+				eventContext.stop();
 				incrementResponseCounter("ReportUsage", response.getStatus());
-				if(response.getStatus() == 500) {
-					r++;
-					System.out.println("Response " + response.getStatus());
-				}
 				if(response.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()|| 
 						response.getStatusInfo().getStatusCode() == Response.Status.ACCEPTED.getStatusCode()) {
 					mediaUsageRepository.resetMediaCounters(threadGroupIdentifier);

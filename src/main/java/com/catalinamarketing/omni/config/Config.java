@@ -126,13 +126,6 @@ public class Config {
 		return null;
 	}
 	
-	/**
-	 * Dmp url
-	 * @return dmpUrl
-	 */
-	public String getDmpUrl() {
-		return getConfiguredEnvironment().getDmpConfig().getDmpUrl();
-	}
 	
 	/**
 	 * The dmp api user name for the configured environment.

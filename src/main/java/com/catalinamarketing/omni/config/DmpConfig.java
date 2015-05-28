@@ -8,7 +8,8 @@ import javax.xml.bind.annotation.XmlType;
 public class DmpConfig {
 	private String userName;
 	private String password;
-	private String dmpUrl;
+	private String dmpWalletUrl;
+	private String dmpProfileUrl;
 	
 	public DmpConfig(){
 		
@@ -30,12 +31,20 @@ public class DmpConfig {
 		this.password = password;
 	}
 
-	public String getDmpUrl() {
-		return dmpUrl;
+	public String getDmpWalletUrl() {
+		return dmpWalletUrl;
 	}
 
-	public void setDmpUrl(String dmpUrl) {
-		this.dmpUrl = dmpUrl;
+	public void setDmpWalletUrl(String dmpUrl) {
+		this.dmpWalletUrl = dmpUrl;
+	}
+
+	public String getDmpProfileUrl() {
+		return dmpProfileUrl;
+	}
+
+	public void setDmpProfileUrl(String dmpProfileUrl) {
+		this.dmpProfileUrl = dmpProfileUrl;
 	}
 
 }

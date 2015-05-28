@@ -55,6 +55,11 @@
 			<artifactId>metrics-core</artifactId>
 			<version>3.1.2</version>
 		</dependency>
+		<dependency>
+			<groupId>io.teknek</groupId>
+			<artifactId>graphite-reporter</artifactId>
+			<version>0.0.1</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>

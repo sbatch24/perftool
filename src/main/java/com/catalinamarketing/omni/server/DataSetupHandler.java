@@ -22,15 +22,10 @@ import org.slf4j.LoggerFactory;
 import com.catalinamarketing.omni.config.CardSetup;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.config.Environment;
-import com.catalinamarketing.omni.config.ProgramSetup;
 import com.catalinamarketing.omni.config.PromotionSetup;
 import com.catalinamarketing.omni.dmp.setup.Wallet;
-import com.catalinamarketing.omni.pmr.setup.AwardInfo;
-import com.catalinamarketing.omni.pmr.setup.ChannelMediaInfo;
-import com.catalinamarketing.omni.pmr.setup.MediaInfo;
 import com.catalinamarketing.omni.pmr.setup.PmrDataOrganizer;
 import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
-import com.catalinamarketing.omni.pmr.setup.ProgramInfo;
 import com.catalinamarketing.omni.util.ChannelTypeTranslator;
 import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
@@ -42,8 +37,6 @@ import com.rabbitmq.client.ConnectionFactory;
 public class DataSetupHandler {
 	final static Logger logger = LoggerFactory.getLogger(DataSetupHandler.class);
 	private Config config;
-	private PmrDataOrganizer pmrDataOrganizer;
-	private Map<String, List<Wallet>> customerWallet;
 	private boolean publish;
 
 	
@@ -60,42 +53,52 @@ public class DataSetupHandler {
 	 */
 	public void dataSetup() {
 		logger.info("Data setup will involve publishing data to PMR and to the DMP");
-		initializePmrDataSetup();
-		publishPmrData();
+		PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config);
+		pmrDataOrganizer.initializePmrDataSetup();
+		publishPmrData(pmrDataOrganizer);
 		initializeDmpData();
-		publishDmpData();
 	}
 
+	public void updateWalletDataForConsumer(Map.Entry<String, List<Wallet>> entry, Client client, HttpAuthenticationFeature feature) {
+		Gson gson = new Gson();
+		WebTarget target = client
+				.target(dmpWalletUrl(entry.getKey()));
+		Response resp = target.request()
+				.accept(MediaType.APPLICATION_JSON)
+				.header("Content-Type", MediaType.APPLICATION_JSON).post(Entity.entity(gson.toJson(entry.getValue()), MediaType.APPLICATION_JSON));	
+		if(resp.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode() && resp.getStatusInfo() != Response.Status.ACCEPTED) {
+			logger.error("Problem post wallet data for CID " + entry.getKey() + " Error code : "+ resp.getStatus());
+		}
+		resp.close();
+	}
+	
 	/**
 	 * Publish wallet information to the dmp
+	 * @param customerWallet 
 	 */
-	private void publishDmpData() {
+	private void publishDmpData(Map<String, List<Wallet>> customerWallet) {
 		if (publish) {
 			logger.info("Publishing data to the consumer DMP");
-			Gson gson = new Gson();
-			try {
-				HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(config.getDmpUserName(), config.getDmpPassword());
-				Stopwatch watch =  Stopwatch.createStarted();
-				for(Map.Entry<String, List<Wallet>> entry : customerWallet.entrySet()){
-					Client client = ClientBuilder.newClient();
-					WebTarget target = client
-							.target(dmpWalletUrl(entry.getKey()));
-					Response resp = target.register(feature).request()
-							.accept(MediaType.APPLICATION_JSON)
-							.header("Content-Type", MediaType.APPLICATION_JSON).post(Entity.entity(gson.toJson(entry.getValue()), MediaType.APPLICATION_JSON));	
-					if(resp.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode()) {
-						logger.error("Problem post wallet data for CID " + entry.getKey() + " Error code : "+ resp.getStatus());
-					}
-					resp.close();
+			Client client  = null;
+			HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(config.getDmpUserName(), config.getDmpPassword());
+
+			Stopwatch watch =  Stopwatch.createStarted();
+			client = ClientBuilder.newBuilder().register(feature).build();
+			int count = 1;
+			for(Map.Entry<String, List<Wallet>> entry : customerWallet.entrySet()){
+				try {
+					updateWalletDataForConsumer(entry, client, feature);
+					count++;
+					Thread.sleep(10);	
+					System.out.println("\n Count " + count);
+				}catch(Exception ex) {
+					logger.error("Problems posting wallet to profile(cid - " + entry.getKey() + " ). Error " + ex.getMessage());
 					client.close();
-					Thread.sleep(10);
+					client = ClientBuilder.newBuilder().register(feature).build();
 				}
-				logger.info("Time taken to publish wallet information for " +  customerWallet.size()+" ids is "+ watch.elapsed(TimeUnit.SECONDS) + " seconds");
-				
-			}catch(Exception ex) {
-				logger.error("Problem post wallet data. Error " + ex.getMessage());
-				ex.printStackTrace();
 			}
+			logger.info("Time taken to publish wallet information for " +  customerWallet.size()+" ids is "+ watch.elapsed(TimeUnit.SECONDS) + " seconds");
+			client.close();
 		}
 	}
 
@@ -108,8 +111,36 @@ public class DataSetupHandler {
 	 */
 	public String dmpWalletUrl(String tokenizedId) {
 		Environment environment = config.getConfiguredEnvironment();
-		return String.format(environment.getDmpConfig().getDmpUrl(),
+		return String.format(environment.getDmpConfig().getDmpWalletUrl(),
 				tokenizedId);
+	}
+	
+	public void clearEventsFromProfile() {
+		logger.info("Clearing events from profile data");
+		List<String> customerIds = new ArrayList<String>();
+		List<CardSetup> cardSetupList = config.getCardSetupList();
+		Client client  = null;
+		HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(config.getDmpUserName(), config.getDmpPassword());
+		client = ClientBuilder.newBuilder().register(feature).build();
+		for (CardSetup cardSetup : cardSetupList) {
+			BigInteger firstId = new BigInteger(cardSetup.cardRange().get(0));
+			BigInteger lastId = new BigInteger(cardSetup.cardRange().get(1));
+			for (; firstId.compareTo(lastId) <= 0; firstId = firstId.add(BigInteger.ONE)) {
+				WebTarget target = client
+						.target(String.format(config.getConfiguredEnvironment().getDmpConfig().getDmpProfileUrl(),
+								"USA-"+ config.getNetworkId() + "-" + firstId)+"/reset");
+				Response resp = target.request()
+						.accept(MediaType.APPLICATION_JSON)
+						.header("Content-Type", MediaType.APPLICATION_JSON).get();
+				if(resp.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode() && resp.getStatusInfo() != Response.Status.ACCEPTED) {
+					logger.error("Problem clearing events from profile " + "USA-"
+								+ config.getNetworkId() + "-" + firstId );
+				}
+				resp.close();
+			}
+		}
+		
+		
 	}
 
 	/**
@@ -117,7 +148,7 @@ public class DataSetupHandler {
 	 */
 	private void initializeDmpData() {
 		logger.info("Initializing profile data");
-		customerWallet = new HashMap<String, List<Wallet>>();
+		Map<String, List<Wallet>> customerWallet = new HashMap<String, List<Wallet>>();
 		List<CardSetup> cardSetupList = config.getCardSetupList();
 		for (CardSetup cardSetup : cardSetupList) {
 			PromotionSetup promotionSetup = config
@@ -130,6 +161,8 @@ public class DataSetupHandler {
 						+ config.getNetworkId() + "-" + firstId, walletList);
 			}
 		}
+		
+		publishDmpData(customerWallet);
 	}
 
 	/**
@@ -160,7 +193,7 @@ public class DataSetupHandler {
 	/**
 	 * Publish the media data to the pmr.
 	 */
-	private void publishPmrData() {
+	private void publishPmrData(PmrDataOrganizer pmrDataOrganizer) {
 		if (publish) {
 			logger.info("Publishing PMR data to the " + config.getConfiguredEnvironmentName());
 			Environment environment = config.getConfiguredEnvironment();
@@ -200,83 +233,4 @@ public class DataSetupHandler {
 			}
 		}
 	}
-
-	/**
-	 * Initialize PMR data
-	 */
-	private void initializePmrDataSetup() {
-		logger.info("Initializing PMR data");
-		pmrDataOrganizer = new PmrDataOrganizer();
-		List<PromotionSetup> promotionSetupList = config.getServer().getSetup()
-				.getPromotionSetup();
-		for (PromotionSetup promoSetup : promotionSetupList) {
-			ProgramSetup programSetup = config.getProgramSetup(promoSetup
-					.getProgramSetupId());
-			if (programSetup != null) {
-				PmrSetupMessage pmrSetupMessage = new PmrSetupMessage();
-				pmrSetupMessage.setLocale("US");
-				pmrSetupMessage.setSetupSystemID("MXP-US");
-				ProgramInfo programSetupMessage = new ProgramInfo();
-				programSetupMessage.setProgramID(programSetup.getProgramId());
-				programSetupMessage.setContractID(programSetup.getContractId());
-				programSetupMessage.setCap(programSetup.getCap());
-				programSetupMessage.setVariance(programSetup.getVariance());
-
-				List<AwardInfo> awards = getAwardSetupList(promoSetup);
-				programSetupMessage.setAwards(awards);
-				pmrSetupMessage.addProgram(programSetupMessage);
-				pmrDataOrganizer.addPmrSetupMessage(pmrSetupMessage);
-			} else {
-				logger.error("PromotionSetup should always contain a bill No. Check config.xml file for promotionSetup - "
-						+ promoSetup.getAwardRange());
-			}
-		}
-	}
-
-	public List<AwardInfo> getAwardSetupList(PromotionSetup promotionSetup) {
-		List<Integer> awardRange = promotionSetup.awardRange();
-		List<AwardInfo> awardSetupList = new ArrayList<AwardInfo>();
-		List<Integer> mediaRange = promotionSetup.mediaIdRange();
-		int index = 0;
-		for (Integer awardId : awardRange) {
-			AwardInfo awardSetup = new AwardInfo();
-			awardSetup.setAwardID("" + awardId);
-			awardSetup.setCap(promotionSetup.getAwardCap());
-			awardSetup.setVariance(promotionSetup.getAwardVariance());
-			MediaInfo mediaInfo = new MediaInfo();
-			mediaInfo.setMediaID(mediaRange.get(index).toString());
-			mediaInfo.setCap(promotionSetup.getMediaCap());
-			mediaInfo.setVariance(promotionSetup.getMediaVariance());
-			ChannelMediaInfo channelMediaInfo = new ChannelMediaInfo();
-			// TODO we set the mediaid as channel media Id
-			channelMediaInfo.setChannelMediaID(mediaInfo.getMediaID());
-			channelMediaInfo.setChannelType(promotionSetup.getChannelType());
-			channelMediaInfo.setStartDate(promotionSetup.getStartDate());
-			channelMediaInfo.setEndDate(promotionSetup.getEndDate());
-			mediaInfo.addChannelMedia(channelMediaInfo);
-			awardSetup.addMedia(mediaInfo);
-			awardSetupList.add(awardSetup);
-			index++;
-		}
-		return awardSetupList;
-	}
-	
-	public Map<String, List<Wallet>> getCustomerWallet() {
-		return customerWallet;
-	}
-
-	public void setCustomerWallet(Map<String, List<Wallet>> customerWallet) {
-		this.customerWallet = customerWallet;
-	}
-
-	
-	
-	public PmrDataOrganizer getPmrDataOrganizer() {
-		return pmrDataOrganizer;
-	}
-
-	public void setPmrDataOrganizer(PmrDataOrganizer pmrDataOrganizer) {
-		this.pmrDataOrganizer = pmrDataOrganizer;
-	}
-
 }
