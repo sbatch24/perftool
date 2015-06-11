@@ -4,15 +4,11 @@ package com.catalinamarketing.omni;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Unmarshaller;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import org.springframework.boot.SpringApplication;
 import com.catalinamarketing.omni.client.PerfToolClient;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.pmr.setup.AwardInfo;
@@ -21,10 +17,6 @@ import com.catalinamarketing.omni.pmr.setup.MediaInfo;
 import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
 import com.catalinamarketing.omni.pmr.setup.ProgramInfo;
 import com.catalinamarketing.omni.server.ControlServer;
-import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.Histogram;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import com.google.gson.Gson;
 
 /**
@@ -113,6 +105,7 @@ public class PerfToolApplication  {
 			try {
 				JAXBContext context = JAXBContext.newInstance(Config.class);
 				Unmarshaller um = context.createUnmarshaller();
+				SpringApplication.run(HttpServerLauncher.class, args);
 			    Config config = (Config) um.unmarshal(new FileReader("config.xml"));
 			    ControlServer cs = new ControlServer(config);
 				cs.runServer(config.getServerPort());

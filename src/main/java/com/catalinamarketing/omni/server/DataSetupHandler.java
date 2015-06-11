@@ -84,13 +84,11 @@ public class DataSetupHandler {
 
 			Stopwatch watch =  Stopwatch.createStarted();
 			client = ClientBuilder.newBuilder().register(feature).build();
-			int count = 1;
 			for(Map.Entry<String, List<Wallet>> entry : customerWallet.entrySet()){
 				try {
 					updateWalletDataForConsumer(entry, client, feature);
-					count++;
 					Thread.sleep(10);	
-					System.out.println("\n Count " + count);
+					logger.info("Publishing data for CID - " + entry.getKey());
 				}catch(Exception ex) {
 					logger.error("Problems posting wallet to profile(cid - " + entry.getKey() + " ). Error " + ex.getMessage());
 					client.close();
@@ -117,7 +115,6 @@ public class DataSetupHandler {
 	
 	public void clearEventsFromProfile() {
 		logger.info("Clearing events from profile data");
-		List<String> customerIds = new ArrayList<String>();
 		List<CardSetup> cardSetupList = config.getCardSetupList();
 		Client client  = null;
 		HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(config.getDmpUserName(), config.getDmpPassword());
@@ -134,7 +131,7 @@ public class DataSetupHandler {
 						.header("Content-Type", MediaType.APPLICATION_JSON).get();
 				if(resp.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode() && resp.getStatusInfo() != Response.Status.ACCEPTED) {
 					logger.error("Problem clearing events from profile " + "USA-"
-								+ config.getNetworkId() + "-" + firstId );
+								+ config.getNetworkId() + "-" + firstId  + " http code : " + resp.getStatus());
 				}
 				resp.close();
 			}
