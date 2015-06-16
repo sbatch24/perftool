@@ -70,7 +70,7 @@ public class PmrDataOrganizer {
 				pmrSetupMessage.addProgram(programSetupMessage);
 				addPmrSetupMessage(pmrSetupMessage);
 			} else {
-				logger.error("PromotionSetup should always contain a bill No. Check config.xml file for promotionSetup - "
+				logger.error("PromotionSetup should always contain a Program Setup Id. Check config.xml file for promotionSetup - "
 						+ promoSetup.getAwardRange());
 			}
 		}
