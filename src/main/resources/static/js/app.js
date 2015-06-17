@@ -1,6 +1,6 @@
 (function() {
     var app = angular.module("perftool", []);
-
+    
     var panelController = app.controller("panelController", function($scope, $http, $log) {
         /*Initialize the data*/
         $scope.programData = {
@@ -10,12 +10,27 @@
             edit: false
         };
 
-        $http.get("http://localhost:8080/config")
+        $http.get("/config")
             .success(function(response) {
+                $scope.config = response;
                 $scope.setup = response.server.setup;
             }).error(function(response) {
                 $log.error("Problem in calling config resource");
-            });
+        });
+        
+        $scope.updateConfiguration = function() {
+            $scope.config.server.setup = $scope.setup;
+            $http.post('/update', $scope.config).
+              success(function(data, status, headers, config) {
+                // this callback will be called asynchronously
+                // when the response is available
+                $log.info("Call successful")
+              }).
+              error(function(data, status, headers, config) {
+                // called asynchronously if an error occurs
+                // or server returns response with an error status.
+              });        
+        }
 
         /**/
         $scope.editProgramSetup = function(index) {
