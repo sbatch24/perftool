@@ -10,7 +10,6 @@
             edit: false
         };
 
-
         $http.get("http://localhost:8080/config")
             .success(function(response) {
                 $scope.setup = response.server.setup;
@@ -94,8 +93,8 @@
         
         /*Private function which clears the model*/
         var clearModel = function(obj) {
-            for(x in obj) {
-                obj[x] = '';
+            for(attrib in obj) {
+                obj[attrib] = '';
             }
         }
         
