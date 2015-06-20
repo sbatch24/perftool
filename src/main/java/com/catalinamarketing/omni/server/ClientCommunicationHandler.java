@@ -27,12 +27,37 @@ public class ClientCommunicationHandler implements Runnable {
 	private final String clientIdentifier;
 	private final String hostName;
 	private String userName;
+	private STATUS status;
+	
+	public enum STATUS {
+		CONNECTED(0),
+		INITIAL_STATUS_SENT(1),
+		BUSY_EXECUTING_TEST(2),
+		FINISHED_EXECUTING_TEST(3),
+		DISCONNECTED(4),
+		DISCONNECTED_STATUS_SENT(5);  // TODO - Remove from list once this status has been sent.
+		
+		private int status;
+		
+		STATUS(int s) {
+			this.setStatus(s);
+		}
+
+		public int getStatus() {
+			return status;
+		}
+
+		public void setStatus(int status) {
+			this.status = status;
+		}
+	}
 
 	public ClientCommunicationHandler(Socket socket, ControlServer controlServer) {
 		this.socket = socket;
 		this.controlServer = controlServer;
 		this.clientIdentifier = UUID.randomUUID().toString();
 		this.hostName  = socket.getInetAddress().getHostName();
+		this.status = STATUS.CONNECTED;
 		mutex = new Object();
 	}
 	
@@ -86,6 +111,7 @@ public class ClientCommunicationHandler implements Runnable {
 				logger.info(statusMessage.printMessage());
 			} else if(message instanceof TestExecutionResultMsg) {
 				TestExecutionResultMsg executionResult = (TestExecutionResultMsg) message;
+				setStatus(STATUS.FINISHED_EXECUTING_TEST);
 				logger.info(executionResult.printMessage());
 			}
 		}
@@ -102,17 +128,19 @@ public class ClientCommunicationHandler implements Runnable {
 		        	Message message = marshalIncomingMessage(incomingMessage);
 			        processMessage(message);	
 		        }else {
-		        	controlServer.removeClientCommunicationHandler(clientIdentifier);
+		        	//controlServer.removeClientCommunicationHandler(clientIdentifier);
+		        	setStatus(STATUS.DISCONNECTED);
 		        	break;
 		        }
 			}
 		}catch(Exception ex) {
 			logger.error("Problem in client communication thread. Error: " + ex.getMessage());
-			ex.printStackTrace();
+        	setStatus(STATUS.DISCONNECTED);
 		}finally {
 			try {
 				socket.close();
-				controlServer.removeClientCommunicationHandler(clientIdentifier);
+	        	setStatus(STATUS.DISCONNECTED);
+				//controlServer.removeClientCommunicationHandler(clientIdentifier);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -133,5 +161,33 @@ public class ClientCommunicationHandler implements Runnable {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	public STATUS getStatus() {
+		return status;
+	}
+
+	public void setStatus(STATUS status) {
+		this.status = status;
+	}
+	
+	@Override
+	public String toString() {
+		 String message = null;
+		switch(status) {
+			case CONNECTED :
+				message = "Worker joined the pool and available for test execution";
+				break;
+			case BUSY_EXECUTING_TEST:
+				message = "Worker is busy executing test plan";
+				break;
+			case DISCONNECTED : 
+				message = "Worker left the pool. One less resource available for test execution";
+				break;
+			case FINISHED_EXECUTING_TEST :
+				message = "Test execution finished";
+				break;
+		}
+		return message;
 	}
 }

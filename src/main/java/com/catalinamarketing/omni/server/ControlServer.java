@@ -3,9 +3,15 @@ package com.catalinamarketing.omni.server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.queue.CircularFifoQueue;
+import org.apache.tomcat.util.digester.ArrayStack;
+import org.mapdb.Queues.CircularQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +34,12 @@ public class ControlServer {
 	final static Logger logger = LoggerFactory.getLogger(ControlServer.class);
 	private Map<String,ClientCommunicationHandler> clientCommunicationHandlerList;
 	private ServerSocket serverSocket;
+	private CircularFifoQueue<String> serverStatus;
 	
 	public ControlServer(Config configuration) {
 		this.clientCommunicationHandlerList = new HashMap<String,ClientCommunicationHandler>();
+		serverStatus = new CircularFifoQueue<String>(5);
+		serverStatus.add("Server initialized at " + new Date().toString());
 	}
 	
 	public Map<String, ClientCommunicationHandler> getClientCommunicationHandlerList() {
@@ -69,8 +78,6 @@ public class ControlServer {
 		try {
 			serverSocket = new ServerSocket(portNumber);
 			logger.info("Listening on port "+ portNumber);
-			ConsoleReaderThread consoleReader = new ConsoleReaderThread(this);
-			new Thread(consoleReader).start();
 	        try {
 	            while (true) {
 	                Socket socket = serverSocket.accept();
@@ -87,5 +94,13 @@ public class ControlServer {
 			logger.error("Problem occured in server. Error: " + ex.getMessage());
 			ex.printStackTrace();
 		}
+	}
+
+	public List<String> getServerStatus() {
+		return Arrays.asList((String[]) serverStatus.toArray(new String[serverStatus.size()]));
+	}
+
+	public void updateStatus(String serverStatus) {
+		this.serverStatus.add(serverStatus);
 	}
 }

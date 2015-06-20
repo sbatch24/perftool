@@ -82,7 +82,7 @@ public class ConsoleReaderThread implements Runnable {
 						StatusMsg statusMessage = new StatusMsg();
 						for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
 								.entrySet()) {
-							logger.info("Requestion status for client hostname : "
+							logger.info("Requesting status for client hostname : "
 									+ entry.getValue().getHostName() + " client Id : " + entry.getValue().getClientIdentifier()
 									+ " userName : " + entry.getValue().getUserName());
 							entry.getValue().writeMessage(statusMessage);

@@ -3,6 +3,7 @@ package com.catalinamarketing.omni.server;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -18,6 +19,7 @@ import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
 import com.catalinamarketing.omni.pmr.setup.ProgramInfo;
 import com.catalinamarketing.omni.protocol.message.AwardData;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
+import com.catalinamarketing.omni.server.ClientCommunicationHandler.STATUS;
 
 /**
  * Class responsible for notifying all clients with their respective test plan
@@ -29,7 +31,6 @@ public class TestPlanDispatcherThread implements Runnable {
 	
 	final static Logger logger = LoggerFactory.getLogger(TestPlanDispatcherThread.class);
 
-	
 	private final Config config;
 	private final ControlServer controlServer;
 	private final  List<PmrSetupMessage> pmrSetupMessageList;
@@ -52,6 +53,7 @@ public class TestPlanDispatcherThread implements Runnable {
 			int clientHandlerCount = 0;
 			for(Map.Entry<String, ClientCommunicationHandler> entry : clientList.entrySet()) {
 				entry.getValue().writeMessage(testPlanMsgList.get(clientHandlerCount));
+				entry.getValue().setStatus(STATUS.BUSY_EXECUTING_TEST);
 				clientHandlerCount++;
 			}
 			if(clientHandlerCount == 0) {
@@ -170,6 +172,5 @@ public class TestPlanDispatcherThread implements Runnable {
 			cardRangeIds.add(lastId);
 			cardRangeList.add(cardRangeIds);
 		}
-		
 	}
 }

@@ -28,8 +28,12 @@ import com.google.gson.Gson;
 public class PerfToolApplication  {
 	
 	final static Logger logger = LoggerFactory.getLogger(PerfToolApplication.class);
-	
+	private static  ControlServer controlServer;
 
+	public static ControlServer getControlServer() {
+		return controlServer;
+	}
+	
 	public void printsetupmessage() {
 		Gson gson = new Gson();
 		PmrSetupMessage msg = new PmrSetupMessage();
@@ -107,8 +111,8 @@ public class PerfToolApplication  {
 				Unmarshaller um = context.createUnmarshaller();
 				SpringApplication.run(HttpServerLauncher.class, args);
 			    Config config = (Config) um.unmarshal(new FileReader("config.xml"));
-			    ControlServer cs = new ControlServer(config);
-				cs.runServer(config.getServerPort());
+			    controlServer = new ControlServer(config);
+				controlServer.runServer(config.getServerPort());
 			}catch(Exception e) {
 				e.printStackTrace();
 			}

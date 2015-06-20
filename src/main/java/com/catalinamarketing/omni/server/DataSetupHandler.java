@@ -24,6 +24,7 @@ import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.config.Environment;
 import com.catalinamarketing.omni.config.PromotionSetup;
 import com.catalinamarketing.omni.dmp.setup.Wallet;
+import com.catalinamarketing.omni.message.DataSetupActivityLog;
 import com.catalinamarketing.omni.pmr.setup.PmrDataOrganizer;
 import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
 import com.catalinamarketing.omni.util.ChannelTypeTranslator;
@@ -38,11 +39,12 @@ public class DataSetupHandler {
 	final static Logger logger = LoggerFactory.getLogger(DataSetupHandler.class);
 	private Config config;
 	private boolean publish;
-
+	private DataSetupActivityLog activityLog;
 	
 	public DataSetupHandler(Config config, boolean publish) {
 		this.config = config;
 		this.publish = publish;
+		activityLog = new DataSetupActivityLog();
 	}
 	
 	/**
@@ -51,12 +53,13 @@ public class DataSetupHandler {
 	 * based on the Promotion/Program setup in config.xml 2. Use the card setup
 	 * data to create the consumer profiles.
 	 */
-	public void dataSetup() {
+	public DataSetupActivityLog dataSetup() {
 		logger.info("Data setup will involve publishing data to PMR and to the DMP");
 		PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config);
 		pmrDataOrganizer.initializePmrDataSetup();
 		publishPmrData(pmrDataOrganizer);
 		initializeDmpData();
+		return activityLog;
 	}
 
 	public void updateWalletDataForConsumer(Map.Entry<String, List<Wallet>> entry, Client client, HttpAuthenticationFeature feature) {
@@ -68,6 +71,7 @@ public class DataSetupHandler {
 				.header("Content-Type", MediaType.APPLICATION_JSON).post(Entity.entity(gson.toJson(entry.getValue()), MediaType.APPLICATION_JSON));	
 		if(resp.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode() && resp.getStatusInfo() != Response.Status.ACCEPTED) {
 			logger.error("Problem post wallet data for CID " + entry.getKey() + " Error code : "+ resp.getStatus());
+			activityLog.addException("Problem post wallet data for CID " + entry.getKey() + " Error code : "+ resp.getStatus());
 		}
 		resp.close();
 	}
@@ -90,7 +94,9 @@ public class DataSetupHandler {
 					Thread.sleep(10);	
 					logger.info("Publishing data for CID - " + entry.getKey());
 				}catch(Exception ex) {
+					
 					logger.error("Problems posting wallet to profile(cid - " + entry.getKey() + " ). Error " + ex.getMessage());
+					activityLog.addException("Problems posting wallet to profile(cid - " + entry.getKey() + " ). Error " + ex.getMessage());
 					client.close();
 					client = ClientBuilder.newBuilder().register(feature).build();
 				}
@@ -113,7 +119,7 @@ public class DataSetupHandler {
 				tokenizedId);
 	}
 	
-	public void clearEventsFromProfile() {
+	public DataSetupActivityLog clearEventsFromProfile() {
 		logger.info("Clearing events from profile data");
 		List<CardSetup> cardSetupList = config.getCardSetupList();
 		Client client  = null;
@@ -132,12 +138,13 @@ public class DataSetupHandler {
 				if(resp.getStatusInfo().getStatusCode() != Response.Status.OK.getStatusCode() && resp.getStatusInfo() != Response.Status.ACCEPTED) {
 					logger.error("Problem clearing events from profile " + "USA-"
 								+ config.getNetworkId() + "-" + firstId  + " http code : " + resp.getStatus());
+					activityLog.addException("Problem clearing events from profile " + "USA-"
+								+ config.getNetworkId() + "-" + firstId  + " http code : " + resp.getStatus());
 				}
 				resp.close();
 			}
 		}
-		
-		
+		return activityLog;
 	}
 
 	/**
@@ -219,7 +226,7 @@ public class DataSetupHandler {
 				}
 			} catch (IOException e) {
 				logger.error("Problem publish pmr data. Error :"+ e.getMessage());
-				e.printStackTrace();
+				activityLog.addException("Problem publish pmr data. Error :"+ e.getMessage());
 			} finally {
 				try {
 					channel.close();

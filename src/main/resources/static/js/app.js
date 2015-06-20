@@ -1,6 +1,6 @@
 (function() {
     var app = angular.module("perftool", []);
-    
+
     var panelController = app.controller("panelController", function($scope, $http, $log) {
         /*Initialize the data*/
         $scope.programData = {
@@ -10,27 +10,96 @@
             edit: false
         };
 
+        $scope.cardSetupData = {
+            edit: false
+        };
+
+        $scope.activityLog = [];
+
         $http.get("/config")
             .success(function(response) {
                 $scope.config = response;
                 $scope.setup = response.server.setup;
             }).error(function(response) {
                 $log.error("Problem in calling config resource");
-        });
-        
+            });
+
         $scope.updateConfiguration = function() {
             $scope.config.server.setup = $scope.setup;
             $http.post('/update', $scope.config).
-              success(function(data, status, headers, config) {
-                // this callback will be called asynchronously
-                // when the response is available
-                $log.info("Call successful")
-              }).
-              error(function(data, status, headers, config) {
-                // called asynchronously if an error occurs
-                // or server returns response with an error status.
-              });        
+            success(function(data, status, headers, config) {
+                $log.info("Configuration updated successful");
+                $scope.activityLog += data.status + "\r\n";
+            }).
+            error(function(data, status, headers, config) {
+                $log.info("Unable to update configuration");
+            });
         }
+
+        var formatData = function(activityList) {
+            for (var i = 0; i < activityList.length; i++) {
+                var jsonValue = JSON.stringify(activityList[i]);
+                $log.info(jsonValue);
+                $scope.activityLog += jsonValue + "\r\n";
+
+            }
+        }
+
+        $scope.publishData = function() {
+            $http.get("/publish")
+                .success(function(response) {
+                    formatData(response.activityLogList);
+                }).error(function(response) {
+                    $log.error("Problem in calling publish resource");
+                    formatData(response.workerList);
+                });
+        }
+
+        $scope.resetData = function() {
+            $http.get("/reset")
+                .success(function(response) {
+                    formatData(response.activityLogList);
+                }).error(function(response) {
+                    $log.error("Problem in calling reset resource");
+                    formatData(response.activityLogList);
+                });
+        }
+
+        $scope.stopTest = function() {
+            $http.get("/stop")
+                .success(function(response) {
+                    $scope.activityLog += response.status;
+                }).error(function(response) {
+                    $log.error("Test could not be stopped");
+                    $scope.activityLog += "Test could not be stopped \r\n";
+                });
+        }
+
+        $scope.startTest = function() {
+            $http.get("/start")
+                .success(function(response) {
+                    $scope.activityLog +=  response.status + "\r\n";
+                    formatData(response.workerList);
+                }).error(function(response) {
+                    $log.error("Problem in calling start test resource");
+                    $scope.activityLog("Request to start a test could not be fulfilled\r\n");
+                });
+        }
+
+
+        $scope.status = function() {
+            $http.get("/status")
+                .success(function(response) {
+                    formatData(response.status);
+                    formatData(response.workerList);
+                }).error(function(response) {
+                    $log.error("Problem in calling status resource");
+                    $scope.activityLog += response.status + "\r\n";
+                    formatData(response.workerList);
+                });
+        }
+
+
 
         /**/
         $scope.editProgramSetup = function(index) {
@@ -65,6 +134,16 @@
             $scope.promotionSetupData.endDate = $scope.setup.promotionSetup[index].endDate;
         }
 
+        /**/
+        $scope.editCardRangeSetup = function(index) {
+            $log.info("Index selected " + index);
+            $scope.cardSetupData['index'] = index;
+            $scope.cardSetupData.edit = true;
+            $scope.cardSetupData.cardRangeId = $scope.setup.cardSetup[index].cardRangeId;
+            $scope.cardSetupData.cardRange = $scope.setup.cardSetup[index].cardRange;
+
+        }
+
         $scope.newPromotionSetup = function() {
             $scope.promotionSetupData = {};
             $scope.promotionSetupData['edit'] = false;
@@ -76,14 +155,30 @@
             $scope.programData['edit'] = false;
         }
 
+        $scope.newCardRange = function() {
+            $scope.cardSetupData = {};
+            $scope.cardSetupData['edit'] = false;
+        }
+
         $scope.deleteProgram = function(index) {
             $log.info("Deleting program");
+            $scope.programData = {};
+            clearModel($scope.programData);
             $scope.setup.programSetup.splice(index, 1);
         }
 
         $scope.deletePromotionData = function(index) {
             $log.info("Deleting promotion setup");
+            $scope.promotionSetupData = {};
+            clearModel($scope.promotionSetupData);
             $scope.setup.promotionSetup.splice(index, 1);
+        }
+
+        $scope.deleteCardRangeSetup = function(index) {
+            $log.info("Deleting card setup");
+            $scope.cardSetupData = {};
+            clearModel($scope.cardSetupData);
+            $scope.setup.cardSetup.splice(index, 1);
         }
 
         $scope.saveProgramData = function() {
@@ -102,17 +197,24 @@
                 $scope.setup.programSetup[$scope.programData.index].cap = $scope.programData.cap;
                 $scope.setup.programSetup[$scope.programData.index].variance = $scope.programData.variance;
             }
-            
+
             clearModel($scope.programData);
         };
-        
-        /*Private function which clears the model*/
-        var clearModel = function(obj) {
-            for(attrib in obj) {
-                obj[attrib] = '';
+
+        $scope.saveCardRangeData = function() {
+            if ($scope.cardSetupData.edit == false) {
+                $scope.setup.cardSetup.push({
+                    'cardRange': $scope.cardSetupData.cardRange,
+                    'cardRangeId': $scope.cardSetupData.cardRangeId,
+                });
+            } else {
+                $scope.setup.cardSetup[$scope.cardSetupData.index].cardRange = $scope.cardSetupData.cardRange;
+                $scope.setup.cardSetup[$scope.cardSetupData.index].cardRangeId = $scope.cardSetupData.cardRangeId;
             }
-        }
-        
+            clearModel($scope.cardSetupData);
+        };
+
+
         $scope.savePromotionSetup = function() {
             if ($scope.promotionSetupData.edit == false) {
                 $scope.setup.promotionSetup.push({
@@ -142,11 +244,18 @@
                 $scope.setup.promotionSetup[$scope.promotionSetupData.index].startDate = $scope.promotionSetupData.startDate;
                 $scope.setup.promotionSetup[$scope.promotionSetupData.index].endDate = $scope.promotionSetupData.endDate;
                 $scope.setup.promotionSetup[$scope.promotionSetupData.index].cardRangeId = $scope.promotionSetupData.cardRangeId,
-                $scope.setup.promotionSetup[$scope.promotionSetupData.index].programSetupId = $scope.promotionSetupData.programSetupId;
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].programSetupId = $scope.promotionSetupData.programSetupId;
 
             }
             clearModel($scope.promotionSetupData);
-           
+
         };
+
+        /*Private function which clears the model*/
+        var clearModel = function(obj) {
+            for (attrib in obj) {
+                obj[attrib] = '';
+            }
+        }
     });
 })();

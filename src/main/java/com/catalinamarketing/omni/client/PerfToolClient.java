@@ -80,7 +80,6 @@ public class PerfToolClient {
 					if(this.testPlanExecutor != null ) {
 						testPlanExecutor.haltApiThread();
 						logger.info(message.printMessage());
-						
 					}
 				}
 	        }else {
