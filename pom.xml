@@ -74,6 +74,11 @@
 			<artifactId>mapdb</artifactId>
 			<version>1.0.7</version>
 		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+			<version>4.0</version>
+		</dependency>
 	</dependencies>
 	<repositories>
 		<repository>
@@ -82,55 +87,20 @@
 		</repository>
 	</repositories>
 	<build>
-		<!-- <plugins>
-			<plugin>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-					<additionalProjectnatures>
-						<projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
-					</additionalProjectnatures>
-					<additionalBuildcommands>
-						<buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
-					</additionalBuildcommands>
-					<downloadSources>true</downloadSources>
-					<downloadJavadocs>true</downloadJavadocs>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-					<compilerArgument>-Xlint:all</compilerArgument>
-					<showWarnings>true</showWarnings>
-					<showDeprecation>true</showDeprecation>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-				<version>2.3</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-						<configuration>
-							<transformers>
-								<transformer
-									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-									<mainClass>com.catalinamarketing.omni.PerfToolApplication</mainClass>
-								</transformer>
-							</transformers>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins> -->
+		<!-- <plugins> <plugin> <artifactId>maven-eclipse-plugin</artifactId> <version>2.9</version> 
+			<configuration> <additionalProjectnatures> <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature> 
+			</additionalProjectnatures> <additionalBuildcommands> <buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand> 
+			</additionalBuildcommands> <downloadSources>true</downloadSources> <downloadJavadocs>true</downloadJavadocs> 
+			</configuration> </plugin> <plugin> <groupId>org.apache.maven.plugins</groupId> 
+			<artifactId>maven-compiler-plugin</artifactId> <version>3.1</version> <configuration> 
+			<source>1.7</source> <target>1.7</target> <compilerArgument>-Xlint:all</compilerArgument> 
+			<showWarnings>true</showWarnings> <showDeprecation>true</showDeprecation> 
+			</configuration> </plugin> <plugin> <groupId>org.apache.maven.plugins</groupId> 
+			<artifactId>maven-shade-plugin</artifactId> <version>2.3</version> <executions> 
+			<execution> <phase>package</phase> <goals> <goal>shade</goal> </goals> <configuration> 
+			<transformers> <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer"> 
+			<mainClass>com.catalinamarketing.omni.PerfToolApplication</mainClass> </transformer> 
+			</transformers> </configuration> </execution> </executions> </plugin> </plugins> -->
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

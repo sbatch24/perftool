@@ -1,7 +1,7 @@
 (function() {
     var app = angular.module("perftool", []);
 
-    var panelController = app.controller("panelController", function($scope, $http, $log) {
+    var panelController = app.controller("panelController", function($scope, $http, $log, $interval) {
         /*Initialize the data*/
         $scope.programData = {
             edit: false
@@ -16,6 +16,8 @@
 
         $scope.activityLog = [];
 
+        $interval(function(){ $scope.checkStatus(); }, 5000);
+        
         $http.get("/config")
             .success(function(response) {
                 $scope.config = response;
@@ -78,7 +80,7 @@
         $scope.startTest = function() {
             $http.get("/start")
                 .success(function(response) {
-                    $scope.activityLog +=  response.status + "\r\n";
+                    $scope.activityLog += response.status + "\r\n";
                     formatData(response.workerList);
                 }).error(function(response) {
                     $log.error("Problem in calling start test resource");
@@ -87,7 +89,7 @@
         }
 
 
-        $scope.status = function() {
+        $scope.getStatus = function() {
             $http.get("/status")
                 .success(function(response) {
                     formatData(response.status);
@@ -98,8 +100,18 @@
                     formatData(response.workerList);
                 });
         }
-
-
+        
+        $scope.checkStatus = function() {
+            $http.get("/checkStatus")
+                .success(function(response) {
+                    formatData(response.status);
+                    formatData(response.workerList);
+                }).error(function(response) {
+                    $log.error("Problem in calling status resource");
+                    $scope.activityLog += response.status + "\r\n";
+                    formatData(response.workerList);
+                });
+        }
 
         /**/
         $scope.editProgramSetup = function(index) {

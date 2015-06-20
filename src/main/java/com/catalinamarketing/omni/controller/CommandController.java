@@ -66,9 +66,11 @@ public class CommandController {
 			Marshaller um = context.createMarshaller();
 		    um.marshal(config,new FileWriter(new File("configt.xml")));
 		    logger.info("Configuration updated");
+		    
 		}catch(Exception ex) {
 			logger.error("Problem occured during update of configuration. Error : " + ex.getMessage());
 		}
+		PerfToolApplication.getControlServer().updateStatus("Configuration updated successfully at " + new Date().toString());
 		return new ResponseEntity<String>("{\"status\":\"Configuration updated\"}", HttpStatus.OK);
 	}
 	
@@ -89,10 +91,12 @@ public class CommandController {
 			return new ResponseEntity<String> (new Gson().toJson(activityLog), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		if(activityLog.errorOccured()) {
+			PerfToolApplication.getControlServer().updateStatus("Problem occured while publishing data to PMR and DMP [" + new Date().toString() +"]" );
 			new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		activityLog.addActivityMessage("Data published data successful");
+		PerfToolApplication.getControlServer().updateStatus("Data published successfully to PMR and DMP [" + new Date().toString() + "]");
 		return new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.OK);
 	}
 	
@@ -113,9 +117,11 @@ public class CommandController {
 			return new ResponseEntity<String> (new Gson().toJson(activityLog), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		if(activityLog.errorOccured()) {
+			PerfToolApplication.getControlServer().updateStatus("Problem occured while resetting data ["+ new Date().toString()+ "]" );
 			new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		activityLog.addActivityMessage("Resetting data successful");
+		PerfToolApplication.getControlServer().updateStatus("Data reset successfully executed [" + new Date().toString() +"]");
 		return new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.OK);
 	}
 	
@@ -131,15 +137,8 @@ public class CommandController {
 			for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
 					.entrySet()) {
 				ClientCommunicationHandler clientCommHandler = entry.getValue();
-				// Only update status for newly connected clients.
-				if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.CONNECTED) {
-					statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
+				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
 							clientCommHandler.getStatus().toString()));
-					clientCommHandler.setStatus(STATUS.INITIAL_STATUS_SENT);
-				} else if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.BUSY_EXECUTING_TEST) {
-					statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
-							clientCommHandler.getStatus().toString()));
-				}
 			}
 		}
 		statusMessage.updateStatus(PerfToolApplication.getControlServer().getServerStatus());
@@ -151,27 +150,24 @@ public class CommandController {
 		StatusMessage statusMessage = new StatusMessage();
 		Map<String, ClientCommunicationHandler> clientList = PerfToolApplication.getControlServer()
 				.getClientCommunicationHandlerList();
-		if(clientList.size() == 0) {
-			logger.info("No clients connected");
-			statusMessage.setStatus("No clients connected");
-		} else {
-			for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
-					.entrySet()) {
-				ClientCommunicationHandler clientCommHandler = entry.getValue();
-				// Only update status for newly connected clients.
-				if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.CONNECTED) {
-					statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
-							clientCommHandler.getStatus().toString()));
-					clientCommHandler.setStatus(STATUS.INITIAL_STATUS_SENT);
-				} else if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.DISCONNECTED) {
-					statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
-							clientCommHandler.getStatus().toString()));
-					clientCommHandler.setStatus(STATUS.DISCONNECTED_STATUS_SENT);
-					PerfToolApplication.getControlServer().removeClientCommunicationHandler(clientCommHandler.getClientIdentifier());
-				}
+		
+		for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
+				.entrySet()) {
+			ClientCommunicationHandler clientCommHandler = entry.getValue();
+			// Only update status for newly connected clients.
+			if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.CONNECTED) {
+				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
+						clientCommHandler.getStatus().toString()));
+				clientCommHandler.setStatus(STATUS.INITIAL_STATUS_SENT);
+			} else if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.DISCONNECTED) {
+				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
+						clientCommHandler.getStatus().toString()));
+				clientCommHandler.setStatus(STATUS.DISCONNECTED_STATUS_SENT);
+				PerfToolApplication.getControlServer().removeClientCommunicationHandler(clientCommHandler.getClientIdentifier());
 			}
 		}
-		statusMessage.updateStatus(PerfToolApplication.getControlServer().getServerStatus());
+		
+		//statusMessage.updateStatus(PerfToolApplication.getControlServer().getServerStatus());
 		return new ResponseEntity<String>(new Gson().toJson(statusMessage),HttpStatus.OK);
 	} 
 
@@ -187,6 +183,7 @@ public class CommandController {
 			for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
 					.entrySet()) {
 				client = entry.getValue();
+				client.setStatus(STATUS.TEST_EXECUTION_HALTED);
 				client.writeMessage(msg);
 			}
 		} else {
