@@ -6,10 +6,12 @@ import java.util.List;
 public class StatusMessage {
 	private List<WorkerInfo> workerList;
 	private List<String> status;
+	private boolean testGoingOn = false;
 	
 	public StatusMessage() {
 		this.workerList = new ArrayList<WorkerInfo>();
 		this.status = new ArrayList<String>();
+		setTestGoingOn(false);
 	}
 	
 	public void addWorker(WorkerInfo worker) {
@@ -34,6 +36,14 @@ public class StatusMessage {
 	
 	public void updateStatus(List<String> statusList) {
 		this.status.addAll(statusList);
+	}
+
+	public boolean isTestGoingOn() {
+		return testGoingOn;
+	}
+
+	public void setTestGoingOn(boolean testGoingOn) {
+		this.testGoingOn = testGoingOn;
 	}
 	
 }

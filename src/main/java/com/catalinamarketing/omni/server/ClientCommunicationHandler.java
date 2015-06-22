@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Date;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -35,8 +36,9 @@ public class ClientCommunicationHandler implements Runnable {
 		BUSY_EXECUTING_TEST(2),
 		TEST_EXECUTION_HALTED(3),
 		FINISHED_EXECUTING_TEST(4),
-		DISCONNECTED(5),
-		DISCONNECTED_STATUS_SENT(6);  // TODO - Remove from list once this status has been sent.
+		EXECUTION_STATUS_SENT(5),
+		DISCONNECTED(6),
+		DISCONNECTED_STATUS_SENT(7); 
 		
 		private int status;
 		
@@ -50,6 +52,29 @@ public class ClientCommunicationHandler implements Runnable {
 
 		public void setStatus(int status) {
 			this.status = status;
+		}
+		
+		@Override
+		public String toString() {
+			 String message = null;
+			switch(this) {
+				case CONNECTED :
+					message = "Worker joined the pool on " + new Date().toString();
+					break;
+				case BUSY_EXECUTING_TEST:
+					message = "Worker is busy executing test plan";
+					break;
+				case TEST_EXECUTION_HALTED:
+					message = "Test execution was halted on " + new Date().toString();
+					break;
+				case DISCONNECTED : 
+					message = "Worker left the pool on " + new Date().toString() + ". One less resource available";
+					break;
+				case FINISHED_EXECUTING_TEST :
+					message = "Test execution finished on " + new Date().toString();
+					break;
+			}
+			return message;
 		}
 	}
 
@@ -170,28 +195,5 @@ public class ClientCommunicationHandler implements Runnable {
 
 	public void setStatus(STATUS status) {
 		this.status = status;
-	}
-	
-	@Override
-	public String toString() {
-		 String message = null;
-		switch(this.status) {
-			case CONNECTED :
-				message = "Worker joined the pool and available for test execution";
-				break;
-			case BUSY_EXECUTING_TEST:
-				message = "Worker is busy executing test plan";
-				break;
-			case TEST_EXECUTION_HALTED:
-				message = "Test execution was halted";
-				break;
-			case DISCONNECTED : 
-				message = "Worker left the pool. One less resource available for test execution";
-				break;
-			case FINISHED_EXECUTING_TEST :
-				message = "Test execution finished";
-				break;
-		}
-		return message;
 	}
 }

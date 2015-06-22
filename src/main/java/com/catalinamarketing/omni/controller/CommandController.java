@@ -3,6 +3,7 @@ package com.catalinamarketing.omni.controller;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -30,6 +31,7 @@ import com.catalinamarketing.omni.pmr.setup.PmrDataOrganizer;
 import com.catalinamarketing.omni.protocol.message.HaltExecutionMsg;
 import com.catalinamarketing.omni.server.ClientCommunicationHandler;
 import com.catalinamarketing.omni.server.ClientCommunicationHandler.STATUS;
+import com.catalinamarketing.omni.server.ControlServer;
 import com.catalinamarketing.omni.server.DataSetupHandler;
 import com.catalinamarketing.omni.server.TestPlanDispatcherThread;
 import com.google.gson.Gson;
@@ -64,7 +66,7 @@ public class CommandController {
 		try {
 			JAXBContext context = JAXBContext.newInstance(Config.class);
 			Marshaller um = context.createMarshaller();
-		    um.marshal(config,new FileWriter(new File("configt.xml")));
+		    um.marshal(config,new FileWriter(new File("config.xml")));
 		    logger.info("Configuration updated");
 		    
 		}catch(Exception ex) {
@@ -142,6 +144,7 @@ public class CommandController {
 			}
 		}
 		statusMessage.updateStatus(PerfToolApplication.getControlServer().getServerStatus());
+		statusMessage.setTestGoingOn(ControlServer.isTestInProgress());
 		return new ResponseEntity<String>(new Gson().toJson(statusMessage),HttpStatus.OK);
 	}
 	
@@ -164,10 +167,17 @@ public class CommandController {
 						clientCommHandler.getStatus().toString()));
 				clientCommHandler.setStatus(STATUS.DISCONNECTED_STATUS_SENT);
 				PerfToolApplication.getControlServer().removeClientCommunicationHandler(clientCommHandler.getClientIdentifier());
+			} else if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.FINISHED_EXECUTING_TEST) {
+				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
+						clientCommHandler.getStatus().toString()));
+				clientCommHandler.setStatus(STATUS.EXECUTION_STATUS_SENT);
+			} else if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.TEST_EXECUTION_HALTED) {
+				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
+						clientCommHandler.getStatus().toString()));
+				clientCommHandler.setStatus(STATUS.EXECUTION_STATUS_SENT);
 			}
 		}
-		
-		//statusMessage.updateStatus(PerfToolApplication.getControlServer().getServerStatus());
+		statusMessage.setTestGoingOn(ControlServer.isTestInProgress());
 		return new ResponseEntity<String>(new Gson().toJson(statusMessage),HttpStatus.OK);
 	} 
 
@@ -190,41 +200,52 @@ public class CommandController {
 			return new ResponseEntity<String>("{\"status\":\"No clients available \"}",HttpStatus.OK);
 		}
 		PerfToolApplication.getControlServer().updateStatus("Test execution requested to be stopped at " + new Date().toString());
+		ControlServer.setTestInProgress(false);
 		return new ResponseEntity<String>("{\"status\":\"Abort test request sent to all workers in the pool.\"}",HttpStatus.OK);
 	}
 	
 	@RequestMapping(method=RequestMethod.GET, value="/start")
 	public ResponseEntity<String> startTest() {
 		TestActivityMessage testActivity = new TestActivityMessage();
-		try {
-			JAXBContext context = JAXBContext
-					.newInstance(Config.class);
-			Unmarshaller um = context.createUnmarshaller();
-			Config config = (Config) um.unmarshal(new FileReader(
-					"config.xml"));
-			PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config);
-			pmrDataOrganizer.initializePmrDataSetup();
-			TestPlanDispatcherThread testPlanDispatcherThread = new TestPlanDispatcherThread(
-					config, PerfToolApplication.getControlServer(), pmrDataOrganizer.getPmrSetupMessageList());
-			new Thread(testPlanDispatcherThread).start();
-			Map<String, ClientCommunicationHandler> clientList = PerfToolApplication.getControlServer()
-					.getClientCommunicationHandlerList();
-			if(clientList.size() > 0) {
-				for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
-						.entrySet()) {
-					testActivity.addWorker(new WorkerInfo(entry.getValue().getHostName(), entry.getValue().getUserName(), "Test requested"));
+		if(PerfToolApplication.getControlServer().isTestInProgress()) {
+			testActivity.setStatus(PerfToolApplication.getControlServer().getTestStatus());
+		} else {
+			try {
+				JAXBContext context = JAXBContext
+						.newInstance(Config.class);
+				Unmarshaller um = context.createUnmarshaller();
+				Config config = (Config) um.unmarshal(new FileReader(
+						"config.xml"));
+				PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config);
+				pmrDataOrganizer.initializePmrDataSetup();
+				TestPlanDispatcherThread testPlanDispatcherThread = new TestPlanDispatcherThread(
+						config, PerfToolApplication.getControlServer(), pmrDataOrganizer.getPmrSetupMessageList());
+				new Thread(testPlanDispatcherThread).start();
+				Map<String, ClientCommunicationHandler> clientList = PerfToolApplication.getControlServer()
+						.getClientCommunicationHandlerList();
+				if(clientList.size() > 0) {
+					for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
+							.entrySet()) {
+						testActivity.addWorker(new WorkerInfo(entry.getValue().getHostName(), entry.getValue().getUserName(), "Test requested"));
+					}
+					long simulationTimeInSeconds = config.getSimulationTimeInSeconds();
+					Calendar cal = Calendar.getInstance();
+					cal.add(Calendar.MILLISECOND,(int)(simulationTimeInSeconds * 1000));
+					testActivity.setStatus("Test has been requested on " + new Date().toString() + " and will end around " +cal.getTime().toString());
+					PerfToolApplication.getControlServer().setTestStatus("Test has been requested on " + new Date().toString() + " and will end around " +cal.getTime().toString());
+					ControlServer.setTestInProgress(true);
+					ControlServer.startTestExecutionCheckTimer((simulationTimeInSeconds*1000));
+				}else {
+					testActivity.setStatus("No clients are available for executing test plan");
 				}
-				testActivity.setStatus("Test has been requested");	
-			}else {
-				testActivity.setStatus("No clients are available for executing test plan");
+				
+			}catch(Exception ex) {
+				logger.error("Problem requesting test execution. Error : " + ex.getMessage());
+				testActivity.setStatus("Problem requesting test execution. Error : "+ ex.getMessage());
+				return new ResponseEntity<String>(new Gson().toJson(testActivity),HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-			
-		}catch(Exception ex) {
-			logger.error("Problem requesting test execution. Error : " + ex.getMessage());
-			testActivity.setStatus("Problem requesting test execution. Error : "+ ex.getMessage());
-			return new ResponseEntity<String>(new Gson().toJson(testActivity),HttpStatus.INTERNAL_SERVER_ERROR);
+			PerfToolApplication.getControlServer().updateStatus("Test execution requested at " + new Date().toString());
 		}
-		PerfToolApplication.getControlServer().updateStatus("Test execution requested at " + new Date().toString());
 		return new ResponseEntity<String>(new Gson().toJson(testActivity),HttpStatus.OK);
 	}
 

@@ -8,6 +8,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.tomcat.util.digester.ArrayStack;
@@ -35,10 +37,12 @@ public class ControlServer {
 	private Map<String,ClientCommunicationHandler> clientCommunicationHandlerList;
 	private ServerSocket serverSocket;
 	private CircularFifoQueue<String> serverStatus;
-	
+	private static boolean testInProgress;
+	private String testStatus;
 	public ControlServer(Config configuration) {
 		this.clientCommunicationHandlerList = new HashMap<String,ClientCommunicationHandler>();
 		serverStatus = new CircularFifoQueue<String>(5);
+		testInProgress = false;
 		serverStatus.add("Server initialized at " + new Date().toString());
 	}
 	
@@ -102,5 +106,36 @@ public class ControlServer {
 
 	public void updateStatus(String serverStatus) {
 		this.serverStatus.add(serverStatus);
+	}
+
+	public static boolean isTestInProgress() {
+		return testInProgress;
+	}
+
+	public static void setTestInProgress(boolean val) {
+		testInProgress = val;
+	}
+
+	public String getTestStatus() {
+		return testStatus;
+	}
+
+	public void setTestStatus(String testStatus) {
+		this.testStatus = testStatus;
+	}
+	
+	/**
+	 * This timer is started after a request to kick off test execution is requested. The timer will be set to expire
+	 * when the tests is scheduled to end.
+	 * @param delay
+	 */
+	public static void startTestExecutionCheckTimer(long delay) {
+		Timer timer = new Timer();
+		timer.schedule(new TimerTask() {
+			@Override
+			public void run() {
+				setTestInProgress(false);
+			}
+		}, delay);
 	}
 }

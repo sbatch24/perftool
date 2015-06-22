@@ -54,6 +54,17 @@ public class Config {
 	}
 	
 	/**
+	 * Calculates the amount of time in  seconds it would take for the performance simulator to run.
+	 * Currently the performance simulator simulates targeting and capping calls. The simulation will take the longest of the two times.
+	 * @return
+	 */
+	public long getSimulationTimeInSeconds() {
+		Simulation simulation = getConfiguredSimulation();
+		return (simulation.getCappingCallCount() * simulation.getCapReportFrequency()) > (simulation.getTargetingCallCount() * simulation.getEventReportFrequency())
+				? (simulation.getCappingCallCount() * simulation.getCapReportFrequency()) : (simulation.getTargetingCallCount() * simulation.getEventReportFrequency());
+	}
+	
+	/**
 	 * Return the environment name of the configured environment.
 	 * @return Environment type.
 	 */

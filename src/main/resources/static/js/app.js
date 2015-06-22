@@ -1,5 +1,6 @@
 (function() {
     var app = angular.module("perftool", []);
+    
 
     var panelController = app.controller("panelController", function($scope, $http, $log, $interval) {
         /*Initialize the data*/
@@ -15,7 +16,8 @@
         };
 
         $scope.activityLog = [];
-
+        $scope.testGoingOn = true;
+        
         $interval(function(){ $scope.checkStatus(); }, 5000);
         
         $http.get("/config")
@@ -30,7 +32,7 @@
             $scope.config.server.setup = $scope.setup;
             $http.post('/update', $scope.config).
             success(function(data, status, headers, config) {
-                $log.info("Configuration updated successful");
+                $log.info("Configuration updated successful\n\r");
                 $scope.activityLog += data.status + "\r\n";
             }).
             error(function(data, status, headers, config) {
@@ -52,7 +54,7 @@
                 .success(function(response) {
                     formatData(response.activityLogList);
                 }).error(function(response) {
-                    $log.error("Problem in calling publish resource");
+                    $log.error("Problem in calling publish resource\n\r");
                     formatData(response.workerList);
                 });
         }
@@ -62,7 +64,7 @@
                 .success(function(response) {
                     formatData(response.activityLogList);
                 }).error(function(response) {
-                    $log.error("Problem in calling reset resource");
+                    $log.error("Problem in calling reset resource\n\r");
                     formatData(response.activityLogList);
                 });
         }
@@ -70,7 +72,7 @@
         $scope.stopTest = function() {
             $http.get("/stop")
                 .success(function(response) {
-                    $scope.activityLog += response.status;
+                    $scope.activityLog += response.status + "\r\n";
                 }).error(function(response) {
                     $log.error("Test could not be stopped");
                     $scope.activityLog += "Test could not be stopped \r\n";
@@ -92,6 +94,7 @@
         $scope.getStatus = function() {
             $http.get("/status")
                 .success(function(response) {
+                    $scope.testGoingOn = response.testGoingOn;
                     formatData(response.status);
                     formatData(response.workerList);
                 }).error(function(response) {
@@ -104,6 +107,7 @@
         $scope.checkStatus = function() {
             $http.get("/checkStatus")
                 .success(function(response) {
+                    $scope.testGoingOn = response.testGoingOn;
                     formatData(response.status);
                     formatData(response.workerList);
                 }).error(function(response) {
