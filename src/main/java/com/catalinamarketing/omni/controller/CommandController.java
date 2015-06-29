@@ -168,8 +168,12 @@ public class CommandController {
 				clientCommHandler.setStatus(STATUS.DISCONNECTED_STATUS_SENT);
 				PerfToolApplication.getControlServer().removeClientCommunicationHandler(clientCommHandler.getClientIdentifier());
 			} else if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.FINISHED_EXECUTING_TEST) {
-				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
-						clientCommHandler.getStatus().toString()));
+				WorkerInfo workerInfo = new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
+						clientCommHandler.getStatus().toString());
+				statusMessage.addWorker(workerInfo);
+				workerInfo.setApiExceptionList(clientCommHandler.getApiExceptionList());
+				workerInfo.setApiResponseCounterList(clientCommHandler.getApiResponseCounterList());
+				workerInfo.setMetricRegistryList(clientCommHandler.getMetricRegistryList());
 				clientCommHandler.setStatus(STATUS.EXECUTION_STATUS_SENT);
 			} else if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.TEST_EXECUTION_HALTED) {
 				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),

@@ -6,11 +6,15 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.catalinamarketing.omni.protocol.message.ApiException;
+import com.catalinamarketing.omni.protocol.message.ApiHttpResponseCounter;
+import com.catalinamarketing.omni.protocol.message.ApiMetricRegistry;
 import com.catalinamarketing.omni.protocol.message.HandShakeMsg;
 import com.catalinamarketing.omni.protocol.message.Message;
 import com.catalinamarketing.omni.protocol.message.StatusMsg;
@@ -24,11 +28,13 @@ public class ClientCommunicationHandler implements Runnable {
 	private final Object mutex;
 	
 	private final Socket socket;
-	private final ControlServer controlServer;
 	private final String clientIdentifier;
 	private final String hostName;
 	private String userName;
 	private STATUS status;
+	private List<ApiHttpResponseCounter> apiResponseCounterList;
+	private List<ApiException> apiExceptionList;
+	private List<ApiMetricRegistry> metricRegistryList;
 	
 	public enum STATUS {
 		CONNECTED(0),
@@ -78,9 +84,8 @@ public class ClientCommunicationHandler implements Runnable {
 		}
 	}
 
-	public ClientCommunicationHandler(Socket socket, ControlServer controlServer) {
+	public ClientCommunicationHandler(Socket socket) {
 		this.socket = socket;
-		this.controlServer = controlServer;
 		this.clientIdentifier = UUID.randomUUID().toString();
 		this.hostName  = socket.getInetAddress().getHostName();
 		this.status = STATUS.CONNECTED;
@@ -138,6 +143,9 @@ public class ClientCommunicationHandler implements Runnable {
 			} else if(message instanceof TestExecutionResultMsg) {
 				TestExecutionResultMsg executionResult = (TestExecutionResultMsg) message;
 				setStatus(STATUS.FINISHED_EXECUTING_TEST);
+				setApiExceptionList(executionResult.getApiExceptionList());
+				setApiResponseCounterList(executionResult.getApiResponseCounterList());
+				setMetricRegistryList(executionResult.getMetricRegistryList());
 				logger.info(executionResult.printMessage());
 			}
 		}
@@ -195,5 +203,29 @@ public class ClientCommunicationHandler implements Runnable {
 
 	public void setStatus(STATUS status) {
 		this.status = status;
+	}
+
+	public List<ApiHttpResponseCounter> getApiResponseCounterList() {
+		return apiResponseCounterList;
+	}
+
+	public void setApiResponseCounterList(List<ApiHttpResponseCounter> apiResponseCounterList) {
+		this.apiResponseCounterList = apiResponseCounterList;
+	}
+
+	public List<ApiException> getApiExceptionList() {
+		return apiExceptionList;
+	}
+
+	public void setApiExceptionList(List<ApiException> apiExceptionList) {
+		this.apiExceptionList = apiExceptionList;
+	}
+
+	public List<ApiMetricRegistry> getMetricRegistryList() {
+		return metricRegistryList;
+	}
+
+	public void setMetricRegistryList(List<ApiMetricRegistry> metricRegistryList) {
+		this.metricRegistryList = metricRegistryList;
 	}
 }

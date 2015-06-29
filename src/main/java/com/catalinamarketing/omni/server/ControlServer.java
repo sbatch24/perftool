@@ -86,7 +86,7 @@ public class ControlServer {
 	            while (true) {
 	                Socket socket = serverSocket.accept();
 	              	logger.info("Got connection request from " + socket.getRemoteSocketAddress());
-                	ClientCommunicationHandler handler = new ClientCommunicationHandler(socket,this);
+                	ClientCommunicationHandler handler = new ClientCommunicationHandler(socket);
 		            clientCommunicationHandlerList.put(handler.getClientIdentifier(),handler);
 		            new Thread(handler).start();	
 	            }

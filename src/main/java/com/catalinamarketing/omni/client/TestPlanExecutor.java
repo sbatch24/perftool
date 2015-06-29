@@ -5,6 +5,11 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+
+import com.codahale.metrics.Timer;
+
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -12,7 +17,9 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.catalinamarketing.omni.protocol.message.ApiMetricRegistry;
 import com.catalinamarketing.omni.protocol.message.HttpResponseCodeCounter;
+import com.catalinamarketing.omni.protocol.message.Metric;
 import com.catalinamarketing.omni.protocol.message.StatusMsg;
 import com.catalinamarketing.omni.protocol.message.TestExecutionResultMsg;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
@@ -21,6 +28,7 @@ import com.catalinamarketing.omni.util.MediaUsageRepository;
 import com.catalinamarketing.omni.util.MessageMarshaller;
 import com.codahale.metrics.ConsoleReporter;
 import com.codahale.metrics.MetricFilter;
+import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import com.google.common.collect.Multiset;
@@ -108,7 +116,6 @@ public class TestPlanExecutor implements Runnable {
 			reporter.report();
 			
 			
-			
 			finishedTestExecution = true;
 			if(isRespondWithHaltedExecutionMessage()) {
 				StatusMsg statusMsg = new StatusMsg();
@@ -146,8 +153,38 @@ public class TestPlanExecutor implements Runnable {
 				executionResultMsg.addException(entry.getKey(), exceptionMessage, exceptions.count(exceptionMessage));
 			}
 		}
+		
+		for(Entry<String, Timer> entry :  ApiExecutor.metrics.getTimers().entrySet()) {
+			String apiName = entry.getKey();
+			ApiMetricRegistry apiMetricRegistry = new ApiMetricRegistry(apiName);
+			populateApiMetricRegistry(apiMetricRegistry, entry.getValue());
+			executionResultMsg.addMetriRegistry(apiMetricRegistry);
+		}
+		
 		out.println(MessageMarshaller.marshalMessage(executionResultMsg));
 		out.flush();
+	}
+	
+	private void populateApiMetricRegistry(ApiMetricRegistry apiMetricRegistry, Timer timer) {
+		Metric metric = new Metric("75thPercentile",timer.getSnapshot().get75thPercentile());
+		apiMetricRegistry.addMetric(metric);
+		metric = new Metric("95thPercentile", timer.getSnapshot().get95thPercentile());
+		apiMetricRegistry.addMetric(metric);
+		
+		metric = new Metric("99thPercentile", timer.getSnapshot().get999thPercentile());
+		apiMetricRegistry.addMetric(metric);
+		
+		metric = new Metric("Median", timer.getSnapshot().getMedian());
+		apiMetricRegistry.addMetric(metric);
+		
+		metric = new Metric("Avg", timer.getSnapshot().getMean());
+		apiMetricRegistry.addMetric(metric);
+		
+		metric = new Metric("Max", timer.getSnapshot().getMax());
+		apiMetricRegistry.addMetric(metric);
+		
+		metric = new Metric("Min", timer.getSnapshot().getMin());
+		apiMetricRegistry.addMetric(metric);
 	}
 
 	/**

@@ -46,4 +46,14 @@ public class StatusMessage {
 		this.testGoingOn = testGoingOn;
 	}
 	
+	public WorkerInfo getWorkerInfo(String userName, String hostName) {
+		for(WorkerInfo workerInfo : workerList) {
+			if(workerInfo.getHostName().equalsIgnoreCase(userName) && 
+					workerInfo.getUserName().equalsIgnoreCase(hostName)) {
+				return workerInfo;
+			}
+		}
+		return null;
+	}
+	
 }

@@ -12,7 +12,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class TestExecutionResultMsg extends Message {
 	
 	private List<ApiHttpResponseCounter> apiResponseCounterList;
+	public List<ApiHttpResponseCounter> getApiResponseCounterList() {
+		return apiResponseCounterList;
+	}
+
+	public void setApiResponseCounterList(
+			List<ApiHttpResponseCounter> apiResponseCounterList) {
+		this.apiResponseCounterList = apiResponseCounterList;
+	}
+
 	private List<ApiException> apiExceptionList;
+	private List<ApiMetricRegistry> metricRegistryList;
 	
 	
 	@Override
@@ -35,7 +45,6 @@ public class TestExecutionResultMsg extends Message {
 				buffer.append("\n");
 			}
 		}
-		
 		return buffer.toString();
 	}
 	
@@ -78,4 +87,18 @@ public class TestExecutionResultMsg extends Message {
 		apiExceptionList.add(exception);
 	}
 
+	public List<ApiMetricRegistry> getMetricRegistryList() {
+		return metricRegistryList;
+	}
+
+	public void setMetricRegistryList(List<ApiMetricRegistry> metricRegistryList) {
+		this.metricRegistryList = metricRegistryList;
+	}
+	
+	public void addMetriRegistry(ApiMetricRegistry registry) {
+		if(metricRegistryList == null) {
+			metricRegistryList = new ArrayList<ApiMetricRegistry>();
+		}
+		metricRegistryList.add(registry);
+	}
 }
