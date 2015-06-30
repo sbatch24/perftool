@@ -1,6 +1,6 @@
 (function() {
     var app = angular.module("perftool", []);
-    
+
 
     var panelController = app.controller("panelController", function($scope, $http, $log, $interval) {
         /*Initialize the data*/
@@ -17,9 +17,11 @@
 
         $scope.activityLog = [];
         $scope.testGoingOn = true;
-        
-        $interval(function(){ $scope.checkStatus(); }, 5000);
-        
+
+        $interval(function() {
+            $scope.checkStatus();
+        }, 5000);
+
         $http.get("/config")
             .success(function(response) {
                 $scope.config = response;
@@ -43,9 +45,7 @@
         var formatData = function(activityList) {
             for (var i = 0; i < activityList.length; i++) {
                 var jsonValue = JSON.stringify(activityList[i]);
-                $log.info(jsonValue);
                 $scope.activityLog += jsonValue + "\r\n";
-
             }
         }
 
@@ -103,7 +103,7 @@
                     formatData(response.workerList);
                 });
         }
-        
+
         $scope.checkStatus = function() {
             $http.get("/checkStatus")
                 .success(function(response) {

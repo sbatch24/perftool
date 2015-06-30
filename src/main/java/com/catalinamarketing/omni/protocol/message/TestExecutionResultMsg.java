@@ -12,6 +12,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class TestExecutionResultMsg extends Message {
 	
 	private List<ApiHttpResponseCounter> apiResponseCounterList;
+	private List<ApiException> apiExceptionList;
+	private List<ApiMetricRegistry> metricRegistryList;
+
 	public List<ApiHttpResponseCounter> getApiResponseCounterList() {
 		return apiResponseCounterList;
 	}
@@ -21,10 +24,6 @@ public class TestExecutionResultMsg extends Message {
 		this.apiResponseCounterList = apiResponseCounterList;
 	}
 
-	private List<ApiException> apiExceptionList;
-	private List<ApiMetricRegistry> metricRegistryList;
-	
-	
 	@Override
 	public String printMessage() {
 		StringBuffer buffer = new StringBuffer();

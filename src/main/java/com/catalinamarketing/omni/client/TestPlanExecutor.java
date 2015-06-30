@@ -160,7 +160,6 @@ public class TestPlanExecutor implements Runnable {
 			populateApiMetricRegistry(apiMetricRegistry, entry.getValue());
 			executionResultMsg.addMetriRegistry(apiMetricRegistry);
 		}
-		
 		out.println(MessageMarshaller.marshalMessage(executionResultMsg));
 		out.flush();
 	}

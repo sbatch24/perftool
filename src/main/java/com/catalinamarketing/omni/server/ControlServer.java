@@ -39,6 +39,7 @@ public class ControlServer {
 	private CircularFifoQueue<String> serverStatus;
 	private static boolean testInProgress;
 	private String testStatus;
+	private static Timer timer;
 	public ControlServer(Config configuration) {
 		this.clientCommunicationHandlerList = new HashMap<String,ClientCommunicationHandler>();
 		serverStatus = new CircularFifoQueue<String>(5);
@@ -124,13 +125,17 @@ public class ControlServer {
 		this.testStatus = testStatus;
 	}
 	
+	
+	public static void cancelTestExecutionCheckTimer() {
+		timer.cancel();
+	}
 	/**
 	 * This timer is started after a request to kick off test execution is requested. The timer will be set to expire
 	 * when the tests is scheduled to end.
 	 * @param delay
 	 */
 	public static void startTestExecutionCheckTimer(long delay) {
-		Timer timer = new Timer();
+		timer = new Timer();
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {

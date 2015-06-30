@@ -181,7 +181,7 @@ public class CommandController {
 				clientCommHandler.setStatus(STATUS.EXECUTION_STATUS_SENT);
 			}
 		}
-		statusMessage.setTestGoingOn(ControlServer.isTestInProgress());
+		//statusMessage.setTestGoingOn(ControlServer.isTestInProgress());
 		return new ResponseEntity<String>(new Gson().toJson(statusMessage),HttpStatus.OK);
 	} 
 
@@ -205,6 +205,7 @@ public class CommandController {
 		}
 		PerfToolApplication.getControlServer().updateStatus("Test execution requested to be stopped at " + new Date().toString());
 		ControlServer.setTestInProgress(false);
+		ControlServer.cancelTestExecutionCheckTimer();
 		return new ResponseEntity<String>("{\"status\":\"Abort test request sent to all workers in the pool.\"}",HttpStatus.OK);
 	}
 	
