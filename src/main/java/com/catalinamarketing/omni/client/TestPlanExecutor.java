@@ -165,24 +165,24 @@ public class TestPlanExecutor implements Runnable {
 	}
 	
 	private void populateApiMetricRegistry(ApiMetricRegistry apiMetricRegistry, Timer timer) {
-		Metric metric = new Metric("75thPercentile",timer.getSnapshot().get75thPercentile());
+		Metric metric = new Metric("75thPercentile",(timer.getSnapshot().get75thPercentile()/1000000) +  " milliseconds");
 		apiMetricRegistry.addMetric(metric);
-		metric = new Metric("95thPercentile", timer.getSnapshot().get95thPercentile());
-		apiMetricRegistry.addMetric(metric);
-		
-		metric = new Metric("99thPercentile", timer.getSnapshot().get999thPercentile());
+		metric = new Metric("95thPercentile", (timer.getSnapshot().get95thPercentile()/1000000) + " milliseconds");
 		apiMetricRegistry.addMetric(metric);
 		
-		metric = new Metric("Median", timer.getSnapshot().getMedian());
+		metric = new Metric("99thPercentile", (timer.getSnapshot().get999thPercentile()/1000000) + " milliseconds");
 		apiMetricRegistry.addMetric(metric);
 		
-		metric = new Metric("Avg", timer.getSnapshot().getMean());
+		metric = new Metric("Median", (timer.getSnapshot().getMedian()/1000000) + " milliseconds");
 		apiMetricRegistry.addMetric(metric);
 		
-		metric = new Metric("Max", timer.getSnapshot().getMax());
+		metric = new Metric("Avg", (timer.getSnapshot().getMean()/1000000) + " milliseconds");
 		apiMetricRegistry.addMetric(metric);
 		
-		metric = new Metric("Min", timer.getSnapshot().getMin());
+		metric = new Metric("Max", (timer.getSnapshot().getMax()/1000000) + " milliseconds");
+		apiMetricRegistry.addMetric(metric);
+		
+		metric = new Metric("Min", (timer.getSnapshot().getMin()/1000000) + " milliseconds");
 		apiMetricRegistry.addMetric(metric);
 	}
 

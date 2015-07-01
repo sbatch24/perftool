@@ -52,20 +52,36 @@
         $scope.publishData = function() {
             $http.get("/publish")
                 .success(function(response) {
-                    formatData(response.activityLogList);
+                    if(response.activityLogList.length > 0) {
+                        $scope.activityLog += JSON.stringify(response.activityLogList,null,4);
+                        $scope.activityLog += "\n";
+                    }
+                    
+                    // formatData(response.activityLogList);
                 }).error(function(response) {
                     $log.error("Problem in calling publish resource\n\r");
-                    formatData(response.workerList);
+                    if(response.activityLogList.length > 0) {
+                        $scope.activityLog += JSON.stringify(response.activityLogList,null,4);
+                        $scope.activityLog += "\n";
+                    }
                 });
         }
 
         $scope.resetData = function() {
             $http.get("/reset")
                 .success(function(response) {
-                    formatData(response.activityLogList);
+                    if(response.activityLogList.length > 0) {
+                        $scope.activityLog += JSON.stringify(response.activityLogList, null,4);
+                        $scope.activityLog += "\n";
+                    }
+                    //formatData(response.activityLogList);
                 }).error(function(response) {
                     $log.error("Problem in calling reset resource\n\r");
-                    formatData(response.activityLogList);
+                    if(response.activityLogList.length > 0) {
+                        $scope.activityLog += JSON.stringify(response.activityLogList, null,4);
+                        $scope.activityLog += "\n";
+                    }
+                    //formatData(response.activityLogList);
                 });
         }
 
@@ -83,7 +99,9 @@
             $http.get("/start")
                 .success(function(response) {
                     $scope.activityLog += response.status + "\r\n";
-                    formatData(response.workerList);
+                    $scope.activityLog += JSON.stringify(response.workerList, null, 4);
+                    $scope.activityLog += "\n";
+                    //formatData(response.workerList);
                 }).error(function(response) {
                     $log.error("Problem in calling start test resource");
                     $scope.activityLog("Request to start a test could not be fulfilled\r\n");
@@ -95,8 +113,16 @@
             $http.get("/status")
                 .success(function(response) {
                     $scope.testGoingOn = response.testGoingOn;
-                    formatData(response.status);
-                    formatData(response.workerList);
+                    if(response.workerList.length > 0) {
+                        $scope.activityLog += JSON.stringify(response.workerList, null, 4);
+                        $scope.activityLog += "\n\r";
+                    }
+                    if(response.status.length > 0) {
+                        $scope.activityLog += JSON.stringify(response.status, null, 4);
+                        $scope.activityLog += "\n\r";
+                    }
+                    //formatData(response.status);
+                    //formatData(response.workerList);
                 }).error(function(response) {
                     $log.error("Problem in calling status resource");
                     $scope.activityLog += response.status + "\r\n";
@@ -108,8 +134,14 @@
             $http.get("/checkStatus")
                 .success(function(response) {
                     $scope.testGoingOn = response.testGoingOn;
-                    formatData(response.status);
-                    formatData(response.workerList);
+                    if(response.workerList.length > 0) {
+                        $scope.activityLog += JSON.stringify(response.workerList, null, 4);
+                        $scope.activityLog += "\n";
+                    }
+                    if(response.status.length > 0) {
+                        $scope.activityLog += JSON.stringify(response.status, null, 4);
+                        $scope.activityLog += "\n";
+                    }
                 }).error(function(response) {
                     $log.error("Problem in calling status resource");
                     $scope.activityLog += response.status + "\r\n";

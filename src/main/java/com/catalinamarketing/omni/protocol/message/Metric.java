@@ -8,13 +8,13 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name="metric")
 public class Metric {
 	private String metricName;
-	private double value;
+	private String value;
 	
 	public Metric() {
 		
 	}
 	
-	public Metric(String metricName, double value) {
+	public Metric(String metricName, String value) {
 		this.metricName = metricName;
 		this.value = value;
 	}
@@ -25,10 +25,10 @@ public class Metric {
 	public void setMetricName(String metricName) {
 		this.metricName = metricName;
 	}
-	public double getValue() {
+	public String getValue() {
 		return value;
 	}
-	public void setValue(double value) {
+	public void setValue(String value) {
 		this.value = value;
 	}
 }
