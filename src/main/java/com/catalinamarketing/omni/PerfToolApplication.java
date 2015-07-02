@@ -110,7 +110,7 @@ public class PerfToolApplication  {
 		reporter.forRegistry(metrics).outputTo(System.out);
 		reporter.report();*/
 		
-		if(args.length == 1 && args[0].contains("server")) {
+		if(args.length >=1 && args[0].contains("server")) {
 			try {
 				JAXBContext context = JAXBContext.newInstance(Config.class);
 				Unmarshaller um = context.createUnmarshaller();

@@ -18,9 +18,9 @@
         $scope.activityLog = [];
         $scope.testGoingOn = true;
 
-        $interval(function() {
-            $scope.checkStatus();
-        }, 5000);
+//        $interval(function() {
+//            $scope.checkStatus();
+//        }, 5000);
 
         $http.get("/config")
             .success(function(response) {

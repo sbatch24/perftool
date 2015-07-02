@@ -32,6 +32,7 @@ import com.catalinamarketing.omni.protocol.message.HaltExecutionMsg;
 import com.catalinamarketing.omni.server.ClientCommunicationHandler;
 import com.catalinamarketing.omni.server.ClientCommunicationHandler.STATUS;
 import com.catalinamarketing.omni.server.ControlServer;
+import com.catalinamarketing.omni.server.ControlServer.TESTSTATUS;
 import com.catalinamarketing.omni.server.DataSetupHandler;
 import com.catalinamarketing.omni.server.TestPlanDispatcherThread;
 import com.google.gson.Gson;
@@ -139,12 +140,17 @@ public class CommandController {
 			for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
 					.entrySet()) {
 				ClientCommunicationHandler clientCommHandler = entry.getValue();
-				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
-							clientCommHandler.getStatus().toString()));
+				WorkerInfo workerInfo = new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
+						clientCommHandler.getStatus().toString());
+				statusMessage.addWorker(workerInfo);
+				workerInfo.setApiExceptionList(clientCommHandler.getApiExceptionList());
+				workerInfo.setApiResponseCounterList(clientCommHandler.getApiResponseCounterList());
+				workerInfo.setMetricRegistryList(clientCommHandler.getMetricRegistryList());
+				
 			}
 		}
 		statusMessage.updateStatus(PerfToolApplication.getControlServer().getServerStatus());
-		statusMessage.setTestGoingOn(ControlServer.isTestInProgress());
+		//statusMessage.setTestGoingOn(ControlServer.isTestInProgress() );
 		return new ResponseEntity<String>(new Gson().toJson(statusMessage),HttpStatus.OK);
 	}
 	
@@ -204,7 +210,7 @@ public class CommandController {
 			return new ResponseEntity<String>("{\"status\":\"No clients available \"}",HttpStatus.OK);
 		}
 		PerfToolApplication.getControlServer().updateStatus("Test execution requested to be stopped at " + new Date().toString());
-		ControlServer.setTestInProgress(false);
+		ControlServer.setTestInProgress(TESTSTATUS.TEST_ABORTED);
 		ControlServer.cancelTestExecutionCheckTimer();
 		return new ResponseEntity<String>("{\"status\":\"Abort test request sent to all workers in the pool.\"}",HttpStatus.OK);
 	}
@@ -212,7 +218,7 @@ public class CommandController {
 	@RequestMapping(method=RequestMethod.GET, value="/start")
 	public ResponseEntity<String> startTest() {
 		TestActivityMessage testActivity = new TestActivityMessage();
-		if(PerfToolApplication.getControlServer().isTestInProgress()) {
+		if(PerfToolApplication.getControlServer().isTestInProgress() ) {
 			testActivity.setStatus(PerfToolApplication.getControlServer().getTestStatus());
 		} else {
 			try {
@@ -238,7 +244,9 @@ public class CommandController {
 					cal.add(Calendar.MILLISECOND,(int)(simulationTimeInSeconds * 1000));
 					testActivity.setStatus("Test has been requested on " + new Date().toString() + " and will end around " +cal.getTime().toString());
 					PerfToolApplication.getControlServer().setTestStatus("Test has been requested on " + new Date().toString() + " and will end around " +cal.getTime().toString());
-					ControlServer.setTestInProgress(true);
+					PerfToolApplication.getControlServer().updateStatus("Test has been requested on " + new Date().toString() + " and will end around " +cal.getTime().toString());
+
+					ControlServer.setTestInProgress(TESTSTATUS.TEST_IN_PROGRESS);
 					ControlServer.startTestExecutionCheckTimer((simulationTimeInSeconds*1000));
 				}else {
 					testActivity.setStatus("No clients are available for executing test plan");
@@ -249,7 +257,6 @@ public class CommandController {
 				testActivity.setStatus("Problem requesting test execution. Error : "+ ex.getMessage());
 				return new ResponseEntity<String>(new Gson().toJson(testActivity),HttpStatus.INTERNAL_SERVER_ERROR);
 			}
-			PerfToolApplication.getControlServer().updateStatus("Test execution requested at " + new Date().toString());
 		}
 		return new ResponseEntity<String>(new Gson().toJson(testActivity),HttpStatus.OK);
 	}

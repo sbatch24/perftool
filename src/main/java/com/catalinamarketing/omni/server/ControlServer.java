@@ -37,13 +37,36 @@ public class ControlServer {
 	private Map<String,ClientCommunicationHandler> clientCommunicationHandlerList;
 	private ServerSocket serverSocket;
 	private CircularFifoQueue<String> serverStatus;
-	private static boolean testInProgress;
+	private static TESTSTATUS testInProgress;
 	private String testStatus;
 	private static Timer timer;
+	
+	public enum TESTSTATUS {
+		NOT_STARTED(0),
+		TEST_IN_PROGRESS(1),
+		TEST_ABORTED(2),
+		TEST_FINISHED(3);
+		
+		private int status;
+		
+		TESTSTATUS(int s) {
+			this.setStatus(s);
+		}
+
+		public int getStatus() {
+			return status;
+		}
+
+		public void setStatus(int status) {
+			this.status = status;
+		}
+	}
+	
+	
 	public ControlServer(Config configuration) {
 		this.clientCommunicationHandlerList = new HashMap<String,ClientCommunicationHandler>();
-		serverStatus = new CircularFifoQueue<String>(5);
-		testInProgress = false;
+		serverStatus = new CircularFifoQueue<String>(50);
+		testInProgress = TESTSTATUS.NOT_STARTED;
 		serverStatus.add("Server initialized at " + new Date().toString());
 	}
 	
@@ -87,7 +110,7 @@ public class ControlServer {
 	            while (true) {
 	                Socket socket = serverSocket.accept();
 	              	logger.info("Got connection request from " + socket.getRemoteSocketAddress());
-                	ClientCommunicationHandler handler = new ClientCommunicationHandler(socket);
+                	ClientCommunicationHandler handler = new ClientCommunicationHandler(socket, this);
 		            clientCommunicationHandlerList.put(handler.getClientIdentifier(),handler);
 		            new Thread(handler).start();	
 	            }
@@ -110,10 +133,14 @@ public class ControlServer {
 	}
 
 	public static boolean isTestInProgress() {
-		return testInProgress;
+		if(testInProgress == TESTSTATUS.NOT_STARTED || testInProgress == TESTSTATUS.TEST_FINISHED ||
+				testInProgress == TESTSTATUS.TEST_ABORTED) {
+			return false;
+		}  
+		return true;
 	}
 
-	public static void setTestInProgress(boolean val) {
+	public static void setTestInProgress(TESTSTATUS val) {
 		testInProgress = val;
 	}
 
@@ -139,7 +166,7 @@ public class ControlServer {
 		timer.schedule(new TimerTask() {
 			@Override
 			public void run() {
-				setTestInProgress(false);
+				setTestInProgress(TESTSTATUS.TEST_FINISHED);
 			}
 		}, delay);
 	}

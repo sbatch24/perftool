@@ -8,10 +8,8 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.catalinamarketing.omni.protocol.message.ApiException;
 import com.catalinamarketing.omni.protocol.message.ApiHttpResponseCounter;
 import com.catalinamarketing.omni.protocol.message.ApiMetricRegistry;
@@ -21,6 +19,11 @@ import com.catalinamarketing.omni.protocol.message.StatusMsg;
 import com.catalinamarketing.omni.protocol.message.TestExecutionResultMsg;
 import com.catalinamarketing.omni.util.MessageMarshaller;
 
+/**
+ * Class is responsible for Client communication
+ * @author achavan
+ *
+ */
 public class ClientCommunicationHandler implements Runnable {
 
 	final static Logger logger = LoggerFactory.getLogger(ClientCommunicationHandler.class);
@@ -35,6 +38,7 @@ public class ClientCommunicationHandler implements Runnable {
 	private List<ApiHttpResponseCounter> apiResponseCounterList;
 	private List<ApiException> apiExceptionList;
 	private List<ApiMetricRegistry> metricRegistryList;
+	private ControlServer controlServer;
 	
 	public enum STATUS {
 		CONNECTED(0),
@@ -84,12 +88,13 @@ public class ClientCommunicationHandler implements Runnable {
 		}
 	}
 
-	public ClientCommunicationHandler(Socket socket) {
+	public ClientCommunicationHandler(Socket socket, ControlServer cs) {
 		this.socket = socket;
 		this.clientIdentifier = UUID.randomUUID().toString();
 		this.hostName  = socket.getInetAddress().getHostName();
 		this.status = STATUS.CONNECTED;
 		mutex = new Object();
+		this.controlServer = cs;
 	}
 	
 	/**
@@ -162,7 +167,7 @@ public class ClientCommunicationHandler implements Runnable {
 		        	Message message = marshalIncomingMessage(incomingMessage);
 			        processMessage(message);	
 		        }else {
-		        	//controlServer.removeClientCommunicationHandler(clientIdentifier);
+		        	controlServer.removeClientCommunicationHandler(clientIdentifier);
 		        	setStatus(STATUS.DISCONNECTED);
 		        	break;
 		        }
@@ -174,7 +179,7 @@ public class ClientCommunicationHandler implements Runnable {
 			try {
 				socket.close();
 	        	setStatus(STATUS.DISCONNECTED);
-				//controlServer.removeClientCommunicationHandler(clientIdentifier);
+				controlServer.removeClientCommunicationHandler(clientIdentifier);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
