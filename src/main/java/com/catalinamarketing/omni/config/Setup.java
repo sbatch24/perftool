@@ -25,6 +25,19 @@ public class Setup {
 	@XmlElement(name="cardSetup")
 	List<CardSetup> cardSetup;
 	
+	@XmlElementWrapper(name="offerSetupList")
+	@XmlElement(name="offerSetup")
+	List<OfferSetup> offerSetup;
+	
+	
+	public List<OfferSetup> getOfferSetup() {
+		return offerSetup;
+	}
+
+	public void setOfferSetup(List<OfferSetup> offerSetup) {
+		this.offerSetup = offerSetup;
+	}
+
 	public List<ProgramSetup> getProgramSetup() {
 		return programSetup;
 	}
@@ -67,6 +80,4 @@ public class Setup {
 	public void setRetailerInfo(RetailerInfo retailer) {
 		this.retailerInfo = retailer;
 	}
-	
-
 }

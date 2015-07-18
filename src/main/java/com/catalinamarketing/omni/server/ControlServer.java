@@ -12,8 +12,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import org.apache.commons.collections4.queue.CircularFifoQueue;
-import org.apache.tomcat.util.digester.ArrayStack;
-import org.mapdb.Queues.CircularQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +34,7 @@ public class ControlServer {
 	final static Logger logger = LoggerFactory.getLogger(ControlServer.class);
 	private Map<String,ClientCommunicationHandler> clientCommunicationHandlerList;
 	private ServerSocket serverSocket;
-	private CircularFifoQueue<String> serverStatus;
+	private CircularFifoQueue<String> activityLog;
 	private static TESTSTATUS testInProgress;
 	private String testStatus;
 	private static Timer timer;
@@ -65,9 +63,9 @@ public class ControlServer {
 	
 	public ControlServer(Config configuration) {
 		this.clientCommunicationHandlerList = new HashMap<String,ClientCommunicationHandler>();
-		serverStatus = new CircularFifoQueue<String>(50);
+		activityLog = new CircularFifoQueue<String>(50);
 		testInProgress = TESTSTATUS.NOT_STARTED;
-		serverStatus.add("Server initialized at " + new Date().toString());
+		activityLog.add("Server initialized at " + new Date().toString());
 	}
 	
 	public Map<String, ClientCommunicationHandler> getClientCommunicationHandlerList() {
@@ -124,12 +122,12 @@ public class ControlServer {
 		}
 	}
 
-	public List<String> getServerStatus() {
-		return Arrays.asList((String[]) serverStatus.toArray(new String[serverStatus.size()]));
+	public List<String> getServerActivityLog() {
+		return Arrays.asList((String[]) activityLog.toArray(new String[activityLog.size()]));
 	}
 
-	public void updateStatus(String serverStatus) {
-		this.serverStatus.add(serverStatus);
+	public void updateServerActivityLog(String serverStatus) {
+		this.activityLog.add(serverStatus);
 	}
 
 	public static boolean isTestInProgress() {

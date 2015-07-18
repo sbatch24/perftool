@@ -73,7 +73,7 @@ public class CommandController {
 		}catch(Exception ex) {
 			logger.error("Problem occured during update of configuration. Error : " + ex.getMessage());
 		}
-		PerfToolApplication.getControlServer().updateStatus("Configuration updated successfully at " + new Date().toString());
+		PerfToolApplication.getControlServer().updateServerActivityLog("Configuration updated successfully at " + new Date().toString());
 		return new ResponseEntity<String>("{\"status\":\"Configuration updated\"}", HttpStatus.OK);
 	}
 	
@@ -94,12 +94,12 @@ public class CommandController {
 			return new ResponseEntity<String> (new Gson().toJson(activityLog), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		if(activityLog.errorOccured()) {
-			PerfToolApplication.getControlServer().updateStatus("Problem occured while publishing data to PMR and DMP [" + new Date().toString() +"]" );
+			PerfToolApplication.getControlServer().updateServerActivityLog("Problem occured while publishing data to PMR and DMP [" + new Date().toString() +"]" );
 			new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		activityLog.addActivityMessage("Data published data successful");
-		PerfToolApplication.getControlServer().updateStatus("Data published successfully to PMR and DMP [" + new Date().toString() + "]");
+		PerfToolApplication.getControlServer().updateServerActivityLog("Data published successfully to PMR and DMP [" + new Date().toString() + "]");
 		return new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.OK);
 	}
 	
@@ -120,11 +120,11 @@ public class CommandController {
 			return new ResponseEntity<String> (new Gson().toJson(activityLog), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		if(activityLog.errorOccured()) {
-			PerfToolApplication.getControlServer().updateStatus("Problem occured while resetting data ["+ new Date().toString()+ "]" );
+			PerfToolApplication.getControlServer().updateServerActivityLog("Problem occured while resetting data ["+ new Date().toString()+ "]" );
 			new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		activityLog.addActivityMessage("Resetting data successful");
-		PerfToolApplication.getControlServer().updateStatus("Data reset successfully executed [" + new Date().toString() +"]");
+		PerfToolApplication.getControlServer().updateServerActivityLog("Data reset successfully executed [" + new Date().toString() +"]");
 		return new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.OK);
 	}
 	
@@ -149,46 +149,15 @@ public class CommandController {
 				
 			}
 		}
-		statusMessage.updateStatus(PerfToolApplication.getControlServer().getServerStatus());
+		statusMessage.updateStatus(PerfToolApplication.getControlServer().getServerActivityLog());
 		//statusMessage.setTestGoingOn(ControlServer.isTestInProgress() );
 		return new ResponseEntity<String>(new Gson().toJson(statusMessage),HttpStatus.OK);
 	}
 	
-	@RequestMapping(method = RequestMethod.GET, value="/checkStatus")
+	@RequestMapping(method = RequestMethod.POST, value="/checkStatus")
 	public ResponseEntity<String> checkForNewClients() {
-		StatusMessage statusMessage = new StatusMessage();
-		Map<String, ClientCommunicationHandler> clientList = PerfToolApplication.getControlServer()
-				.getClientCommunicationHandlerList();
 		
-		for (Map.Entry<String, ClientCommunicationHandler> entry : clientList
-				.entrySet()) {
-			ClientCommunicationHandler clientCommHandler = entry.getValue();
-			// Only update status for newly connected clients.
-			if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.CONNECTED) {
-				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
-						clientCommHandler.getStatus().toString()));
-				clientCommHandler.setStatus(STATUS.INITIAL_STATUS_SENT);
-			} else if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.DISCONNECTED) {
-				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
-						clientCommHandler.getStatus().toString()));
-				clientCommHandler.setStatus(STATUS.DISCONNECTED_STATUS_SENT);
-				PerfToolApplication.getControlServer().removeClientCommunicationHandler(clientCommHandler.getClientIdentifier());
-			} else if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.FINISHED_EXECUTING_TEST) {
-				WorkerInfo workerInfo = new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
-						clientCommHandler.getStatus().toString());
-				statusMessage.addWorker(workerInfo);
-				workerInfo.setApiExceptionList(clientCommHandler.getApiExceptionList());
-				workerInfo.setApiResponseCounterList(clientCommHandler.getApiResponseCounterList());
-				workerInfo.setMetricRegistryList(clientCommHandler.getMetricRegistryList());
-				clientCommHandler.setStatus(STATUS.EXECUTION_STATUS_SENT);
-			} else if(clientCommHandler.getStatus() == ClientCommunicationHandler.STATUS.TEST_EXECUTION_HALTED) {
-				statusMessage.addWorker(new WorkerInfo(clientCommHandler.getHostName(), clientCommHandler.getUserName(),
-						clientCommHandler.getStatus().toString()));
-				clientCommHandler.setStatus(STATUS.EXECUTION_STATUS_SENT);
-			}
-		}
-		//statusMessage.setTestGoingOn(ControlServer.isTestInProgress());
-		return new ResponseEntity<String>(new Gson().toJson(statusMessage),HttpStatus.OK);
+		return new ResponseEntity<String>(new Gson().toJson(""),HttpStatus.OK);
 	} 
 
 	@RequestMapping(method=RequestMethod.GET, value="/stop")
@@ -209,7 +178,7 @@ public class CommandController {
 		} else {
 			return new ResponseEntity<String>("{\"status\":\"No clients available \"}",HttpStatus.OK);
 		}
-		PerfToolApplication.getControlServer().updateStatus("Test execution requested to be stopped at " + new Date().toString());
+		PerfToolApplication.getControlServer().updateServerActivityLog("Test execution requested to be stopped at " + new Date().toString());
 		ControlServer.setTestInProgress(TESTSTATUS.TEST_ABORTED);
 		ControlServer.cancelTestExecutionCheckTimer();
 		return new ResponseEntity<String>("{\"status\":\"Abort test request sent to all workers in the pool.\"}",HttpStatus.OK);
@@ -244,7 +213,7 @@ public class CommandController {
 					cal.add(Calendar.MILLISECOND,(int)(simulationTimeInSeconds * 1000));
 					testActivity.setStatus("Test has been requested on " + new Date().toString() + " and will end around " +cal.getTime().toString());
 					PerfToolApplication.getControlServer().setTestStatus("Test has been requested on " + new Date().toString() + " and will end around " +cal.getTime().toString());
-					PerfToolApplication.getControlServer().updateStatus("Test has been requested on " + new Date().toString() + " and will end around " +cal.getTime().toString());
+					PerfToolApplication.getControlServer().updateServerActivityLog("Test has been requested on " + new Date().toString() + " and will end around " +cal.getTime().toString());
 
 					ControlServer.setTestInProgress(TESTSTATUS.TEST_IN_PROGRESS);
 					ControlServer.startTestExecutionCheckTimer((simulationTimeInSeconds*1000));

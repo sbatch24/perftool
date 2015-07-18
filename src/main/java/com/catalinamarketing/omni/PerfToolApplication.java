@@ -80,11 +80,21 @@ public class PerfToolApplication  {
 		System.out.println(json);
 	}
 	
+	public static int isPrime(int A) {
+		int upperLimit = (int)(Math.sqrt(A));
+		for (int i = 2; i < upperLimit; i++) {
+			if (i < A && A % i == 0) return 0;
+		}
+		return 1;
+	}
+	
 	/**
 	 * Entry point for the program.
 	 * @param args
 	 */
 	public static void main(String args[]) {
+		
+		System.out.println(PerfToolApplication.isPrime(22));
 		/*MetricRegistry metrics = new MetricRegistry();
 		final ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics)
                 .convertRatesTo(TimeUnit.MILLISECONDS)
