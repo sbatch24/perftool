@@ -1,8 +1,5 @@
 package com.catalinamarketing.omni.config;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
@@ -10,62 +7,115 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name="promotionSetup")
 public class PromotionSetup {
-	private String awardRange;
-	private String mediaIdRange;
+	private Integer awardId;
+	private Integer mediaId;
 	private Integer awardCap;
 	private Integer awardVariance;
 	private Integer mediaCap;
 	private Integer mediaVariance;
+	private Integer channelMediaId;
+	private Integer channelMediaCap;
+	private Integer channelMediaVariance;
 	private String channelType;
 	private String cardRangeId;
 	private int consumerCap;
+	private int thresholdSequence;
+	private boolean houseHolded = false;
+	private boolean unlimited = false;
+	private String promotionType;
+	private String campaignId;
 	private String programSetupId;
+	private Integer controlPercentage;
+	private Integer randomValue;
 	private String startDate;
 	private String endDate;
 	
-	/**
-	 * Returns the promotion range as a list.
-	 * Contains two elements.
-	 * [0] - first element in the range
-	 * [1] - last element in the range
-	 * @return List<String> contains first and last element in the list;
-	 */
-	public List<Integer> awardRange() {
-		List<Integer> awardRangeList = new ArrayList<Integer>();
-		if(awardRange.contains("-")) {
-			List<String> awardRangeListStr = Arrays.asList(awardRange.split("\\-"));
-			Integer startIndex = Integer.parseInt(awardRangeListStr.get(0));
-			Integer endIndex = Integer.parseInt(awardRangeListStr.get(1));
-			for(;startIndex <= endIndex ; startIndex++) {
-				awardRangeList.add(startIndex);
-			}
-		} else {
-			awardRangeList.add(Integer.parseInt(awardRange));
-		}
-		return awardRangeList;
-	}
 	
-	/**
-	 * Returns the mediaId range as a list.
-	 * Contains two elements.
-	 * [0] - first element in the range
-	 * [1] - last element in the range
-	 * @return List<String> contains first and last element in the list;
-	 */
-	public List<Integer> mediaIdRange() {
-		List<Integer> mediaIdRangeList = new ArrayList<Integer>();
-		if(mediaIdRange.contains("-")) {
-			List<String> mediaIdRangeListStr = Arrays.asList(mediaIdRange.split("\\-"));
-			Integer startIndex = Integer.parseInt(mediaIdRangeListStr.get(0));
-			Integer endIndex = Integer.parseInt(mediaIdRangeListStr.get(1));
-			for(;startIndex <= endIndex ; startIndex++) {
-				mediaIdRangeList.add(startIndex);
-			}
-		} else {
-			mediaIdRangeList.add(Integer.parseInt(mediaIdRange));
-		}
-		return mediaIdRangeList;
+	public Integer getAwardId() {
+		return awardId;
 	}
+
+	public void setAwardId(Integer awardId) {
+		this.awardId = awardId;
+	}
+
+	public Integer getMediaId() {
+		return mediaId;
+	}
+
+	public void setMediaId(Integer mediaId) {
+		this.mediaId = mediaId;
+	}
+
+	public Integer getChannelMediaId() {
+		return channelMediaId;
+	}
+
+	public void setChannelMediaId(Integer channelMediaId) {
+		this.channelMediaId = channelMediaId;
+	}
+
+	public Integer getChannelMediaCap() {
+		return channelMediaCap;
+	}
+
+	public void setChannelMediaCap(Integer channelMediaCap) {
+		this.channelMediaCap = channelMediaCap;
+	}
+
+	public Integer getChannelMediaVariance() {
+		return channelMediaVariance;
+	}
+
+	public void setChannelMediaVariance(Integer channelMediaVariance) {
+		this.channelMediaVariance = channelMediaVariance;
+	}
+
+	public int getThresholdSequence() {
+		return thresholdSequence;
+	}
+
+	public void setThresholdSequence(int thresholdSequence) {
+		this.thresholdSequence = thresholdSequence;
+	}
+
+	public boolean getHouseHolded() {
+		return houseHolded;
+	}
+
+	public void setHouseHolded(boolean houseHolded) {
+		this.houseHolded = houseHolded;
+	}
+
+	public boolean getUnlimited() {
+		return unlimited;
+	}
+
+	public void setUnlimited(boolean unlimited) {
+		this.unlimited = unlimited;
+	}
+
+	public String getPromotionType() {
+		return promotionType;
+	}
+
+	public void setPromotionType(String promotionType) {
+		this.promotionType = promotionType;
+	}
+
+	public String getCampaignId() {
+		return campaignId;
+	}
+
+	public void setCampaignId(String campaignId) {
+		this.campaignId = campaignId;
+	}
+
+	public void setConsumerCap(int consumerCap) {
+		this.consumerCap = consumerCap;
+	}
+
+	
 	
 	public String getStartDate() {
 		return startDate;
@@ -82,13 +132,7 @@ public class PromotionSetup {
 	public void setEndDate(String endDate) {
 		this.endDate = endDate;
 	}
-	
-	public String getAwardRange() {
-		return awardRange;
-	}
-	public void setAwardRange(String awardRange) {
-		this.awardRange = awardRange;
-	}
+
 	public Integer getAwardCap() {
 		return awardCap;
 	}
@@ -120,14 +164,6 @@ public class PromotionSetup {
 		this.programSetupId = id;
 	}
 
-	public String getMediaIdRange() {
-		return mediaIdRange;
-	}
-
-	public void setMediaIdRange(String mediaIdRange) {
-		this.mediaIdRange = mediaIdRange;
-	}
-
 	public Integer getMediaCap() {
 		return mediaCap;
 	}
@@ -150,5 +186,32 @@ public class PromotionSetup {
 
 	public void setChannelType(String channelType) {
 		this.channelType = channelType;
+	}
+	
+	public String getPromotionTypeForDmp() {
+		if(promotionType != null) {
+			if(promotionType.equalsIgnoreCase("STRINGPRINTS")) {
+				return "string prints";
+			} else if(promotionType.equalsIgnoreCase("THRESHOLDS")){
+				return "thresholds";
+			} 	
+		}
+		return "direct";
+	}
+
+	public Integer getControlPercentage() {
+		return controlPercentage;
+	}
+
+	public void setControlPercentage(Integer controlPercentage) {
+		this.controlPercentage = controlPercentage;
+	}
+
+	public Integer getRandomValue() {
+		return randomValue;
+	}
+
+	public void setRandomValue(Integer randomValue) {
+		this.randomValue = randomValue;
 	}
 }

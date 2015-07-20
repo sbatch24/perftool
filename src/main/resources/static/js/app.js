@@ -22,7 +22,9 @@
             $scope.activityLog = [];
             $scope.testGoingOn = true;
 
-            $scope.CHANNEL_TYPE = ["CATALINA_IN_STORE", "LOAD_TO_CARD"];
+            $scope.CHANNEL_TYPES = ["CATALINA_IN_STORE", "LOAD_TO_CARD"];
+            $scope.BOOLEAN_TYPES = [true, false];
+            $scope.PROMOTION_TYPES = ["STRINGPRINTS", "THRESHOLDS"]
 
             //        $interval(function() {
             //            $scope.checkStatus();
@@ -160,7 +162,6 @@
                 $log.info("Index selected " + index);
                 $scope.programData['index'] = index;
                 $scope.programData.edit = true;
-                $scope.programData.billNo = $scope.setup.programSetup[index].id;
                 $scope.programData.programId = $scope.setup.programSetup[index].programId;
                 $scope.programData.contractId = $scope.setup.programSetup[index].contractId;
                 $scope.programData.cap = $scope.setup.programSetup[index].cap;
@@ -174,14 +175,29 @@
                 $log.info("Index selected " + index);
                 $scope.promotionSetupData.edit = true;
                 $scope.promotionSetupData['index'] = index;
-                $scope.promotionSetupData.awardRange = $scope.setup.promotionSetup[index].awardRange;
-                $scope.promotionSetupData.mediaIdRange = $scope.setup.promotionSetup[index].mediaIdRange;
+                $scope.promotionSetupData.awardId = $scope.setup.promotionSetup[index].awardId;
                 $scope.promotionSetupData.awardCap = $scope.setup.promotionSetup[index].awardCap;
                 $scope.promotionSetupData.awardVariance = $scope.setup.promotionSetup[index].awardVariance;
-                $scope.promotionSetupData.channelType = $scope.setup.promotionSetup[index].channelType;
-                $scope.promotionSetupData.programSetupId = $scope.setup.promotionSetup[index].programSetupId;
+                $scope.promotionSetupData.controlPercentage = $scope.setup.promotionSetup[index].controlPercentage;
+                $scope.promotionSetupData.randomValue = $scope.setup.promotionSetup[index].randomValue;
+                
+                $scope.promotionSetupData.mediaId = $scope.setup.promotionSetup[index].mediaId;
                 $scope.promotionSetupData.mediaCap = $scope.setup.promotionSetup[index].mediaCap;
                 $scope.promotionSetupData.mediaVariance = $scope.setup.promotionSetup[index].mediaVariance;
+                
+                $scope.promotionSetupData.channelMediaId = $scope.setup.promotionSetup[index].channelMediaId;
+                $scope.promotionSetupData.channelMediaCap = $scope.setup.promotionSetup[index].channelMediaCap;
+                $scope.promotionSetupData.channelMediaVariance = $scope.setup.promotionSetup[index].channelMediaVariance;
+                
+                $scope.promotionSetupData.houseHolded = $scope.setup.promotionSetup[index].houseHolded;
+                $scope.promotionSetupData.thresholdSequence = $scope.setup.promotionSetup[index].thresholdSequence;
+                $scope.promotionSetupData.promotionType = $scope.setup.promotionSetup[index].promotionType;
+                
+                $scope.promotionSetupData.unlimited = $scope.setup.promotionSetup[index].unlimited;
+                
+                $scope.promotionSetupData.channelType = $scope.setup.promotionSetup[index].channelType;
+                $scope.promotionSetupData.programSetupId = $scope.setup.promotionSetup[index].programSetupId;
+                
                 $scope.promotionSetupData.cardRangeId = $scope.setup.promotionSetup[index].cardRangeId;
                 $scope.promotionSetupData.consumerCap = $scope.setup.promotionSetup[index].consumerCap;
                 $scope.promotionSetupData.startDate = $scope.setup.promotionSetup[index].startDate;
@@ -238,14 +254,12 @@
             $scope.saveProgramData = function() {
                 if ($scope.programData.edit == false) {
                     $scope.setup.programSetup.push({
-                        'id': $scope.programData.billNo,
                         'contractId': $scope.programData.contractId,
                         'programId': $scope.programData.programId,
                         'cap': $scope.programData.cap,
                         'variance': $scope.programData.variance
                     });
                 } else {
-                    $scope.setup.programSetup[$scope.programData.index].id = $scope.programData.billNo;
                     $scope.setup.programSetup[$scope.programData.index].contractId = $scope.programData.contractId;
                     $scope.setup.programSetup[$scope.programData.index].programId = $scope.programData.programId;
                     $scope.setup.programSetup[$scope.programData.index].cap = $scope.programData.cap;
@@ -272,12 +286,21 @@
             $scope.savePromotionSetup = function() {
                 if ($scope.promotionSetupData.edit == false) {
                     $scope.setup.promotionSetup.push({
-                        'awardRange': $scope.promotionSetupData.awardRange,
-                        'mediaIdRange': $scope.promotionSetupData.mediaIdRange,
+                        'awardId': $scope.promotionSetupData.awardId,
+                        'mediaId': $scope.promotionSetupData.mediaId,
+                        'channelMediaId' : $scope.promotionSetupData.channelMediaId,
                         'awardCap': $scope.promotionSetupData.awardCap,
                         'awardVariance': $scope.promotionSetupData.awardVariance,
+                        'controlPercentage' : $scope.promotionSetupData.controlPercentage,
+                        'randomValue' : $scope.promotionSetupData.randomValue,
                         'mediaCap': $scope.promotionSetupData.mediaCap,
                         'mediaVariance': $scope.promotionSetupData.mediaVariance,
+                        'channelMediaCap' : $scope.promotionSetupData.channelMediaCap,
+                        'channelMediaVariance' : $scope.promotionSetupData.channelMediaVariance,
+                        'unlimited' : $scope.promotionSetupData.unlimited,
+                        'thresholdSequence' : $scope.promotionSetupData.thresholdSequence,
+                        'promotionType' : $scope.promotionSetupData.promotionType,
+                        'houseHolded' : $scope.promotionSetupData.houseHolded,
                         'channelType': $scope.promotionSetupData.channelType,
                         'consumerCap': $scope.promotionSetupData.consumerCap,
                         'startDate': $scope.promotionSetupData.startDate,
@@ -287,12 +310,23 @@
                     });
 
                 } else {
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].awardRange = $scope.promotionSetupData.awardRange;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].mediaIdRange = $scope.promotionSetupData.mediaIdRange;
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].awardId = $scope.promotionSetupData.awardId;
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].mediaId = $scope.promotionSetupData.mediaId;
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].channelMediaId =           $scope.promotionSetupData.channelMediaId;
                     $scope.setup.promotionSetup[$scope.promotionSetupData.index].awardCap = $scope.promotionSetupData.awardCap;
                     $scope.setup.promotionSetup[$scope.promotionSetupData.index].awardVariance = $scope.promotionSetupData.awardVariance;
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].controlPercentage = $scope.promotionSetupData.controlPercentage;
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].randomValue = $scope.promotionSetupData.randomValue;
+                    
                     $scope.setup.promotionSetup[$scope.promotionSetupData.index].mediaCap = $scope.promotionSetupData.mediaCap;
                     $scope.setup.promotionSetup[$scope.promotionSetupData.index].mediaVariance = $scope.promotionSetupData.mediaVariance;
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].channelMediaCap = $scope.promotionSetupData.channelMediaCap;
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].channelMediaVariance = $scope.promotionSetupData.channelMediaVariance;
+                    
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].unlimited = $scope.promotionSetupData.unlimited;
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].thresholdSequence = $scope.promotionSetupData.thresholdSequence;
+                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].houseHolded = $scope.promotionSetupData.houseHolded;
+                    
                     $scope.setup.promotionSetup[$scope.promotionSetupData.index].channelType = $scope.promotionSetupData.channelType;
                     $scope.setup.promotionSetup[$scope.promotionSetupData.index].consumerCap = $scope.promotionSetupData.consumerCap;
                     $scope.setup.promotionSetup[$scope.promotionSetupData.index].startDate = $scope.promotionSetupData.startDate;

@@ -89,76 +89,68 @@
          </retailerInfo>
          <programSetupList>
             <programSetup>
-               <id>123456</id>
                <contractId>91111</contractId>
-               <programId>92222</programId>
+               <programId>123456</programId>
                <cap>100000</cap>
             </programSetup>
             <programSetup>
-               <id>12345</id>
                <contractId>1111</contractId>
                <programId>2222</programId>
                <cap>10000</cap>
             </programSetup>
             <programSetup>
-               <id>54321</id>
                <contractId>3333</contractId>
                <programId>4444</programId>
                <cap>10000</cap>
                <variance>2</variance>
             </programSetup>
             <programSetup>
-               <id>99999</id>
                <contractId>99882</contractId>
                <programId>992022</programId>
             </programSetup>
          </programSetupList>
          <promotionSetupList>
             <promotionSetup>
-               <awardRange>600-610</awardRange>
-               <mediaIdRange>60-70</mediaIdRange>
+               <awardId>6000</awardId>
+               <mediaId>1000</mediaId>
+               <channelMediaId>10002</channelMediaId>
                <awardCap>60000</awardCap>
                <awardVariance>2</awardVariance>
+               <mediaCap>30</mediaCap>
+               <mediaVariance>1</mediaVariance>
+               <channelMediaCap>3</channelMediaCap>
+               <channelMediaVariance>3</channelMediaVariance>
                <channelType>LOAD_TO_CARD</channelType>
+               <promotionType>STRINGPRINTS</promotionType>
+               <thresholdSequence>0</thresholdSequence>
+               <cardRangeId>B200</cardRangeId>
+               <consumerCap>3000</consumerCap>
+               <unlimited>true</unlimited>
+               <houseHolded>false</houseHolded>
+               <programSetupId>123456</programSetupId>
+               <controlPercentage>2</controlPercentage>
+               <randomValue>33</randomValue>
+               <startDate>2015-05-06T00:00:00-05:00</startDate>
+               <endDate>2016-12-28T00:00:00-05:00</endDate>
+            </promotionSetup>
+            <promotionSetup>
+               <awardId>6000</awardId>
+               <mediaId>10099</mediaId>
+               <channelMediaId>10008</channelMediaId>
+               <awardCap>60000</awardCap>
+               <awardVariance>2</awardVariance>
+               <mediaCap>30</mediaCap>
+               <mediaVariance>1</mediaVariance>
+               <channelMediaCap>3</channelMediaCap>
+               <channelMediaVariance>3</channelMediaVariance>
+               <channelType>LOAD_TO_CARD</channelType>
+               <promotionType>STRINGPRINTS</promotionType>
+               <houseHolded>false</houseHolded>
+               <thresholdSequence>1</thresholdSequence>
+               <unlimited>true</unlimited>
                <cardRangeId>B200</cardRangeId>
                <consumerCap>3000</consumerCap>
                <programSetupId>123456</programSetupId>
-               <startDate>2015-05-06T00:00:00-05:00</startDate>
-               <endDate>2016-12-28T00:00:00-05:00</endDate>
-            </promotionSetup>
-            <promotionSetup>
-               <awardRange>60012-60015</awardRange>
-               <mediaIdRange>6012-6015</mediaIdRange>
-               <awardCap>60000</awardCap>
-               <awardVariance>2</awardVariance>
-               <channelType>CATALINA_IN_STORE</channelType>
-               <cardRangeId>80001</cardRangeId>
-               <consumerCap>3</consumerCap>
-               <programSetupId>12345</programSetupId>
-               <startDate>2015-05-06T00:00:00-05:00</startDate>
-               <endDate>2016-12-28T00:00:00-05:00</endDate>
-            </promotionSetup>
-            <promotionSetup>
-               <awardRange>900020-900030</awardRange>
-               <mediaIdRange>90020-90030</mediaIdRange>
-               <mediaCap>50000</mediaCap>
-               <mediaVariance>1</mediaVariance>
-               <channelType>LOAD_TO_CARD</channelType>
-               <cardRangeId>80002</cardRangeId>
-               <consumerCap>4</consumerCap>
-               <programSetupId>99999</programSetupId>
-               <startDate>2015-05-06T00:00:00-05:00</startDate>
-               <endDate>2016-12-28T00:00:00-05:00</endDate>
-            </promotionSetup>
-            <promotionSetup>
-               <awardRange>70012-70015</awardRange>
-               <mediaIdRange>7012-7015</mediaIdRange>
-               <mediaCap>1000</mediaCap>
-               <mediaVariance>1</mediaVariance>
-               <channelType>LOAD_TO_CARD</channelType>
-               <cardRangeId>70001</cardRangeId>
-               <consumerCap>7</consumerCap>
-               <programSetupId>54321</programSetupId>
                <startDate>2015-05-06T00:00:00-05:00</startDate>
                <endDate>2016-12-28T00:00:00-05:00</endDate>
             </promotionSetup>

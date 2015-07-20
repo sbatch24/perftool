@@ -41,10 +41,10 @@ public class DataSetupHandler {
 	private boolean publish;
 	private DataSetupActivityLog activityLog;
 	
-	public DataSetupHandler(Config config, boolean publish) {
+	public DataSetupHandler(Config config, boolean publish, DataSetupActivityLog activityLog) {
 		this.config = config;
 		this.publish = publish;
-		activityLog = new DataSetupActivityLog();
+		this.activityLog = activityLog;
 	}
 	
 	/**
@@ -55,7 +55,7 @@ public class DataSetupHandler {
 	 */
 	public DataSetupActivityLog dataSetup() {
 		logger.info("Data setup will involve publishing data to PMR and to the DMP");
-		PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config);
+		PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config, activityLog);
 		pmrDataOrganizer.initializePmrDataSetup();
 		publishPmrData(pmrDataOrganizer);
 		initializeDmpData();
@@ -119,7 +119,7 @@ public class DataSetupHandler {
 				tokenizedId);
 	}
 	
-	public DataSetupActivityLog clearEventsFromProfile() {
+	public void clearEventsFromProfile() {
 		logger.info("Clearing events from profile data");
 		List<CardSetup> cardSetupList = config.getCardSetupList();
 		Client client  = null;
@@ -144,7 +144,6 @@ public class DataSetupHandler {
 				resp.close();
 			}
 		}
-		return activityLog;
 	}
 
 	/**
@@ -177,20 +176,17 @@ public class DataSetupHandler {
 	 */
 	private List<Wallet> prepareWalletForId(PromotionSetup promotionSetup,
 			String networkId) {
-		List<Integer> awardRange = promotionSetup.awardRange();
 		List<Wallet> walletList = new ArrayList<Wallet>();
-		for (int awardNumber : awardRange) {
-			Wallet wallet = new Wallet();
-			wallet.setAdgroup_id("" + awardNumber);
-			wallet.setChannel_type(ChannelTypeTranslator
-					.getChannelType(promotionSetup.getChannelType()));
-			wallet.setId("" + awardNumber);
-			wallet.setLimit("" + promotionSetup.getConsumerCap());
-			wallet.setSystem_id("MXP");
-			wallet.setType("direct");
-			wallet.setNetwork_id(networkId);
-			walletList.add(wallet);
-		}
+		Wallet wallet = new Wallet();
+		wallet.setAdgroup_id(promotionSetup.getAwardId().toString());
+		wallet.setChannel_type(ChannelTypeTranslator
+				.getChannelType(promotionSetup.getChannelType()));
+		wallet.setId(promotionSetup.getAwardId().toString());
+		wallet.setLimit("" + promotionSetup.getConsumerCap());
+		wallet.setSystem_id("MXP");
+		wallet.setType(promotionSetup.getPromotionTypeForDmp());
+		wallet.setNetwork_id(networkId);
+		walletList.add(wallet);
 		return walletList;
 	}
 

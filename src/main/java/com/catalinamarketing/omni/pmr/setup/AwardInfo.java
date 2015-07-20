@@ -7,6 +7,10 @@ public class AwardInfo {
 	private String awardID;
 	private Integer cap;
 	private Integer variance;
+	private boolean householded;
+	private String promotionCategory;
+	private boolean capDisabled;
+	
 	private List<MediaInfo> mediaList;
 	
 	public AwardInfo() {

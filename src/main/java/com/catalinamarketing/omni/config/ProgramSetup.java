@@ -8,7 +8,6 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name="programSetup")
 public class ProgramSetup {
 	
-	private String id;
 	private String contractId;
 	private String programId;
 	private Integer cap;
@@ -17,12 +16,6 @@ public class ProgramSetup {
 	public ProgramSetup() {
 	}
 	
-	public String getId() {
-		return id;
-	}
-	public void setId(String id) {
-		this.id = id;
-	}
 	public String getContractId() {
 		return contractId;
 	}

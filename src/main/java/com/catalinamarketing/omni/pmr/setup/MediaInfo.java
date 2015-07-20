@@ -7,6 +7,8 @@ public class MediaInfo {
 	private String mediaID;
 	private Integer cap;
 	private Integer variance;
+	private Integer sequenceNo;
+	
 	private List<ChannelMediaInfo> channels;
 	
 	public String getMediaID() {
@@ -39,6 +41,12 @@ public class MediaInfo {
 			this.channels = new ArrayList<ChannelMediaInfo>();
 		}
 		this.channels.add(channelMediaInfo);
+	}
+	public Integer getSequenceNo() {
+		return sequenceNo;
+	}
+	public void setSequenceNo(Integer sequenceNo) {
+		this.sequenceNo = sequenceNo;
 	}
 	
 }

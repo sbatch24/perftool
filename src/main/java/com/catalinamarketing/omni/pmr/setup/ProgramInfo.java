@@ -1,5 +1,6 @@
 package com.catalinamarketing.omni.pmr.setup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProgramInfo {
@@ -51,6 +52,13 @@ public class ProgramInfo {
 	}
 	public void setAwards(List<AwardInfo> awards) {
 		this.awards = awards;
+	}
+	
+	public void addAwardInfo(AwardInfo awardInfo) {
+		if(awards == null) {
+			awards = new ArrayList<AwardInfo>();
+		}
+		awards.add(awardInfo);
 	}
 	
 	/**

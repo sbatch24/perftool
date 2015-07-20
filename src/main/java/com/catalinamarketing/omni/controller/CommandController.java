@@ -86,7 +86,7 @@ public class CommandController {
 			Unmarshaller um = context.createUnmarshaller();
 			Config config = (Config) um.unmarshal(new FileReader(
 					"config.xml"));
-			DataSetupHandler handler = new DataSetupHandler(config, true);
+			DataSetupHandler handler = new DataSetupHandler(config, true,activityLog);
 			activityLog = handler.dataSetup();
 		}catch(Exception ex) {
 			logger.error("Problem occured during publishing data. Error : " +ex.getMessage());
@@ -112,8 +112,8 @@ public class CommandController {
 			Unmarshaller um = context.createUnmarshaller();
 			Config config = (Config) um.unmarshal(new FileReader(
 					"config.xml"));
-			DataSetupHandler handler = new DataSetupHandler(config, false);
-			activityLog = handler.clearEventsFromProfile();
+			DataSetupHandler handler = new DataSetupHandler(config, false,activityLog);
+			handler.clearEventsFromProfile();
 		}catch(Exception ex) {
 			logger.error("Problem occured during resetting data. Error : " +ex.getMessage());
 			activityLog.addException("Problem occured during resetting data. Error : " +ex.getMessage());	
@@ -196,7 +196,7 @@ public class CommandController {
 				Unmarshaller um = context.createUnmarshaller();
 				Config config = (Config) um.unmarshal(new FileReader(
 						"config.xml"));
-				PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config);
+				PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config,null);
 				pmrDataOrganizer.initializePmrDataSetup();
 				TestPlanDispatcherThread testPlanDispatcherThread = new TestPlanDispatcherThread(
 						config, PerfToolApplication.getControlServer(), pmrDataOrganizer.getPmrSetupMessageList());

@@ -1,6 +1,9 @@
 package com.catalinamarketing.omni.config;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -109,13 +112,13 @@ public class Config {
 	
 	/**
 	 * Finds the program setup based on the billNo.
-	 * @param billNo
+	 * @param programSetupId
 	 * @return ProgramSetup
 	 */
-	public ProgramSetup getProgramSetup(String billNo) {
+	public ProgramSetup getProgramSetup(String programSetupId) {
 		List<ProgramSetup> programSetupList = getServer().getSetup().getProgramSetup();
 		for(ProgramSetup setup : programSetupList) {
-			if(setup.getId().equalsIgnoreCase(billNo)) {
+			if(setup.getProgramId().equalsIgnoreCase(programSetupId)) {
 				return setup;
 			}
 		}
@@ -172,5 +175,30 @@ public class Config {
 	
 	public String getEventsApiUrl() {
 		return getConfiguredEnvironment().getOmniConfig().getEventsUrl();
+	}
+	
+	public List<ProgramSetup> getProgramSetupList() {
+		return getServer().getSetup().getProgramSetup();
+	}
+	
+	/**
+	 * Return a list of promotion setup that fall under same programId
+	 * @param programId
+	 * @return
+	 */
+	public Map<Integer,List<PromotionSetup>> getPromotionsByProgramId(String programId) {
+		Map<Integer,List<PromotionSetup>> promotionSetupMap = new HashMap<Integer,List<PromotionSetup>>();
+		for(PromotionSetup promotionSetup : getServer().getSetup().getPromotionSetup()) {
+			if(promotionSetup.getProgramSetupId().equalsIgnoreCase(programId)) {
+				List<PromotionSetup> promotionSetupList = null;
+				if(!promotionSetupMap.containsKey(promotionSetup.getAwardId())) {
+					promotionSetupList = new ArrayList<PromotionSetup>();
+					promotionSetupMap.put(promotionSetup.getAwardId(), promotionSetupList);
+				}
+				promotionSetupList = promotionSetupMap.get(promotionSetup.getAwardId());
+				promotionSetupList.add(promotionSetup);
+			}
+		}
+		return promotionSetupMap;
 	}
 }
