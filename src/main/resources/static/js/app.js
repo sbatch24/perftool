@@ -24,7 +24,7 @@
 
             $scope.CHANNEL_TYPES = ["CATALINA_IN_STORE", "LOAD_TO_CARD"];
             $scope.BOOLEAN_TYPES = [true, false];
-            $scope.PROMOTION_TYPES = ["STRINGPRINTS", "THRESHOLDS"]
+            $scope.PROMOTION_TYPES = ["StringPrints", "Threshold","GType","Transactional"]
 
             //        $interval(function() {
             //            $scope.checkStatus();
@@ -160,12 +160,9 @@
             /**/
             $scope.editProgramSetup = function(index) {
                 $log.info("Index selected " + index);
+                angular.copy($scope.setup.programSetup[index], $scope.programData);
                 $scope.programData['index'] = index;
                 $scope.programData.edit = true;
-                $scope.programData.programId = $scope.setup.programSetup[index].programId;
-                $scope.programData.contractId = $scope.setup.programSetup[index].contractId;
-                $scope.programData.cap = $scope.setup.programSetup[index].cap;
-                $scope.programData.variance = $scope.setup.programSetup[index].variance;
             }
 
             /*  Edit promotion setup 
@@ -173,45 +170,17 @@
              */
             $scope.editPromotionSetup = function(index) {
                 $log.info("Index selected " + index);
-                $scope.promotionSetupData.edit = true;
+                angular.copy($scope.setup.promotionSetup[index], $scope.promotionSetupData);
                 $scope.promotionSetupData['index'] = index;
-                $scope.promotionSetupData.awardId = $scope.setup.promotionSetup[index].awardId;
-                $scope.promotionSetupData.awardCap = $scope.setup.promotionSetup[index].awardCap;
-                $scope.promotionSetupData.awardVariance = $scope.setup.promotionSetup[index].awardVariance;
-                $scope.promotionSetupData.controlPercentage = $scope.setup.promotionSetup[index].controlPercentage;
-                $scope.promotionSetupData.randomValue = $scope.setup.promotionSetup[index].randomValue;
-                
-                $scope.promotionSetupData.mediaId = $scope.setup.promotionSetup[index].mediaId;
-                $scope.promotionSetupData.mediaCap = $scope.setup.promotionSetup[index].mediaCap;
-                $scope.promotionSetupData.mediaVariance = $scope.setup.promotionSetup[index].mediaVariance;
-                
-                $scope.promotionSetupData.channelMediaId = $scope.setup.promotionSetup[index].channelMediaId;
-                $scope.promotionSetupData.channelMediaCap = $scope.setup.promotionSetup[index].channelMediaCap;
-                $scope.promotionSetupData.channelMediaVariance = $scope.setup.promotionSetup[index].channelMediaVariance;
-                
-                $scope.promotionSetupData.houseHolded = $scope.setup.promotionSetup[index].houseHolded;
-                $scope.promotionSetupData.thresholdSequence = $scope.setup.promotionSetup[index].thresholdSequence;
-                $scope.promotionSetupData.promotionType = $scope.setup.promotionSetup[index].promotionType;
-                
-                $scope.promotionSetupData.unlimited = $scope.setup.promotionSetup[index].unlimited;
-                
-                $scope.promotionSetupData.channelType = $scope.setup.promotionSetup[index].channelType;
-                $scope.promotionSetupData.programSetupId = $scope.setup.promotionSetup[index].programSetupId;
-                
-                $scope.promotionSetupData.cardRangeId = $scope.setup.promotionSetup[index].cardRangeId;
-                $scope.promotionSetupData.consumerCap = $scope.setup.promotionSetup[index].consumerCap;
-                $scope.promotionSetupData.startDate = $scope.setup.promotionSetup[index].startDate;
-                $scope.promotionSetupData.endDate = $scope.setup.promotionSetup[index].endDate;
+                $scope.promotionSetupData.edit = true;                
             }
 
             /**/
             $scope.editCardRangeSetup = function(index) {
                 $log.info("Index selected " + index);
+                angular.copy($scope.setup.cardsetup[index], $scope.cardSetupData);
                 $scope.cardSetupData['index'] = index;
                 $scope.cardSetupData.edit = true;
-                $scope.cardSetupData.cardRangeId = $scope.setup.cardSetup[index].cardRangeId;
-                $scope.cardSetupData.cardRange = $scope.setup.cardSetup[index].cardRange;
-
             }
 
             $scope.newPromotionSetup = function() {
@@ -260,10 +229,7 @@
                         'variance': $scope.programData.variance
                     });
                 } else {
-                    $scope.setup.programSetup[$scope.programData.index].contractId = $scope.programData.contractId;
-                    $scope.setup.programSetup[$scope.programData.index].programId = $scope.programData.programId;
-                    $scope.setup.programSetup[$scope.programData.index].cap = $scope.programData.cap;
-                    $scope.setup.programSetup[$scope.programData.index].variance = $scope.programData.variance;
+                    angular.copy($scope.programData, $scope.setup.programSetup[$scope.programData.index]);
                 }
 
                 clearModel($scope.programData);
@@ -276,8 +242,7 @@
                         'cardRangeId': $scope.cardSetupData.cardRangeId,
                     });
                 } else {
-                    $scope.setup.cardSetup[$scope.cardSetupData.index].cardRange = $scope.cardSetupData.cardRange;
-                    $scope.setup.cardSetup[$scope.cardSetupData.index].cardRangeId = $scope.cardSetupData.cardRangeId;
+                    angular.copy($scope.cardSetupData, $scope.setup.cardSetup[$scope.cardSetupData.index]);
                 }
                 clearModel($scope.cardSetupData);
             };
@@ -285,8 +250,13 @@
 
             $scope.savePromotionSetup = function() {
                 if ($scope.promotionSetupData.edit == false) {
+                    if($scope.promotionSetupData.rank == undefined) {
+                        $scope.promotionSetupData.rank = 256;
+                    }
+                    
                     $scope.setup.promotionSetup.push({
                         'awardId': $scope.promotionSetupData.awardId,
+                        'rank' : $scope.promotionSetupData.rank,
                         'mediaId': $scope.promotionSetupData.mediaId,
                         'channelMediaId' : $scope.promotionSetupData.channelMediaId,
                         'awardCap': $scope.promotionSetupData.awardCap,
@@ -294,6 +264,7 @@
                         'controlPercentage' : $scope.promotionSetupData.controlPercentage,
                         'randomValue' : $scope.promotionSetupData.randomValue,
                         'mediaCap': $scope.promotionSetupData.mediaCap,
+                        'campaignId' : $scope.promotionSetupData.campaignId,
                         'mediaVariance': $scope.promotionSetupData.mediaVariance,
                         'channelMediaCap' : $scope.promotionSetupData.channelMediaCap,
                         'channelMediaVariance' : $scope.promotionSetupData.channelMediaVariance,
@@ -310,30 +281,7 @@
                     });
 
                 } else {
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].awardId = $scope.promotionSetupData.awardId;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].mediaId = $scope.promotionSetupData.mediaId;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].channelMediaId =           $scope.promotionSetupData.channelMediaId;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].awardCap = $scope.promotionSetupData.awardCap;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].awardVariance = $scope.promotionSetupData.awardVariance;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].controlPercentage = $scope.promotionSetupData.controlPercentage;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].randomValue = $scope.promotionSetupData.randomValue;
-                    
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].mediaCap = $scope.promotionSetupData.mediaCap;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].mediaVariance = $scope.promotionSetupData.mediaVariance;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].channelMediaCap = $scope.promotionSetupData.channelMediaCap;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].channelMediaVariance = $scope.promotionSetupData.channelMediaVariance;
-                    
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].unlimited = $scope.promotionSetupData.unlimited;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].thresholdSequence = $scope.promotionSetupData.thresholdSequence;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].houseHolded = $scope.promotionSetupData.houseHolded;
-                    
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].channelType = $scope.promotionSetupData.channelType;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].consumerCap = $scope.promotionSetupData.consumerCap;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].startDate = $scope.promotionSetupData.startDate;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].endDate = $scope.promotionSetupData.endDate;
-                    $scope.setup.promotionSetup[$scope.promotionSetupData.index].cardRangeId = $scope.promotionSetupData.cardRangeId,
-                        $scope.setup.promotionSetup[$scope.promotionSetupData.index].programSetupId = $scope.promotionSetupData.programSetupId;
-
+                      angular.copy($scope.promotionSetupData, $scope.setup.promotionSetup[$scope.promotionSetupData.index]);
                 }
                 clearModel($scope.promotionSetupData);
 
@@ -367,8 +315,7 @@
                         'offerList': $scope.offerSetupData.offerList.split(",")
                     });
                 } else {
-                    $scope.setup.offerSetup[$scope.offerSetupData.index].campaignId = $scope.offerSetupData.campaignId;
-                    $scope.setup.offerSetup[$scope.offerSetupData.index].offerList = $scope.offerSetupData.offerList.split(",");
+                    angular.copy($scope.offerSetupData, $scope.setup.offerSetup[$scope.offerSetupData.index]);
                 }
                 clearModel($scope.cardSetupData);
             };

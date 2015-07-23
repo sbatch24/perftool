@@ -1,9 +1,12 @@
 package com.catalinamarketing.omni.config;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -130,14 +133,27 @@ public class Config {
 	 * @param cardRangeId
 	 * @return PromotionSetup.
 	 */
-	public PromotionSetup getPromotionSetupByCardRangeId(String cardRangeId) {
-		List<PromotionSetup> promotionSetupList = getServer().getSetup().getPromotionSetup();
-		for(PromotionSetup setup : promotionSetupList) {
+	public List<PromotionSetup> getPromotionSetupByCardRangeId(String cardRangeId) {
+		List<PromotionSetup> configuredPromotionSetupList = getServer().getSetup().getPromotionSetup();
+		Set<PromotionSetup> promotionSetupByCardRange = new TreeSet<PromotionSetup>(new Comparator<PromotionSetup>() {
+			@Override
+			public int compare(PromotionSetup o1, PromotionSetup o2) {
+				if(o1.getAwardId().intValue() == o2.getAwardId().intValue()){
+		            return 0;
+		        } if(o1.getAwardId().intValue() < o2.getAwardId().intValue()){
+		            return 1;
+		        } else {
+		            return -1;
+		        }
+			}
+		});
+		
+		for(PromotionSetup setup : configuredPromotionSetupList) {
 			if(setup.getCardRangeId().equalsIgnoreCase(cardRangeId)) {
-				return setup;
+				promotionSetupByCardRange.add(setup);
 			}
 		}
-		return null;
+		return new ArrayList<PromotionSetup>(promotionSetupByCardRange);
 	}
 	
 	
@@ -201,4 +217,27 @@ public class Config {
 		}
 		return promotionSetupMap;
 	}
+	
+	/**
+	 * Returns the configured PromotionSetup list.
+	 * @return
+	 */
+	public List<PromotionSetup> getPromotionSetupList() {
+		return getServer().getSetup().getPromotionSetup();
+	}
+	
+	public List<OfferSetup> getOfferSetupList() {
+		return getServer().getSetup().getOfferSetup();
+	}
+	
+	public OfferSetup getOfferSetupByCampaignId(String campaignId) {
+		List<OfferSetup> offerList = getServer().getSetup().getOfferSetup();
+		for(OfferSetup offerSetup : offerList) {
+			if(offerSetup.getCampaignId().equalsIgnoreCase(campaignId)) {
+				return offerSetup;
+			}
+		}
+		return null;
+	}
+	
 }

@@ -119,6 +119,7 @@
                             <th>Edit</th>
                             <th>Delete</th>
                             <th>Award Id</th>
+                            <th>Rank</th>
                             <th>Award Cap</th>
                             <th>Award Variance</th>
                             <th>Media Id</th>
@@ -155,6 +156,7 @@
                                 </button>
                             </td>
                             <td>{{promotionSetupInfo.awardId }}</td>
+                            <td>{{promotionSetupInfo.rank}}</td>
                             <td>{{promotionSetupInfo.awardCap }}</td>
                             <td>{{promotionSetupInfo.awardVariance }}</td>
                             <td>{{promotionSetupInfo.mediaId }}</td>
@@ -191,6 +193,12 @@
                         <label class="col-sm-2 control-label">Award Id :</label>
                         <div class="col-sm-10">
                             <input type="text" ng-model="promotionSetupData.awardId" placeholder="Award Id" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-group form-group-sm">
+                        <label class="col-sm-2 control-label">Rank :</label>
+                        <div class="col-sm-10">
+                            <input type="text" ng-model="promotionSetupData.rank" placeholder="Rank (default=256)" class="form-control">
                         </div>
                     </div>
                     <div class="form-group form-group-sm">

@@ -87,15 +87,15 @@ public class CommandController {
 			Config config = (Config) um.unmarshal(new FileReader(
 					"config.xml"));
 			DataSetupHandler handler = new DataSetupHandler(config, true,activityLog);
-			activityLog = handler.dataSetup();
+			handler.dataSetup();
 		}catch(Exception ex) {
 			logger.error("Problem occured during publishing data. Error : " +ex.getMessage());
 			activityLog.addException("Problem occured during setting data. Error : " +ex.getMessage());	
-			return new ResponseEntity<String> (new Gson().toJson(activityLog), HttpStatus.INTERNAL_SERVER_ERROR);
+			//return new ResponseEntity<String> (new Gson().toJson(activityLog), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		if(activityLog.errorOccured()) {
 			PerfToolApplication.getControlServer().updateServerActivityLog("Problem occured while publishing data to PMR and DMP [" + new Date().toString() +"]" );
-			new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
 		activityLog.addActivityMessage("Data published data successful");

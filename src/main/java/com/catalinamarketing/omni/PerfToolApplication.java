@@ -17,6 +17,9 @@ import org.springframework.boot.SpringApplication;
 import com.catalinamarketing.omni.client.PerfToolClient;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.pmr.setup.AwardInfo;
+import com.catalinamarketing.omni.pmr.setup.AwardRank;
+import com.catalinamarketing.omni.pmr.setup.Campaign;
+import com.catalinamarketing.omni.pmr.setup.CampaignOfferSetupMessage;
 import com.catalinamarketing.omni.pmr.setup.ChannelMediaInfo;
 import com.catalinamarketing.omni.pmr.setup.MediaInfo;
 import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
@@ -88,13 +91,42 @@ public class PerfToolApplication  {
 		return 1;
 	}
 	
+	public static void printCampaingMessage() {
+		CampaignOfferSetupMessage message = new CampaignOfferSetupMessage();
+		AwardRank rank = new AwardRank();
+		rank.setAwardId("A1");
+		rank.setCampaignId("63");
+		rank.setRank(300);
+		message.addAwardRank(rank);
+		rank = new AwardRank();
+		rank.setAwardId("A2");
+		rank.setCampaignId("65");
+		rank.setRank(301);
+		message.addAwardRank(rank);
+		
+		
+		Campaign camp1 = new Campaign();
+		camp1.addOffers("o1");
+		camp1.addOffers("o2");
+		camp1.setCampaignId("65");
+		message.addCampaign(camp1);
+		camp1 = new Campaign();
+		camp1.addOffers("o11");
+		camp1.addOffers("o12");
+		camp1.setCampaignId("63");
+		message.addCampaign(camp1);
+		Gson gson = new Gson();
+		System.out.println(gson.toJson(message));
+		
+	}
+	
 	/**
 	 * Entry point for the program.
 	 * @param args
 	 */
 	public static void main(String args[]) {
 		
-		System.out.println(PerfToolApplication.isPrime(22));
+		//PerfToolApplication.printCampaingMessage();
 		/*MetricRegistry metrics = new MetricRegistry();
 		final ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics)
                 .convertRatesTo(TimeUnit.MILLISECONDS)

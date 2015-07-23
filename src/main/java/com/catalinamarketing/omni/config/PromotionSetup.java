@@ -8,6 +8,7 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(name="promotionSetup")
 public class PromotionSetup {
 	private Integer awardId;
+	private Integer rank;
 	private Integer mediaId;
 	private Integer awardCap;
 	private Integer awardVariance;
@@ -151,12 +152,11 @@ public class PromotionSetup {
 	public void setCardRangeId(String cardRangeId) {
 		this.cardRangeId = cardRangeId;
 	}
+	
 	public Integer getConsumerCap() {
 		return consumerCap;
 	}
-	public void setConsumerCap(Integer consumerCap) {
-		this.consumerCap = consumerCap;
-	}
+	
 	public String getProgramSetupId() {
 		return programSetupId;
 	}
@@ -190,13 +190,15 @@ public class PromotionSetup {
 	
 	public String getPromotionTypeForDmp() {
 		if(promotionType != null) {
-			if(promotionType.equalsIgnoreCase("STRINGPRINTS")) {
+			if(promotionType.equalsIgnoreCase("StringPrints")) {
 				return "string prints";
-			} else if(promotionType.equalsIgnoreCase("THRESHOLDS")){
+			} else if(promotionType.equalsIgnoreCase("Threshold")){
 				return "thresholds";
-			} 	
+			} else if(promotionType.equalsIgnoreCase("GType")) {
+				return "direct";
+			}
 		}
-		return "direct";
+		return "Transactional";
 	}
 
 	public Integer getControlPercentage() {
@@ -213,5 +215,29 @@ public class PromotionSetup {
 
 	public void setRandomValue(Integer randomValue) {
 		this.randomValue = randomValue;
+	}
+
+	public Integer getRank() {
+		return rank;
+	}
+
+	public void setRank(Integer rank) {
+		this.rank = rank;
+	}
+	
+	/**
+	 * Method returns true if promotion is String Print.
+	 * @return true if String Print
+	 */
+	public boolean isStringPrint() {
+		return promotionType.equalsIgnoreCase("StringPrints");
+	}
+	
+	/**
+	 * Method returns true if promotion is GType, StringPrints, Thresholds and false if Transactional
+	 * @return true if promotion is historical and false is transactional.
+	 */
+	public boolean isHistoricalPrint() {
+		return !promotionType.equalsIgnoreCase("Transactional");
 	}
 }

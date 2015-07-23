@@ -3,11 +3,10 @@ package com.catalinamarketing.omni.pmr.setup;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.catalinamarketing.omni.config.Config;
+import com.catalinamarketing.omni.config.OfferSetup;
 import com.catalinamarketing.omni.config.ProgramSetup;
 import com.catalinamarketing.omni.config.PromotionSetup;
 import com.catalinamarketing.omni.message.DataSetupActivityLog;
@@ -16,6 +15,26 @@ public class PmrDataOrganizer {
 	final static Logger logger = LoggerFactory.getLogger(PmrDataOrganizer.class);
 
 	private List<PmrSetupMessage> pmrSetupMessageList;
+	private DynamicControlsMessage dynamicControlMessage;
+	private CampaignOfferSetupMessage campaignMessage;
+	
+	public DynamicControlsMessage getDynamicControlMessage() {
+		return dynamicControlMessage;
+	}
+
+	public void setDynamicControlMessage(
+			DynamicControlsMessage dynamicControlMessage) {
+		this.dynamicControlMessage = dynamicControlMessage;
+	}
+
+	public CampaignOfferSetupMessage getCampaignMessage() {
+		return campaignMessage;
+	}
+
+	public void setCampaignMessage(CampaignOfferSetupMessage campaignMessage) {
+		this.campaignMessage = campaignMessage;
+	}
+
 	private final Config config;
 	private DataSetupActivityLog activityLog;
 	
@@ -54,10 +73,55 @@ public class PmrDataOrganizer {
 	 */
 	public void initializePmrDataSetup() {
 		logger.info("Initializing PMR data");
+		populateCappingData();
+		populateStringPrintData();
+		populateDynamicControlsData();
+	}
+	
+	/**
+	 * Populate dynamic controls data
+	 */
+	private void populateDynamicControlsData() {
+		List<PromotionSetup> promotionSetupList = config.getPromotionSetupList();
+		dynamicControlMessage = new DynamicControlsMessage();
+		dynamicControlMessage.setCountryCode("US");
+		dynamicControlMessage.setCampaign("TEST-CAMPAIGN");
+		dynamicControlMessage.setGroupName("TEST-GROUP");
+		for(PromotionSetup promotionSetup : promotionSetupList) {
+			if(promotionSetup.getControlPercentage() != null && promotionSetup.getRandomValue() != null) {
+				AwardDynamicControl awardDc = new AwardDynamicControl();
+				awardDc.setAwardID(promotionSetup.getAwardId());
+				awardDc.setControlPercentage(promotionSetup.getControlPercentage().doubleValue());
+				awardDc.setRandomValue(promotionSetup.getRandomValue());
+				dynamicControlMessage.addAwardDynamicControl(awardDc);
+			} else {
+				logger.debug("No dynamic setup data setup for award " + promotionSetup.getAwardId());
+			}
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void populateStringPrintData() {
+		List<OfferSetup> offerSetupList = config.getOfferSetupList();
+		campaignMessage = new CampaignOfferSetupMessage();
+		List<PromotionSetup> promotionSetupList = config.getPromotionSetupList();
+		for(PromotionSetup promotionSetup : promotionSetupList) {
+			campaignMessage.addAwardRank(new AwardRank(promotionSetup.getAwardId().toString(), 
+					promotionSetup.getRank(), promotionSetup.getCampaignId()));
+		}
 		
-		
+		for(OfferSetup offerSetup : offerSetupList) {
+			Campaign campaign = new Campaign();
+			campaign.setCampaignId(offerSetup.getCampaignId());
+			campaign.setOffers(offerSetup.getOfferList());
+			campaignMessage.addCampaign(campaign);
+		}
+	}
+
+	private void populateCappingData() {
 		List<ProgramSetup> programSetupList = config.getProgramSetupList();
-		
 		/**
 		 * Iterate through all Program/Contract. For one program contract select all promotionsetups.
 		 */
@@ -85,18 +149,27 @@ public class PmrDataOrganizer {
 				logger.error("Program must have promotions under it. Check program id " + programSetup.getProgramId());
 				activityLog.addException("Program must have promotions under it. Check program id " + programSetup.getProgramId());
 			}
-		}
+		}		
 	}
 
+	/**
+	 * Populates awardInfo object with the data it needs before it is published
+	 * @param promotionSetup
+	 * @return AwardInfo
+	 */
 	private AwardInfo populateAwardInfo(PromotionSetup promotionSetup) {
 		AwardInfo awardSetup = new AwardInfo();
 		awardSetup.setAwardID(promotionSetup.getAwardId().toString());
 		awardSetup.setCap(promotionSetup.getAwardCap());
 		awardSetup.setVariance(promotionSetup.getAwardVariance());
+		awardSetup.setHouseholded(promotionSetup.getHouseHolded());
+		awardSetup.setPromotionCategory(promotionSetup.getPromotionType());
+		awardSetup.setUnlimitedDelivery(promotionSetup.getUnlimited());
 		MediaInfo mediaInfo = new MediaInfo();
 		mediaInfo.setMediaID(promotionSetup.getMediaId().toString());
 		mediaInfo.setCap(promotionSetup.getMediaCap());
 		mediaInfo.setVariance(promotionSetup.getMediaVariance());
+		mediaInfo.setSequenceNo(promotionSetup.getThresholdSequence());
 		ChannelMediaInfo channelMediaInfo = new ChannelMediaInfo();
 		channelMediaInfo.setChannelMediaID(promotionSetup.getMediaId().toString());
 		channelMediaInfo.setChannelType(promotionSetup.getChannelType());

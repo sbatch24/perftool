@@ -8,11 +8,10 @@ public class Wallet {
 	private String network_id;
 	private String id;
 	private String type;
+	private String campaign_id;
 	
 	public Wallet() {
-		
 	}
-	
 	
 	public String getSystem_id() {
 		return system_id;
@@ -55,5 +54,15 @@ public class Wallet {
 	}
 	public void setType(String type) {
 		this.type = type;
+	}
+
+
+	public String getCampaign_id() {
+		return campaign_id;
+	}
+
+
+	public void setCampaign_id(String campaign_id) {
+		this.campaign_id = campaign_id;
 	}
 }

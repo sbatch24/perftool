@@ -12,7 +12,9 @@ public class Queue {
 	private String userName;
 	private String password;
 	private String exchange;
-	private String queueName;
+	private String setupQueueName;
+	private String dcQueueName;
+	private String stringPrintQueueName;
 	private String routingKey;
 	
 	public Queue(String host, int port, String userName, String password, String exchange,
@@ -22,7 +24,7 @@ public class Queue {
 		this.userName = userName;
 		this.password = password;
 		this.exchange = exchange;
-		this.queueName = queue;
+		this.setupQueueName = queue;
 		this.routingKey = routingKey;
 	}
 	
@@ -61,16 +63,32 @@ public class Queue {
 	public void setExchange(String exchange) {
 		this.exchange = exchange;
 	}
-	public String getQueueName() {
-		return queueName;
+	public String getSetupQueueName() {
+		return setupQueueName;
 	}
-	public void setQueueName(String queueName) {
-		this.queueName = queueName;
+	public void setSetupQueueName(String queueName) {
+		this.setupQueueName = queueName;
 	}
 	public String getRoutingKey() {
 		return routingKey;
 	}
 	public void setRoutingKey(String routingKey) {
 		this.routingKey = routingKey;
+	}
+
+	public String getDcQueueName() {
+		return dcQueueName;
+	}
+
+	public void setDcQueueName(String dcQueueName) {
+		this.dcQueueName = dcQueueName;
+	}
+
+	public String getStringPrintQueueName() {
+		return stringPrintQueueName;
+	}
+
+	public void setStringPrintQueueName(String stringPrintQueueName) {
+		this.stringPrintQueueName = stringPrintQueueName;
 	}
 }

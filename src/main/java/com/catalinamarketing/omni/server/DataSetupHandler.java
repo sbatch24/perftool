@@ -22,9 +22,12 @@ import org.slf4j.LoggerFactory;
 import com.catalinamarketing.omni.config.CardSetup;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.config.Environment;
+import com.catalinamarketing.omni.config.OfferSetup;
 import com.catalinamarketing.omni.config.PromotionSetup;
 import com.catalinamarketing.omni.dmp.setup.Wallet;
 import com.catalinamarketing.omni.message.DataSetupActivityLog;
+import com.catalinamarketing.omni.pmr.setup.CampaignOfferSetupMessage;
+import com.catalinamarketing.omni.pmr.setup.DynamicControlsMessage;
 import com.catalinamarketing.omni.pmr.setup.PmrDataOrganizer;
 import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
 import com.catalinamarketing.omni.util.ChannelTypeTranslator;
@@ -53,15 +56,108 @@ public class DataSetupHandler {
 	 * based on the Promotion/Program setup in config.xml 2. Use the card setup
 	 * data to create the consumer profiles.
 	 */
-	public DataSetupActivityLog dataSetup() {
+	public void dataSetup() {
 		logger.info("Data setup will involve publishing data to PMR and to the DMP");
 		PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config, activityLog);
 		pmrDataOrganizer.initializePmrDataSetup();
-		publishPmrData(pmrDataOrganizer);
+		publishPmrSetupData(pmrDataOrganizer);
+		publishDynamicControlData(pmrDataOrganizer);
+		publishStringPrintData(pmrDataOrganizer);
 		initializeDmpData();
-		return activityLog;
 	}
 
+	/**
+	 * Method responsible for publishing String Print data to the PMR queue.
+	 * @param pmrDataOrganizer
+	 */
+	private void publishStringPrintData(PmrDataOrganizer pmrDataOrganizer) {
+		logger.info("Publishing String print  data to the PMR in  " + config.getConfiguredEnvironmentName());
+		Environment environment = config.getConfiguredEnvironment();
+		ConnectionFactory factory = new ConnectionFactory();
+		factory.setUsername(environment.getQueueInfo().getUserName());
+		factory.setPassword(environment.getQueueInfo().getPassword());
+		factory.setPort(environment.getQueueInfo().getPort());
+		factory.setHost(environment.getQueueInfo().getHostName());
+		Connection connection = null;
+		Channel channel = null;
+		try {
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			channel.queueDeclare(environment.getQueueInfo().getStringPrintQueueName(),
+					true, false, false, null);
+			Map<String, Object> headers = new HashMap<String, Object>();
+			headers.put("__TypeId__", "campaign-offers-setup");
+			Gson gson = new Gson();
+			CampaignOfferSetupMessage campaignSetupMessage = pmrDataOrganizer.getCampaignMessage();
+			String jsonMessage = gson.toJson(campaignSetupMessage);
+			channel.basicPublish("", environment.getQueueInfo()
+					.getStringPrintQueueName(), new AMQP.BasicProperties.Builder()
+					.contentType("application/json").headers(headers)
+					.build(), jsonMessage.getBytes());
+		} catch (IOException e) {
+			logger.error("Problem publish string print data. Error :"+ e.getMessage());
+			activityLog.addException("Problem publishing string print data. Error :"+ e.getMessage());
+		} finally {
+			try {
+				if(channel != null && connection != null) {
+					channel.close();
+					connection.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+
+	/**
+	 * Method responsible for publishing dynamic control information to the PMR queue.
+	 * @param pmrDataOrganizer
+	 */
+	private void publishDynamicControlData(PmrDataOrganizer pmrDataOrganizer) {
+		logger.info("Publishing dynamic control data to the PMR in  " + config.getConfiguredEnvironmentName());
+		Environment environment = config.getConfiguredEnvironment();
+		ConnectionFactory factory = new ConnectionFactory();
+		factory.setUsername(environment.getQueueInfo().getUserName());
+		factory.setPassword(environment.getQueueInfo().getPassword());
+		factory.setPort(environment.getQueueInfo().getPort());
+		factory.setHost(environment.getQueueInfo().getHostName());
+		Connection connection = null;
+		Channel channel = null;
+		try {
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			channel.queueDeclare(environment.getQueueInfo().getDcQueueName(),
+					true, false, false, null);
+			Map<String, Object> headers = new HashMap<String, Object>();
+			headers.put("__TypeId__", "dynamic-controls-setup");
+			Gson gson = new Gson();
+			DynamicControlsMessage dcMessage = pmrDataOrganizer.getDynamicControlMessage();
+			String jsonMessage = gson.toJson(dcMessage);
+			channel.basicPublish("", environment.getQueueInfo()
+					.getDcQueueName(), new AMQP.BasicProperties.Builder()
+					.contentType("application/json").headers(headers)
+					.build(), jsonMessage.getBytes());
+		} catch (IOException e) {
+			logger.error("Problem publishing dynamic controls data. Error :"+ e.getMessage());
+			activityLog.addException("Problem publishing dynamic controls. Error :"+ e.getMessage());
+		} finally {
+			try {
+				if(channel != null && connection != null) {
+					channel.close();
+					connection.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}				
+	}
+
+	/**
+	 * Publish data to the consumer dmp.
+	 * @param entry
+	 * @param client
+	 * @param feature
+	 */
 	public void updateWalletDataForConsumer(Map.Entry<String, List<Wallet>> entry, Client client, HttpAuthenticationFeature feature) {
 		Gson gson = new Gson();
 		WebTarget target = client
@@ -154,17 +250,17 @@ public class DataSetupHandler {
 		Map<String, List<Wallet>> customerWallet = new HashMap<String, List<Wallet>>();
 		List<CardSetup> cardSetupList = config.getCardSetupList();
 		for (CardSetup cardSetup : cardSetupList) {
-			PromotionSetup promotionSetup = config
-					.getPromotionSetupByCardRangeId(cardSetup.getCardRangeId());
-			List<Wallet> walletList = prepareWalletForId(promotionSetup, config.getNetworkId());
-			BigInteger firstId = new BigInteger(cardSetup.cardRange().get(0));
-			BigInteger lastId = new BigInteger(cardSetup.cardRange().get(1));
-			for (; firstId.compareTo(lastId) <= 0; firstId = firstId.add(BigInteger.ONE)) {
-				customerWallet.put("USA-"
-						+ config.getNetworkId() + "-" + firstId, walletList);
+			List<PromotionSetup> promotionSetupList = config.getPromotionSetupByCardRangeId(cardSetup.getCardRangeId());
+			for(PromotionSetup promoSetup : promotionSetupList) {
+				List<Wallet> walletList = prepareWalletForId(promoSetup, config.getNetworkId());
+				BigInteger firstId = new BigInteger(cardSetup.cardRange().get(0));
+				BigInteger lastId = new BigInteger(cardSetup.cardRange().get(1));
+				for (; firstId.compareTo(lastId) <= 0; firstId = firstId.add(BigInteger.ONE)) {
+					customerWallet.put("USA-"
+							+ config.getNetworkId() + "-" + firstId, walletList);
+				}
 			}
 		}
-		
 		publishDmpData(customerWallet);
 	}
 
@@ -177,23 +273,61 @@ public class DataSetupHandler {
 	private List<Wallet> prepareWalletForId(PromotionSetup promotionSetup,
 			String networkId) {
 		List<Wallet> walletList = new ArrayList<Wallet>();
-		Wallet wallet = new Wallet();
-		wallet.setAdgroup_id(promotionSetup.getAwardId().toString());
-		wallet.setChannel_type(ChannelTypeTranslator
-				.getChannelType(promotionSetup.getChannelType()));
-		wallet.setId(promotionSetup.getAwardId().toString());
-		wallet.setLimit("" + promotionSetup.getConsumerCap());
-		wallet.setSystem_id("MXP");
-		wallet.setType(promotionSetup.getPromotionTypeForDmp());
-		wallet.setNetwork_id(networkId);
-		walletList.add(wallet);
+		if(promotionSetup.isHistoricalPrint()) {
+			Wallet wallet = new Wallet();
+			wallet.setAdgroup_id(promotionSetup.getAwardId().toString());
+			wallet.setChannel_type(ChannelTypeTranslator
+					.getChannelType(promotionSetup.getChannelType()));
+			wallet.setId(promotionSetup.getAwardId().toString());
+			wallet.setLimit("" + promotionSetup.getConsumerCap());
+			wallet.setSystem_id("MXP");
+			wallet.setType(promotionSetup.getPromotionTypeForDmp());
+			wallet.setNetwork_id(networkId);
+			wallet.setCampaign_id(promotionSetup.getCampaignId());
+			walletList.add(wallet);	
+			if(promotionSetup.isStringPrint()) {
+				OfferSetup offerSetup = config.getOfferSetupByCampaignId(promotionSetup.getCampaignId());
+				List<Wallet> offerWalletList = createOfferPromotion(promotionSetup, offerSetup, networkId);
+				for(Wallet offerWallet : offerWalletList) {
+					walletList.add(offerWallet);
+				}
+				
+			}
+		}
+		
 		return walletList;
+	}
+	
+	/**
+	 * 
+	 * @param promotionSetup
+	 * @param offerSetup
+	 * @param networkId 
+	 * @return
+	 */
+	private List<Wallet> createOfferPromotion(PromotionSetup promotionSetup,
+			OfferSetup offerSetup, String networkId) {
+		List<Wallet> offerList = new ArrayList<Wallet>();
+		for(String offerId : offerSetup.getOfferList()) {
+			Wallet wallet = new Wallet();
+			wallet.setAdgroup_id(promotionSetup.getAwardId().toString());
+			wallet.setChannel_type(ChannelTypeTranslator
+					.getChannelType(promotionSetup.getChannelType()));
+			wallet.setId(offerId);
+			wallet.setLimit("" + promotionSetup.getConsumerCap());
+			wallet.setType(promotionSetup.getPromotionTypeForDmp());
+			wallet.setSystem_id("MXP");
+			wallet.setNetwork_id(networkId);
+			wallet.setCampaign_id(promotionSetup.getCampaignId());
+			offerList.add(wallet);
+		}
+		return offerList;
 	}
 
 	/**
 	 * Publish the media data to the pmr.
 	 */
-	private void publishPmrData(PmrDataOrganizer pmrDataOrganizer) {
+	private void publishPmrSetupData(PmrDataOrganizer pmrDataOrganizer) {
 		if (publish) {
 			logger.info("Publishing PMR data to the " + config.getConfiguredEnvironmentName());
 			Environment environment = config.getConfiguredEnvironment();
@@ -207,7 +341,7 @@ public class DataSetupHandler {
 			try {
 				connection = factory.newConnection();
 				channel = connection.createChannel();
-				channel.queueDeclare(environment.getQueueInfo().getQueueName(),
+				channel.queueDeclare(environment.getQueueInfo().getSetupQueueName(),
 						true, false, false, null);
 				Map<String, Object> headers = new HashMap<String, Object>();
 				headers.put("__TypeId__", "offer-setup");
@@ -216,7 +350,7 @@ public class DataSetupHandler {
 				for (PmrSetupMessage message : pmrMessageList) {
 					String jsonMessage = gson.toJson(message);
 					channel.basicPublish("", environment.getQueueInfo()
-							.getQueueName(), new AMQP.BasicProperties.Builder()
+							.getSetupQueueName(), new AMQP.BasicProperties.Builder()
 							.contentType("application/json").headers(headers)
 							.build(), jsonMessage.getBytes());
 				}
@@ -225,8 +359,10 @@ public class DataSetupHandler {
 				activityLog.addException("Problem publish pmr data. Error :"+ e.getMessage());
 			} finally {
 				try {
-					channel.close();
-					connection.close();
+					if(channel != null && connection != null) {
+						channel.close();
+						connection.close();
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

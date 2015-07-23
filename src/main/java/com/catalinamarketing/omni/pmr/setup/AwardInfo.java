@@ -9,8 +9,7 @@ public class AwardInfo {
 	private Integer variance;
 	private boolean householded;
 	private String promotionCategory;
-	private boolean capDisabled;
-	
+	private boolean unlimitedDelivery;
 	private List<MediaInfo> mediaList;
 	
 	public AwardInfo() {
@@ -72,5 +71,29 @@ public class AwardInfo {
 			channelMediaId = mediaList.get(0).getChannels().get(0).getChannelMediaID();
 		}
 		return channelMediaId;
+	}
+
+	public boolean isHouseholded() {
+		return householded;
+	}
+
+	public void setHouseholded(boolean householded) {
+		this.householded = householded;
+	}
+
+	public String getPromotionCategory() {
+		return promotionCategory;
+	}
+
+	public void setPromotionCategory(String promotionCategory) {
+		this.promotionCategory = promotionCategory;
+	}
+
+	public boolean isUnlimitedDelivery() {
+		return unlimitedDelivery;
+	}
+
+	public void setUnlimitedDelivery(boolean unlimitedDelivery) {
+		this.unlimitedDelivery = unlimitedDelivery;
 	}
 }
