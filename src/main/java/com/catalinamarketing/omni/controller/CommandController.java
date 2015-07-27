@@ -6,11 +6,9 @@ import java.io.FileWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.catalinamarketing.omni.PerfToolApplication;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.message.DataSetupActivityLog;
@@ -98,7 +95,7 @@ public class CommandController {
 			return new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 		
-		activityLog.addActivityMessage("Data published data successful");
+		activityLog.addActivityMessage("Data published successfully");
 		PerfToolApplication.getControlServer().updateServerActivityLog("Data published successfully to PMR and DMP [" + new Date().toString() + "]");
 		return new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.OK);
 	}

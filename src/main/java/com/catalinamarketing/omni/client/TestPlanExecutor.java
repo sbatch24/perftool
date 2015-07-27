@@ -1,15 +1,10 @@
 package com.catalinamarketing.omni.client;
 
 import java.io.PrintWriter;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-
-import com.codahale.metrics.Timer;
-
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -27,10 +22,7 @@ import com.catalinamarketing.omni.util.HttpResponseRepository;
 import com.catalinamarketing.omni.util.MediaUsageRepository;
 import com.catalinamarketing.omni.util.MessageMarshaller;
 import com.codahale.metrics.ConsoleReporter;
-import com.codahale.metrics.MetricFilter;
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.graphite.Graphite;
-import com.codahale.metrics.graphite.GraphiteReporter;
+import com.codahale.metrics.Timer;
 import com.google.common.collect.Multiset;
 
 public class TestPlanExecutor implements Runnable {

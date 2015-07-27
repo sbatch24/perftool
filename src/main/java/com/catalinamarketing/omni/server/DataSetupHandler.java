@@ -211,7 +211,7 @@ public class DataSetupHandler {
 	 */
 	public String dmpWalletUrl(String tokenizedId) {
 		Environment environment = config.getConfiguredEnvironment();
-		return String.format(environment.getDmpConfig().getDmpWalletUrl(),
+		return String.format(environment.getDmpConfig().getDmpWalletUrl().trim(),
 				tokenizedId);
 	}
 	

@@ -3,18 +3,14 @@ package com.catalinamarketing.omni.server;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.catalinamarketing.omni.config.CardSetup;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.pmr.setup.AwardInfo;
-import com.catalinamarketing.omni.pmr.setup.PmrDataOrganizer;
 import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
 import com.catalinamarketing.omni.pmr.setup.ProgramInfo;
 import com.catalinamarketing.omni.protocol.message.AwardData;

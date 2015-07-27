@@ -171,8 +171,10 @@ public class PmrDataOrganizer {
 		mediaInfo.setVariance(promotionSetup.getMediaVariance());
 		mediaInfo.setSequenceNo(promotionSetup.getThresholdSequence());
 		ChannelMediaInfo channelMediaInfo = new ChannelMediaInfo();
-		channelMediaInfo.setChannelMediaID(promotionSetup.getMediaId().toString());
+		channelMediaInfo.setChannelMediaID(promotionSetup.getChannelMediaId().toString());
 		channelMediaInfo.setChannelType(promotionSetup.getChannelType());
+		channelMediaInfo.setCap(promotionSetup.getChannelMediaCap());
+		channelMediaInfo.setVariance(promotionSetup.getChannelMediaVariance());
 		channelMediaInfo.setStartDate(promotionSetup.getStartDate());
 		channelMediaInfo.setEndDate(promotionSetup.getEndDate());
 		mediaInfo.addChannelMedia(channelMediaInfo);

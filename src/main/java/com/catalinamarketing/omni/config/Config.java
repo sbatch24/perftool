@@ -182,15 +182,15 @@ public class Config {
 	}
 
 	public String getTargetingApiUrl() {
-		return getConfiguredEnvironment().getOmniConfig().getTargetingUrl();
+		return getConfiguredEnvironment().getOmniConfig().getTargetingUrl().trim();
 	}
 	
 	public String getCappingApiUrl() {
-		return getConfiguredEnvironment().getOmniConfig().getCappingUrl();
+		return getConfiguredEnvironment().getOmniConfig().getCappingUrl().trim();
 	}
 	
 	public String getEventsApiUrl() {
-		return getConfiguredEnvironment().getOmniConfig().getEventsUrl();
+		return getConfiguredEnvironment().getOmniConfig().getEventsUrl().trim();
 	}
 	
 	public List<ProgramSetup> getProgramSetupList() {

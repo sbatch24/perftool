@@ -178,7 +178,7 @@
             /**/
             $scope.editCardRangeSetup = function(index) {
                 $log.info("Index selected " + index);
-                angular.copy($scope.setup.cardsetup[index], $scope.cardSetupData);
+                angular.copy($scope.setup.cardSetup[index], $scope.cardSetupData);
                 $scope.cardSetupData['index'] = index;
                 $scope.cardSetupData.edit = true;
             }
