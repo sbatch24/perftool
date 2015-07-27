@@ -1,6 +1,6 @@
 <config>
 	<client>
 		<port>10000</port>
-		<remoteHost>localhost</remoteHost>
+		<remoteHost>smeplv01</remoteHost>
 	</client>
 </config>

@@ -23,7 +23,7 @@ public class PromotionSetup {
 	private int thresholdSequence;
 	private boolean houseHolded = false;
 	private boolean unlimited = false;
-	private String promotionType;
+	private String promotionType = new String ("Transactional");
 	private String campaignId;
 	private String programSetupId;
 	private Integer controlPercentage;

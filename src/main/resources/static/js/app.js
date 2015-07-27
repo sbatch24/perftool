@@ -186,6 +186,7 @@
             $scope.newPromotionSetup = function() {
                 $scope.promotionSetupData = {};
                 $scope.promotionSetupData['edit'] = false;
+                $scope.promotionSetupData['promotionType'] = $scope.PROMOTION_TYPES[3];
             }
 
             $scope.newProgramSetup = function() {
