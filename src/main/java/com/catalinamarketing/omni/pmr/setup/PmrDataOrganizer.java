@@ -130,7 +130,7 @@ public class PmrDataOrganizer {
 			if(promotionSetupMap.size() > 0) {
 				PmrSetupMessage pmrSetupMessage = new PmrSetupMessage();
 				pmrSetupMessage.setLocale("US");
-				pmrSetupMessage.setSetupSystemID("MXP-US");
+				pmrSetupMessage.setSetupSystemID("MXP");
 				ProgramInfo programInfo = new ProgramInfo();
 				programInfo.setProgramID(programSetup.getProgramId());
 				programInfo.setContractID(programSetup.getContractId());
