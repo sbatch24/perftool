@@ -30,6 +30,8 @@ public class PromotionSetup {
 	private Integer randomValue;
 	private String startDate;
 	private String endDate;
+	private boolean mediaCapDisabled = false;
+	private boolean channelCapDisabled = false;
 	
 	
 	public Integer getAwardId() {
@@ -239,5 +241,21 @@ public class PromotionSetup {
 	 */
 	public boolean isHistoricalPrint() {
 		return !promotionType.equalsIgnoreCase("Transactional");
+	}
+
+	public boolean isMediaCapDisabled() {
+		return mediaCapDisabled;
+	}
+
+	public void setMediaCapDisabled(boolean mediaCapDisabled) {
+		this.mediaCapDisabled = mediaCapDisabled;
+	}
+
+	public boolean isChannelCapDisabled() {
+		return channelCapDisabled;
+	}
+
+	public void setChannelCapDisabled(boolean channelCapDisabled) {
+		this.channelCapDisabled = channelCapDisabled;
 	}
 }

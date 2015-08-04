@@ -169,6 +169,7 @@ public class PmrDataOrganizer {
 		mediaInfo.setMediaID(promotionSetup.getMediaId().toString());
 		mediaInfo.setCap(promotionSetup.getMediaCap());
 		mediaInfo.setVariance(promotionSetup.getMediaVariance());
+		mediaInfo.setCapDisabled(promotionSetup.isMediaCapDisabled());
 		mediaInfo.setSequenceNo(promotionSetup.getThresholdSequence());
 		ChannelMediaInfo channelMediaInfo = new ChannelMediaInfo();
 		channelMediaInfo.setChannelMediaID(promotionSetup.getChannelMediaId().toString());
@@ -177,6 +178,7 @@ public class PmrDataOrganizer {
 		channelMediaInfo.setVariance(promotionSetup.getChannelMediaVariance());
 		channelMediaInfo.setStartDate(promotionSetup.getStartDate());
 		channelMediaInfo.setEndDate(promotionSetup.getEndDate());
+		channelMediaInfo.setCapDisabled(promotionSetup.isChannelCapDisabled());
 		mediaInfo.addChannelMedia(channelMediaInfo);
 		awardSetup.addMedia(mediaInfo);
 		return awardSetup;

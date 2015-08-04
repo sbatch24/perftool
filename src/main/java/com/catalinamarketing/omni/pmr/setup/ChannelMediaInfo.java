@@ -8,7 +8,16 @@ public class ChannelMediaInfo {
 	private Integer variance;
 	private String startDate;
 	private String endDate;
+	private boolean capDisabled;
 	
+	
+	public boolean isCapDisabled() {
+		return capDisabled;
+	}
+
+	public void setCapDisabled(boolean capDisabled) {
+		this.capDisabled = capDisabled;
+	}
 	public String getChannelMediaID() {
 		return channelMediaID;
 	}

@@ -2,7 +2,7 @@
         var app = angular.module("perftool", []);
 
 
-        var panelController = app.controller("panelController", function($scope, $http, $log, $interval) {
+        var panelController = app.controller("panelController", function($scope, $http, $log, $interval,$window) {
             /*Initialize the data*/
             $scope.programData = {
                 edit: false
@@ -170,6 +170,15 @@
              */
             $scope.editPromotionSetup = function(index) {
                 $log.info("Index selected " + index);
+//                $window.alert('This is an alert with basic formatting\n\n' 
+//    + "\t• list item 1\n" 
+//    + '\t• list item 2\n' 
+//    + '\t• list item 3\n\n' 
+//    + '▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬\n\n' 
+//    + 'Simple table\n\n' 
+//    + 'Char\t| Result\n' 
+//    + '\\n\t| line break\n' 
+//    + '\\t\t| tab space');
                 angular.copy($scope.setup.promotionSetup[index], $scope.promotionSetupData);
                 $scope.promotionSetupData['index'] = index;
                 $scope.promotionSetupData.edit = true;                
@@ -255,6 +264,8 @@
                         $scope.promotionSetupData.rank = 256;
                     }
                     
+                    
+                    
                     $scope.setup.promotionSetup.push({
                         'awardId': $scope.promotionSetupData.awardId,
                         'rank' : $scope.promotionSetupData.rank,
@@ -267,8 +278,10 @@
                         'mediaCap': $scope.promotionSetupData.mediaCap,
                         'campaignId' : $scope.promotionSetupData.campaignId,
                         'mediaVariance': $scope.promotionSetupData.mediaVariance,
+                        'mediaCapDisabled' : $scope.promotionSetupData.mediaCapDisabled,
                         'channelMediaCap' : $scope.promotionSetupData.channelMediaCap,
                         'channelMediaVariance' : $scope.promotionSetupData.channelMediaVariance,
+                        'channelCapDisabled' : $scope.promotionSetupData.channelCapDisabled,
                         'unlimited' : $scope.promotionSetupData.unlimited,
                         'thresholdSequence' : $scope.promotionSetupData.thresholdSequence,
                         'promotionType' : $scope.promotionSetupData.promotionType,

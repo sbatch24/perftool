@@ -10,6 +10,7 @@ public class AwardInfo {
 	private boolean householded;
 	private String promotionCategory;
 	private boolean unlimitedDelivery;
+	
 	private List<MediaInfo> mediaList;
 	
 	public AwardInfo() {
@@ -96,4 +97,5 @@ public class AwardInfo {
 	public void setUnlimitedDelivery(boolean unlimitedDelivery) {
 		this.unlimitedDelivery = unlimitedDelivery;
 	}
+	
 }

@@ -8,6 +8,8 @@ public class MediaInfo {
 	private Integer cap;
 	private Integer variance;
 	private Integer sequenceNo;
+	private boolean capDisabled;
+
 	
 	private List<ChannelMediaInfo> channels;
 	
@@ -47,6 +49,12 @@ public class MediaInfo {
 	}
 	public void setSequenceNo(Integer sequenceNo) {
 		this.sequenceNo = sequenceNo;
+	}
+	public boolean isCapDisabled() {
+		return capDisabled;
+	}
+	public void setCapDisabled(boolean capDisabled) {
+		this.capDisabled = capDisabled;
 	}
 	
 }
