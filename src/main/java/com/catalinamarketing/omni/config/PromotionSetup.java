@@ -26,7 +26,7 @@ public class PromotionSetup {
 	private String promotionType = new String ("Transactional");
 	private String campaignId;
 	private String programSetupId;
-	private Integer controlPercentage;
+	private Double controlPercentage;
 	private Integer randomValue;
 	private String startDate;
 	private String endDate;
@@ -203,11 +203,11 @@ public class PromotionSetup {
 		return "Transactional";
 	}
 
-	public Integer getControlPercentage() {
+	public Double getControlPercentage() {
 		return controlPercentage;
 	}
 
-	public void setControlPercentage(Integer controlPercentage) {
+	public void setControlPercentage(Double controlPercentage) {
 		this.controlPercentage = controlPercentage;
 	}
 

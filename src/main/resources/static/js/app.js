@@ -196,6 +196,11 @@
                 $scope.promotionSetupData = {};
                 $scope.promotionSetupData['edit'] = false;
                 $scope.promotionSetupData['promotionType'] = $scope.PROMOTION_TYPES[3];
+                $scope.promotionSetupData['mediaCapDisabled'] = $scope.BOOLEAN_TYPES[1];
+                $scope.promotionSetupData['channelCapDisabled'] = $scope.BOOLEAN_TYPES[1];
+                $scope.promotionSetupData['unlimited'] = $scope.BOOLEAN_TYPES[1];
+                $scope.promotionSetupData['houseHolded'] = $scope.BOOLEAN_TYPES[1];
+                $scope.promotionSetupData['channelType'] = $scope.CHANNEL_TYPES[0];
             }
 
             $scope.newProgramSetup = function() {
