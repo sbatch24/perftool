@@ -256,8 +256,13 @@ public class DataSetupHandler {
 				BigInteger firstId = new BigInteger(cardSetup.cardRange().get(0));
 				BigInteger lastId = new BigInteger(cardSetup.cardRange().get(1));
 				for (; firstId.compareTo(lastId) <= 0; firstId = firstId.add(BigInteger.ONE)) {
-					customerWallet.put("USA-"
-							+ config.getNetworkId() + "-" + firstId, walletList);
+					StringBuilder profileKeyBuilder = new StringBuilder("USA-").append(config.getNetworkId()).append("-").append(firstId);
+					if(!customerWallet.containsKey(profileKeyBuilder.toString())) {
+						customerWallet.put(profileKeyBuilder.toString(), walletList);
+					}else {
+						List<Wallet> wallet = customerWallet.get(profileKeyBuilder.toString());
+						wallet.addAll(walletList);
+					}
 				}
 			}
 		}
