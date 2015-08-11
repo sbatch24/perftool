@@ -149,6 +149,7 @@ public class Config {
 		});
 		
 		for(PromotionSetup setup : configuredPromotionSetupList) {
+			if(setup.isTransactional()) continue; // Dont do anything if promotion is setup as transactional.
 			if(setup.getCardRangeId().equalsIgnoreCase(cardRangeId)) {
 				promotionSetupByCardRange.add(setup);
 			}

@@ -9,7 +9,14 @@ public class ChannelMediaInfo {
 	private String startDate;
 	private String endDate;
 	private boolean capDisabled;
-	
+	private Integer sequenceNo;
+
+	public Integer getSequenceNo() {
+		return sequenceNo;
+	}
+	public void setSequenceNo(Integer sequenceNo) {
+		this.sequenceNo = sequenceNo;
+	}
 	
 	public boolean isCapDisabled() {
 		return capDisabled;

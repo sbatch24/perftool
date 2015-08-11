@@ -203,6 +203,10 @@ public class PromotionSetup {
 		return "Transactional";
 	}
 
+	public boolean isTransactional() {
+		return promotionType.equalsIgnoreCase("Transactional");
+	}
+	
 	public Double getControlPercentage() {
 		return controlPercentage;
 	}

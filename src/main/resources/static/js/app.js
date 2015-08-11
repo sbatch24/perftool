@@ -269,8 +269,6 @@
                         $scope.promotionSetupData.rank = 256;
                     }
                     
-                    
-                    
                     $scope.setup.promotionSetup.push({
                         'awardId': $scope.promotionSetupData.awardId,
                         'rank' : $scope.promotionSetupData.rank,

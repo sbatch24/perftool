@@ -58,7 +58,14 @@ public class ProgramInfo {
 		if(awards == null) {
 			awards = new ArrayList<AwardInfo>();
 		}
-		awards.add(awardInfo);
+		if(!programContainsAward(awardInfo)) {
+			awards.add(awardInfo);	
+		}else {
+			AwardInfo award = getAwardInfo(awardInfo);
+			for(MediaInfo mediaInfo : awardInfo.getMediaList()) {
+				award.addMedia(mediaInfo);
+			}
+		}
 	}
 	
 	/**
@@ -76,4 +83,24 @@ public class ProgramInfo {
 		}
 		return channelMediaId;
 	}
+	
+	public boolean programContainsAward(AwardInfo awardInfo) {
+		for(AwardInfo info : awards) {
+			if(info.getAwardID().equalsIgnoreCase(awardInfo.getAwardID())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private AwardInfo getAwardInfo(AwardInfo info) {
+		for(AwardInfo awardInfo : awards) {
+			if(awardInfo.getAwardID().equalsIgnoreCase(info.getAwardID())) {
+				return awardInfo;
+			}
+		}
+		return null;
+	}
+	
+	
 }

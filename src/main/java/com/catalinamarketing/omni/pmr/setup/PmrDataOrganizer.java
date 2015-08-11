@@ -140,7 +140,7 @@ public class PmrDataOrganizer {
 					List<PromotionSetup> promotionSetupList = entry.getValue();
 					for(PromotionSetup promotionSetup : promotionSetupList) {
 						AwardInfo awardInfo = populateAwardInfo(promotionSetup);
-						programInfo.addAwardInfo(awardInfo);
+						programInfo.addAwardInfo(awardInfo);	
 					}
 				}
 				pmrSetupMessage.addProgram(programInfo);
@@ -170,12 +170,12 @@ public class PmrDataOrganizer {
 		mediaInfo.setCap(promotionSetup.getMediaCap());
 		mediaInfo.setVariance(promotionSetup.getMediaVariance());
 		mediaInfo.setCapDisabled(promotionSetup.isMediaCapDisabled());
-		mediaInfo.setSequenceNo(promotionSetup.getThresholdSequence());
 		ChannelMediaInfo channelMediaInfo = new ChannelMediaInfo();
 		channelMediaInfo.setChannelMediaID(promotionSetup.getChannelMediaId().toString());
 		channelMediaInfo.setChannelType(promotionSetup.getChannelType());
 		channelMediaInfo.setCap(promotionSetup.getChannelMediaCap());
 		channelMediaInfo.setVariance(promotionSetup.getChannelMediaVariance());
+		channelMediaInfo.setSequenceNo(promotionSetup.getThresholdSequence());
 		channelMediaInfo.setStartDate(promotionSetup.getStartDate());
 		channelMediaInfo.setEndDate(promotionSetup.getEndDate());
 		channelMediaInfo.setCapDisabled(promotionSetup.isChannelCapDisabled());
