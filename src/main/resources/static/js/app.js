@@ -334,9 +334,10 @@
                         'offerList': $scope.offerSetupData.offerList.split(",")
                     });
                 } else {
-                    angular.copy($scope.offerSetupData, $scope.setup.offerSetup[$scope.offerSetupData.index]);
+                    $scope.setup.offerSetup[$scope.offerSetupData.index].campaignId = $scope.offerSetupData.campaignId;
+                    $scope.setup.offerSetup[$scope.offerSetupData.index].offerList = $scope.offerSetupData.offerList.split(",");
                 }
-                clearModel($scope.cardSetupData);
+                clearModel($scope.offerSetupData);
             };
 
 
