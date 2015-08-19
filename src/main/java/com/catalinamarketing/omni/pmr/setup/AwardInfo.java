@@ -3,6 +3,8 @@ package com.catalinamarketing.omni.pmr.setup;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.catalinamarketing.omni.util.SetupConstants;
+
 public class AwardInfo {
 	private String awardID;
 	private Integer cap;
@@ -11,10 +13,26 @@ public class AwardInfo {
 	private String promotionCategory;
 	private boolean unlimitedDelivery;
 	
+	
 	private List<MediaInfo> mediaList;
+	
+	public int highestThresholdSequenceNumber() {
+		// I can either mediaList.size or go through mediaList and return the max thresholdSequenceNo +1.
+		int initialThresholdSequence = 0;
+		for(MediaInfo mediaInfo : mediaList) {
+			// This assumes only one channelMediaId under mediaInfo.
+			int currentThresholdSequenceNo = mediaInfo.getChannels().get(0).getSequenceNo();
+			initialThresholdSequence =  currentThresholdSequenceNo > initialThresholdSequence ? currentThresholdSequenceNo : initialThresholdSequence;
+		}
+		return initialThresholdSequence+1;
+	}
 	
 	public AwardInfo() {
 		
+	}
+	
+	public boolean isTransactional() {
+		return promotionCategory.equalsIgnoreCase(SetupConstants.TRANSACTIONAL);
 	}
 	
 	public AwardInfo(String awardId, Integer cap, Integer variance, List<MediaInfo> list) {

@@ -6,6 +6,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
+
 public class CustomerMediaEvent {
 	@XmlElement(required = true)
 	protected String customerId;
@@ -16,6 +17,14 @@ public class CustomerMediaEvent {
 	@XmlElementWrapper(name = "directDepositStatuses")
 	@XmlElement(name = "directDepositStatus")
 	protected List<DirectDepositStatus> directDepositStatuses;
+	
+	@XmlElementWrapper(name = "thresholdStatuses")
+    @XmlElement(name = "thresholdStatus")
+    protected List<ThresholdStatus> thresholdStatuses;
+
+    @XmlElementWrapper(name = "stringPrintStatuses")
+    @XmlElement(name = "stringPrintStatus")
+    protected List<StringPrintStatus> stringPrintStatuses;
 
 	public String getCustomerId() {
 		return customerId;

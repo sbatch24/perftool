@@ -15,9 +15,7 @@ public class AwardData {
 	
 	
 	public AwardData(){
-		
 	}
-	
 	
 	public String getAwardId() {
 		return awardId;

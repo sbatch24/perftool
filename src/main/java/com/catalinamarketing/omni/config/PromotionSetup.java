@@ -4,6 +4,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
+import com.catalinamarketing.omni.util.SetupConstants;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name="promotionSetup")
 public class PromotionSetup {
@@ -23,7 +25,7 @@ public class PromotionSetup {
 	private int thresholdSequence;
 	private boolean houseHolded = false;
 	private boolean unlimited = false;
-	private String promotionType = new String ("Transactional");
+	private String promotionType = new String (SetupConstants.TRANSACTIONAL);
 	private String campaignId;
 	private String programSetupId;
 	private Double controlPercentage;
@@ -192,11 +194,11 @@ public class PromotionSetup {
 	
 	public String getPromotionTypeForDmp() {
 		if(promotionType != null) {
-			if(promotionType.equalsIgnoreCase("StringPrints")) {
+			if(promotionType.equalsIgnoreCase(SetupConstants.STRING_PRINT)) {
 				return "string prints";
-			} else if(promotionType.equalsIgnoreCase("Threshold")){
+			} else if(promotionType.equalsIgnoreCase(SetupConstants.THRESHOLD)){
 				return "thresholds";
-			} else if(promotionType.equalsIgnoreCase("GType")) {
+			} else if(promotionType.equalsIgnoreCase(SetupConstants.GTYPE)) {
 				return "direct";
 			}
 		}

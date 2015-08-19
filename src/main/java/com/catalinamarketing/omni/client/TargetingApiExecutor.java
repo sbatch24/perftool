@@ -41,6 +41,9 @@ public class TargetingApiExecutor extends ApiExecutor {
 	private MediaUsageRepository mediaUsageRepository;
 	private List<BigInteger> customerIds;
 	private final TestPlanMsg testPlan;
+	private MediaEventCreator thresholdEventCreator;
+	private MediaEventCreator stringPrintEventCreator;
+	private MediaEventCreator directDepositEventCreator;
 	
 	public TargetingApiExecutor(int threadNumber, int callCount, 
 			String threadGroupIdentifier, CountDownLatch finishedSignal, MediaUsageRepository mediaUsageRepository, 
@@ -50,6 +53,9 @@ public class TargetingApiExecutor extends ApiExecutor {
 		this.mediaUsageRepository = mediaUsageRepository;
 		this.customerIds = new ArrayList<BigInteger>();
 		this.testPlan = testPlan;
+		this.thresholdEventCreator = new ThresholdEventCreator();
+		this.directDepositEventCreator = new DirectDepositEventCreator();
+		this.stringPrintEventCreator = new StringPrintEventCreator();
 	}
 	
 	/**
@@ -89,7 +95,7 @@ public class TargetingApiExecutor extends ApiExecutor {
 	 * @param customerId
 	 * @return MediaEvents structure which is reported to the events api
 	 */
-	private MediaEvents prepareMediaEvent(TargetedMediaResponse targetMediaResponse, String customerId) {
+	private MediaEvents prepareDirectDepositMediaEvent(TargetedMediaResponse targetMediaResponse, String customerId) {
 		List<String> awardIdPrinted = new ArrayList<String>();
 		List<String> awardIdFlushed = new ArrayList<String>();
 		Random randomBoolean = new Random();
@@ -139,7 +145,9 @@ public class TargetingApiExecutor extends ApiExecutor {
 					TargetedMediaResponse targetMediaResponse = resp.readEntity(TargetedMediaResponse.class);
 					resp.close();
 					if(targetMediaResponse != null && targetMediaResponse.getDirectDeposits().size() > 0) {
-						MediaEvents mediaEvent = prepareMediaEvent(targetMediaResponse, customerId.toString());
+						MediaEvents mediaEvent = new MediaEvents();
+						mediaEvent = directDepositEventCreator.prepareEvent(targetMediaResponse, customerId.toString(),mediaEvent);
+						
 						Gson gson = new Gson();
 						final Timer.Context eventContext = EVENT_API_REQUEST.time();
 						resp  = client.target(String.format(this.testPlan.getEventsApiUrl(), testPlan.getRetailerId()))

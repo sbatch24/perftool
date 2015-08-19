@@ -96,10 +96,14 @@ public class TestPlanDispatcherThread implements Runnable {
 				for(PmrSetupMessage pmrSetupMessage : this.pmrSetupMessageList) {
 					for(ProgramInfo programInfo :pmrSetupMessage.getPrograms()) {
 						for(AwardInfo awardInfo  : programInfo.getAwards()) {
-							AwardData awardData = new AwardData();
-							awardData.setAwardId(awardInfo.getAwardID());
-							awardData.setChannelMediaId(awardInfo.getChannelMediaId());
-							msg.addAwardData(awardData);
+							if(!awardInfo.isTransactional()) {
+								AwardData awardData = new AwardData();
+								awardData.setAwardId(awardInfo.getAwardID());
+								awardData.setChannelMediaId(awardInfo.getChannelMediaId());
+								awardData.setType(awardInfo.getPromotionCategory());
+								awardData.setThresholdSequence(awardInfo.highestThresholdSequenceNumber());
+								msg.addAwardData(awardData);
+							}
 						}
 					}
 				}
