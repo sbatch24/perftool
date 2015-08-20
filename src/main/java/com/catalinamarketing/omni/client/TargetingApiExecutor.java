@@ -106,7 +106,8 @@ public class TargetingApiExecutor extends ApiExecutor {
 				if(resp.getStatusInfo().getStatusCode() == Response.Status.OK.getStatusCode()) {
 					TargetedMediaResponse targetMediaResponse = resp.readEntity(TargetedMediaResponse.class);
 					resp.close();
-					if(targetMediaResponse != null && targetMediaResponse.getDirectDeposits().size() > 0) {
+					if(targetMediaResponse != null && (targetMediaResponse.getDirectDeposits().size() > 0 || 
+							targetMediaResponse.getStringPrints().size() > 0 || targetMediaResponse.getThresholds().size() > 0	)) {
 						MediaEvents mediaEvent = new MediaEvents();
 						mediaEvent.setTransactionId(""+ UUID.randomUUID().toString());
 						CustomerMediaEvent customerMediaEvent = new CustomerMediaEvent();
@@ -137,6 +138,8 @@ public class TargetingApiExecutor extends ApiExecutor {
 							}
 						}
 						resp.close();
+					} else {
+						logger.info("Targeting api did not return anything for this cid " + customerId.toString());
 					}
 				}
 			}catch (Exception e) {
