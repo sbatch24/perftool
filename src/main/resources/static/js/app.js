@@ -170,15 +170,6 @@
              */
             $scope.editPromotionSetup = function(index) {
                 $log.info("Index selected " + index);
-//                $window.alert('This is an alert with basic formatting\n\n' 
-//    + "\t• list item 1\n" 
-//    + '\t• list item 2\n' 
-//    + '\t• list item 3\n\n' 
-//    + '▬▬▬▬▬▬▬▬▬ஜ۩۞۩ஜ▬▬▬▬▬▬▬▬▬\n\n' 
-//    + 'Simple table\n\n' 
-//    + 'Char\t| Result\n' 
-//    + '\\n\t| line break\n' 
-//    + '\\t\t| tab space');
                 angular.copy($scope.setup.promotionSetup[index], $scope.promotionSetupData);
                 $scope.promotionSetupData['index'] = index;
                 $scope.promotionSetupData.edit = true;                
@@ -227,7 +218,7 @@
                 clearModel($scope.promotionSetupData);
                 $scope.setup.promotionSetup.splice(index, 1);
             }
-
+         
             $scope.deleteCardRangeSetup = function(index) {
                 $log.info("Deleting card setup");
                 $scope.cardSetupData = {};
@@ -301,9 +292,18 @@
                       angular.copy($scope.promotionSetupData, $scope.setup.promotionSetup[$scope.promotionSetupData.index]);
                 }
                 clearModel($scope.promotionSetupData);
-
             };
 
+            $scope.clonePromotion = function(index) {
+                $log.info("Cloning promotion setup " + index);
+                $scope.promotionSetupData = {};
+                var temp = {};
+                angular.copy($scope.setup.promotionSetup[index], temp);
+                $scope.setup.promotionSetup.splice(index+1, 0, temp);    
+                angular.copy($scope.setup.promotionSetup[index+1], $scope.promotionSetupData);
+                $scope.promotionSetupData['index'] = index+1;
+                $scope.promotionSetupData['edit'] = true;
+            }
 
             $scope.editOfferSetup = function(index) {
                 $log.info("Index selected " + index);

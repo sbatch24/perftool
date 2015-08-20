@@ -118,6 +118,7 @@
                         <tr>
                             <th>Edit</th>
                             <th>Delete</th>
+                            <th>Clone</th>
                             <th>Award Id</th>
                             <th>Rank</th>
                             <th>Award Cap</th>
@@ -146,7 +147,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="promotionSetupInfo in setup.promotionSetup">
+                        <tr ng-repeat="promotionSetupInfo in setup.promotionSetup track by $index">
                             <td>
                                 <button class="btn btn-xs" ng-click="editPromotionSetup($index)">
                                     <span class="glyphicon glyphicon-pencil"></span>
@@ -155,6 +156,11 @@
                             <td>
                                 <button class="btn btn-xs" ng-click="deletePromotionData($index)">
                                     <span class="glyphicon glyphicon-trash"></span>
+                                </button>
+                            </td>
+                            <td>
+                                <button class="btn btn-xs" ng-click="clonePromotion($index)">
+                                    <span class="glyphicon glyphicon-share"></span>
                                 </button>
                             </td>
                             <td>{{promotionSetupInfo.awardId }}</td>

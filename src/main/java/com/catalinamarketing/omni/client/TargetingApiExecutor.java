@@ -20,6 +20,7 @@ import com.catalinamarketing.omni.api.CustomerMediaEvent;
 import com.catalinamarketing.omni.api.DirectDeposit;
 import com.catalinamarketing.omni.api.DirectDepositStatus;
 import com.catalinamarketing.omni.api.MediaEvents;
+import com.catalinamarketing.omni.api.StringPrintStatus;
 import com.catalinamarketing.omni.api.TargetedMediaResponse;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.HttpResponseRepository;
@@ -71,7 +72,7 @@ public class TargetingApiExecutor extends ApiExecutor {
 		Response resp = null;
 		try {
 			resp = client.target(String.format(this.testPlan.getTargetingApiUrl(), testPlan.getRetailerId(),customerId))
-		            .queryParam("channel", "web")
+		            .queryParam("channel", "store")
 		            .queryParam("transactionid", customerId)  // Use customer id as transaction id
 		            .request()
 		            .accept(MediaType.APPLICATION_XML)
@@ -87,45 +88,6 @@ public class TargetingApiExecutor extends ApiExecutor {
 			seriousException("GetTargetedMedia", ex.getMessage());	
 		}
 		return resp;
-	}
-	
-	/**
-	 * Report the media printed/flushed to the events api.
-	 * @param targetMediaResponse
-	 * @param customerId
-	 * @return MediaEvents structure which is reported to the events api
-	 */
-	private MediaEvents prepareDirectDepositMediaEvent(TargetedMediaResponse targetMediaResponse, String customerId) {
-		List<String> awardIdPrinted = new ArrayList<String>();
-		List<String> awardIdFlushed = new ArrayList<String>();
-		Random randomBoolean = new Random();
-
-		for(DirectDeposit directDeposit : targetMediaResponse.getDirectDeposits()) {
-			if(randomBoolean.nextBoolean()) {
-				awardIdPrinted.add(directDeposit.getAwardId());
-			}else {
-				awardIdFlushed.add(directDeposit.getAwardId());
-			}
-		}
-		
-		MediaEvents mediaEvent = new MediaEvents();
-		mediaEvent.setTransactionId(""+ UUID.randomUUID().toString());
-		CustomerMediaEvent customerMediaEvent = new CustomerMediaEvent();
-		customerMediaEvent.setCustomerId(customerId.toString());
-		for(String awardId : awardIdPrinted) {
-			DirectDepositStatus directDepositStatus = new DirectDepositStatus();
-			directDepositStatus.setAwardId(awardId);
-			directDepositStatus.setStatus(DirectDepositStatus.PRINTED_OFFER);
-			customerMediaEvent.getDirectDepositStatuses().add(directDepositStatus);
-		}
-		for(String awardId : awardIdFlushed) {
-			DirectDepositStatus directDepositStatus = new DirectDepositStatus();
-			directDepositStatus.setAwardId(awardId);
-			directDepositStatus.setStatus(DirectDepositStatus.NOT_PRINTED);
-			customerMediaEvent.getDirectDepositStatuses().add(directDepositStatus);
-		}
-		mediaEvent.getCustomerMediaEvents().add(customerMediaEvent);
-		return mediaEvent;
 	}
 	
 	@Override
@@ -146,7 +108,13 @@ public class TargetingApiExecutor extends ApiExecutor {
 					resp.close();
 					if(targetMediaResponse != null && targetMediaResponse.getDirectDeposits().size() > 0) {
 						MediaEvents mediaEvent = new MediaEvents();
-						mediaEvent = directDepositEventCreator.prepareEvent(targetMediaResponse, customerId.toString(),mediaEvent);
+						mediaEvent.setTransactionId(""+ UUID.randomUUID().toString());
+						CustomerMediaEvent customerMediaEvent = new CustomerMediaEvent();
+						customerMediaEvent.setCustomerId(customerId.toString());
+						mediaEvent.getCustomerMediaEvents().add(customerMediaEvent);
+						mediaEvent = directDepositEventCreator.prepareEvent(targetMediaResponse,mediaEvent, testPlan);
+						mediaEvent = stringPrintEventCreator.prepareEvent(targetMediaResponse, mediaEvent, testPlan);
+						mediaEvent = thresholdEventCreator.prepareEvent(targetMediaResponse, mediaEvent, testPlan);
 						
 						Gson gson = new Gson();
 						final Timer.Context eventContext = EVENT_API_REQUEST.time();
@@ -162,6 +130,10 @@ public class TargetingApiExecutor extends ApiExecutor {
 							resp.getStatusInfo().getStatusCode() == Response.Status.ACCEPTED.getStatusCode()) {
 							for(DirectDepositStatus directDepositStatus : mediaEvent.getMediaPrintEventForCustomer(customerId.toString())) {
 								mediaUsageRepository.incrementMediaCounter(threadGroupIdentifier, testPlan.getChannelMediaId(directDepositStatus.getAwardId()));
+							}
+							
+							for(StringPrintStatus status : mediaEvent.getStringPrintEventForCustomer(customerId.toString())) {
+								mediaUsageRepository.incrementMediaCounter(threadGroupIdentifier, testPlan.getChannelMediaId(status.getAwardId()));
 							}
 						}
 						resp.close();

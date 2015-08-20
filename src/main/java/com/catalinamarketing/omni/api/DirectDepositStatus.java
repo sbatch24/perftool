@@ -5,12 +5,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
+import com.catalinamarketing.omni.util.SetupConstants;
+
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "directDepositStatus")
 public class DirectDepositStatus {
-
-	public static final String PRINTED_OFFER = "T";
-	public static final String NOT_PRINTED = "O";
 
 	@XmlElement(required = true)
 	protected String awardId;
@@ -47,6 +46,6 @@ public class DirectDepositStatus {
 	 * @return true if item printed successfully
 	 */
 	public boolean printedSuccessfully() {
-		return PRINTED_OFFER.equalsIgnoreCase(status);
+		return SetupConstants.PROMOTION_PRINTED.equalsIgnoreCase(status);
 	}
 }

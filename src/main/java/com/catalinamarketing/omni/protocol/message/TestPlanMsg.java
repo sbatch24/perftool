@@ -38,6 +38,17 @@ public class TestPlanMsg extends Message {
 		return awardDataList;
 	}
 	
+	public AwardData getAwardData(String awardId) {
+		if(awardDataList != null) {
+			for(AwardData awardData : awardDataList) {
+				if(awardData.getAwardId().equalsIgnoreCase(awardId)) {
+					return awardData;
+				}
+			}
+		}
+		return null;
+	}
+	
 	public void addAwardData(AwardData awardData) {
 		if(awardDataList == null) {
 			awardDataList = new ArrayList<AwardData>();

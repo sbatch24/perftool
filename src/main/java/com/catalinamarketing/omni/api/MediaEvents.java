@@ -51,5 +51,20 @@ public class MediaEvents {
     	}
     	return directDepositStatusList;
     }
+    
+    public List<StringPrintStatus> getStringPrintEventForCustomer(String customerId) {
+    	List<StringPrintStatus> stringPrintStatusList = new ArrayList<StringPrintStatus>();
+    	for(CustomerMediaEvent customerMediaEvent : customerMediaEvents) {
+    		if(customerMediaEvent.getCustomerId().equalsIgnoreCase(customerId)) {
+    			List<StringPrintStatus> stringPrints = customerMediaEvent.getStringPrintStatuses();
+    			for(StringPrintStatus stringPrint : stringPrints) {
+    				if(stringPrint.printedSuccessfully()) {
+    					stringPrintStatusList.add(stringPrint);
+    				}
+    			}
+    		}
+    	}
+    	return stringPrintStatusList;
+    }
 
 }

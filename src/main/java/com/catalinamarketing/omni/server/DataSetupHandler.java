@@ -289,17 +289,17 @@ public class DataSetupHandler {
 			wallet.setType(promotionSetup.getPromotionTypeForDmp());
 			wallet.setNetwork_id(networkId);
 			wallet.setCampaign_id(promotionSetup.getCampaignId());
-			walletList.add(wallet);	
+			
 			if(promotionSetup.isStringPrint()) {
 				OfferSetup offerSetup = config.getOfferSetupByCampaignId(promotionSetup.getCampaignId());
 				List<Wallet> offerWalletList = createOfferPromotion(promotionSetup, offerSetup, networkId);
 				for(Wallet offerWallet : offerWalletList) {
 					walletList.add(offerWallet);
 				}
-				
+			} else {
+				walletList.add(wallet);		
 			}
 		}
-		
 		return walletList;
 	}
 	

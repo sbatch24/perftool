@@ -26,6 +26,28 @@ public class CustomerMediaEvent {
     @XmlElement(name = "stringPrintStatus")
     protected List<StringPrintStatus> stringPrintStatuses;
 
+	public List<ThresholdStatus> getThresholdStatuses() {
+		if(thresholdStatuses == null) {
+			thresholdStatuses = new ArrayList<ThresholdStatus>();
+		}
+		return thresholdStatuses;
+	}
+
+	public void setThresholdStatuses(List<ThresholdStatus> thresholdStatuses) {
+		this.thresholdStatuses = thresholdStatuses;
+	}
+
+	public List<StringPrintStatus> getStringPrintStatuses() {
+		if(stringPrintStatuses == null) {
+			stringPrintStatuses = new ArrayList<StringPrintStatus>();
+		}
+		return stringPrintStatuses;
+	}
+
+	public void setStringPrintStatuses(List<StringPrintStatus> stringPrintStatuses) {
+		this.stringPrintStatuses = stringPrintStatuses;
+	}
+
 	public String getCustomerId() {
 		return customerId;
 	}
@@ -43,4 +65,5 @@ public class CustomerMediaEvent {
 		}
 		return directDepositStatuses;
 	}
+	
 }

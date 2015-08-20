@@ -54,5 +54,14 @@ public class TargetedMediaResponse {
         }
         return stringPrints;
     }
+    
+    public List<Offer> getOffersByAwardId(String awardId) {
+    	for(StringPrint stringPrint : stringPrints) {
+    		if(stringPrint.getAwardId().equalsIgnoreCase(awardId)) {
+    			return stringPrint.getOffers();
+    		}
+    	}
+    	return null;
+    }
 	
 }

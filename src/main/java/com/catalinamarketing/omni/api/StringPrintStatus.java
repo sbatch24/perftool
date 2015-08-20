@@ -6,11 +6,11 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 
+import com.catalinamarketing.omni.util.SetupConstants;
+
 
 public class StringPrintStatus {
 	
-	private static final String PRINTED_AT_LEAST_ONE_OFFER = "T";
-
     @XmlElement(required = true)
     protected String awardId;
 
@@ -91,4 +91,8 @@ public class StringPrintStatus {
     	}
     	offerStatuses.add(offerStatus);
     }
+
+	public boolean printedSuccessfully() {
+		return SetupConstants.PROMOTION_PRINTED.equalsIgnoreCase(status);
+	}
 }

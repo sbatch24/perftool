@@ -3,19 +3,19 @@ package com.catalinamarketing.omni.client;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.UUID;
 
 import com.catalinamarketing.omni.api.CustomerMediaEvent;
 import com.catalinamarketing.omni.api.DirectDeposit;
 import com.catalinamarketing.omni.api.DirectDepositStatus;
 import com.catalinamarketing.omni.api.MediaEvents;
 import com.catalinamarketing.omni.api.TargetedMediaResponse;
+import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
+import com.catalinamarketing.omni.util.SetupConstants;
 
 public class DirectDepositEventCreator implements MediaEventCreator {
 
 	@Override
-	public MediaEvents prepareEvent(TargetedMediaResponse targetMediaResponse,
-			String customerId, MediaEvents mediaEvent) {
+	public MediaEvents prepareEvent(TargetedMediaResponse targetMediaResponse, MediaEvents mediaEvent, TestPlanMsg testPlan) {
 		List<String> awardIdPrinted = new ArrayList<String>();
 		List<String> awardIdFlushed = new ArrayList<String>();
 		Random randomBoolean = new Random();
@@ -28,19 +28,17 @@ public class DirectDepositEventCreator implements MediaEventCreator {
 			}
 		}
 		
-		mediaEvent.setTransactionId(""+ UUID.randomUUID().toString());
-		CustomerMediaEvent customerMediaEvent = new CustomerMediaEvent();
-		customerMediaEvent.setCustomerId(customerId.toString());
+		CustomerMediaEvent customerMediaEvent = mediaEvent.getCustomerMediaEvents().get(0);
 		for(String awardId : awardIdPrinted) {
 			DirectDepositStatus directDepositStatus = new DirectDepositStatus();
 			directDepositStatus.setAwardId(awardId);
-			directDepositStatus.setStatus(DirectDepositStatus.PRINTED_OFFER);
+			directDepositStatus.setStatus(SetupConstants.PROMOTION_PRINTED);
 			customerMediaEvent.getDirectDepositStatuses().add(directDepositStatus);
 		}
 		for(String awardId : awardIdFlushed) {
 			DirectDepositStatus directDepositStatus = new DirectDepositStatus();
 			directDepositStatus.setAwardId(awardId);
-			directDepositStatus.setStatus(DirectDepositStatus.NOT_PRINTED);
+			directDepositStatus.setStatus(SetupConstants.PROMOTION_NOT_PRINTED);
 			customerMediaEvent.getDirectDepositStatuses().add(directDepositStatus);
 		}
 		mediaEvent.getCustomerMediaEvents().add(customerMediaEvent);
