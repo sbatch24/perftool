@@ -1,5 +1,5 @@
     (function() {
-        var app = angular.module("perftool", []);
+        var app = angular.module("perftool", ['ui.date']);
 
 
         var panelController = app.controller("panelController", function($scope, $http, $log, $interval,$window) {
@@ -21,6 +21,12 @@
 
             $scope.activityLog = [];
             $scope.testGoingOn = true;
+            
+            $scope.dateOptions = {
+        changeYear: true,
+        changeMonth: true,
+        yearRange: '1900:-0'
+    };
 
             $scope.CHANNEL_TYPES = ["CATALINA_IN_STORE", "LOAD_TO_CARD"];
             $scope.BOOLEAN_TYPES = [true, false];
@@ -172,6 +178,8 @@
                 $log.info("Index selected " + index);
                 angular.copy($scope.setup.promotionSetup[index], $scope.promotionSetupData);
                 $scope.promotionSetupData['index'] = index;
+                $scope.promotionSetupData['endDate'] = new Date($scope.setup.promotionSetup[index].endDate);
+                $scope.promotionSetupData['startDate'] = new Date($scope.setup.promotionSetup[index].startDate);
                 $scope.promotionSetupData.edit = true;                
             }
 
