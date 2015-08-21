@@ -33,15 +33,16 @@ public class DirectDepositEventCreator implements MediaEventCreator {
 			DirectDepositStatus directDepositStatus = new DirectDepositStatus();
 			directDepositStatus.setAwardId(awardId);
 			directDepositStatus.setStatus(SetupConstants.PROMOTION_PRINTED);
+			directDepositStatus.setMediaNumber(testPlan.getAwardData(awardId).getChannelMediaId());
 			customerMediaEvent.getDirectDepositStatuses().add(directDepositStatus);
 		}
 		for(String awardId : awardIdFlushed) {
 			DirectDepositStatus directDepositStatus = new DirectDepositStatus();
 			directDepositStatus.setAwardId(awardId);
 			directDepositStatus.setStatus(SetupConstants.PROMOTION_NOT_PRINTED);
+			directDepositStatus.setMediaNumber(testPlan.getAwardData(awardId).getChannelMediaId());
 			customerMediaEvent.getDirectDepositStatuses().add(directDepositStatus);
 		}
-		mediaEvent.getCustomerMediaEvents().add(customerMediaEvent);
 		return mediaEvent;
 	}
 

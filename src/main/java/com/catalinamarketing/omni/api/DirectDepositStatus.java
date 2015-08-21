@@ -17,6 +17,28 @@ public class DirectDepositStatus {
 	@XmlElement(required = true)
 	protected String status;
 
+	@XmlElement(required = false)
+	private String sourceType;
+	
+	@XmlElement(required = false)
+	protected String mediaNumber;
+
+	public String getSourceType() {
+		return sourceType;
+	}
+
+	public void setSourceType(String sourceType) {
+		this.sourceType = sourceType;
+	}
+
+	public String getMediaNumber() {
+		return mediaNumber;
+	}
+
+	public void setMediaNumber(String mediaNumber) {
+		this.mediaNumber = mediaNumber;
+	}
+
 	/**
 	 * @return the status
 	 */

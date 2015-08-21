@@ -12,6 +12,7 @@ import com.catalinamarketing.omni.api.OfferStatus;
 import com.catalinamarketing.omni.api.StringPrint;
 import com.catalinamarketing.omni.api.StringPrintStatus;
 import com.catalinamarketing.omni.api.TargetedMediaResponse;
+import com.catalinamarketing.omni.protocol.message.AwardData;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.SetupConstants;
 
@@ -37,6 +38,7 @@ public class StringPrintEventCreator implements MediaEventCreator {
 			StringPrintStatus stringPrintStatus = new StringPrintStatus();
 			stringPrintStatus.setAwardId(awardId);
 			stringPrintStatus.setStatus(SetupConstants.PROMOTION_PRINTED);
+			stringPrintStatus.setMediaNumber(testPlan.getAwardData(awardId).getChannelMediaId());
 			
 			List<Offer> offerList = targetMediaResponse.getOffersByAwardId(awardId);
 			for(Offer offer : offerList) {
@@ -56,6 +58,7 @@ public class StringPrintEventCreator implements MediaEventCreator {
 		for(String awardId : awardIdFlushed) {
 			StringPrintStatus stringPrintStatus = new StringPrintStatus();
 			stringPrintStatus.setAwardId(awardId);
+			stringPrintStatus.setMediaNumber(testPlan.getAwardData(awardId).getChannelMediaId());
 			stringPrintStatus.setStatus(SetupConstants.PROMOTION_NOT_PRINTED);
 			List<Offer> offerList = targetMediaResponse.getOffersByAwardId(awardId);
 			for(Offer offer : offerList) {
@@ -70,8 +73,6 @@ public class StringPrintEventCreator implements MediaEventCreator {
 			}
 			customerMediaEvent.getStringPrintStatuses().add(stringPrintStatus);
 		}
-		
-		mediaEvent.getCustomerMediaEvents().add(customerMediaEvent);
 		return mediaEvent;
 	}
 

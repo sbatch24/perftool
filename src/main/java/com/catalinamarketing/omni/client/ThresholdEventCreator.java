@@ -29,7 +29,7 @@ public class ThresholdEventCreator implements MediaEventCreator {
 			status.setMediaNumber(awardData.getChannelMediaId());
 			// Randomly chose to reduce the PCV.
 			if(randomBoolean.nextBoolean()) {
-				int newSequenceNumber = threshold.getThresholdSequenceNumber() -1;
+				int newSequenceNumber = nextThresholdNumber(threshold.getThresholdSequenceNumber(), testPlan.getAwardData(awardId).getThresholdSequence());
 				if(newSequenceNumber < 0) {
 					newSequenceNumber = 0;
 				}
@@ -40,5 +40,14 @@ public class ThresholdEventCreator implements MediaEventCreator {
 			mediaEvent.getCustomerMediaEvents().get(0).getThresholdStatuses().add(status);
 		}
 		return mediaEvent;
+	}
+	
+	private int nextThresholdNumber(int currentThresholdNumber, int maxThresholdNumberForAward) {
+		if(currentThresholdNumber >= 255) {
+			currentThresholdNumber = maxThresholdNumberForAward;
+		} else {
+			currentThresholdNumber--;
+		}
+		return currentThresholdNumber;
 	}
 }
