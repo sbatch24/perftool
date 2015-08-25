@@ -22,6 +22,7 @@ import com.catalinamarketing.omni.api.DirectDepositStatus;
 import com.catalinamarketing.omni.api.MediaEvents;
 import com.catalinamarketing.omni.api.StringPrintStatus;
 import com.catalinamarketing.omni.api.TargetedMediaResponse;
+import com.catalinamarketing.omni.api.ThresholdStatus;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.HttpResponseRepository;
 import com.catalinamarketing.omni.util.MediaUsageRepository;
@@ -120,7 +121,7 @@ public class TargetingApiExecutor extends ApiExecutor {
 						Gson gson = new Gson();
 						final Timer.Context eventContext = EVENT_API_REQUEST.time();
 						resp  = client.target(String.format(this.testPlan.getEventsApiUrl(), testPlan.getRetailerId()))
-					            .queryParam("channel", "web")
+					            .queryParam("channel", "store")
 					            .request()
 					            .accept(MediaType.APPLICATION_JSON)
 					            .header("Content-Type", MediaType.APPLICATION_JSON)
