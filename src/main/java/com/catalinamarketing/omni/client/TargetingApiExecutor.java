@@ -73,7 +73,7 @@ public class TargetingApiExecutor extends ApiExecutor {
 		Response resp = null;
 		try {
 			resp = client.target(String.format(this.testPlan.getTargetingApiUrl(), testPlan.getRetailerId(),customerId))
-		            .queryParam("channel", "store")
+		            .queryParam("channel", "web")
 		            .queryParam("transactionid", customerId)  // Use customer id as transaction id
 		            .request()
 		            .accept(MediaType.APPLICATION_XML)
@@ -121,7 +121,7 @@ public class TargetingApiExecutor extends ApiExecutor {
 						Gson gson = new Gson();
 						final Timer.Context eventContext = EVENT_API_REQUEST.time();
 						resp  = client.target(String.format(this.testPlan.getEventsApiUrl(), testPlan.getRetailerId()))
-					            .queryParam("channel", "store")
+					            .queryParam("channel", "web")
 					            .request()
 					            .accept(MediaType.APPLICATION_JSON)
 					            .header("Content-Type", MediaType.APPLICATION_JSON)
