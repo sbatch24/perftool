@@ -3,7 +3,6 @@ package com.catalinamarketing.omni.client;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 
@@ -17,12 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.catalinamarketing.omni.api.CustomerMediaEvent;
-import com.catalinamarketing.omni.api.DirectDeposit;
 import com.catalinamarketing.omni.api.DirectDepositStatus;
 import com.catalinamarketing.omni.api.MediaEvents;
 import com.catalinamarketing.omni.api.StringPrintStatus;
 import com.catalinamarketing.omni.api.TargetedMediaResponse;
-import com.catalinamarketing.omni.api.ThresholdStatus;
 import com.catalinamarketing.omni.protocol.message.TestPlanMsg;
 import com.catalinamarketing.omni.util.HttpResponseRepository;
 import com.catalinamarketing.omni.util.MediaUsageRepository;
