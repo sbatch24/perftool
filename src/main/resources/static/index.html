@@ -17,6 +17,7 @@
     <!-- Custom styles for this template -->
     <link href="./css/dashboard.css" rel="stylesheet">
     <link href="./css/jquery-ui.css" rel="stylesheet">
+    <link href="https://cdn.rawgit.com/angular-ui/bower-ui-grid/master/ui-grid.min.css" rel="stylesheet">
 
 </head>
 
@@ -36,6 +37,7 @@
                 <li><a href="#tab_c" data-toggle="pill">Card Setup</a></li>
                 <li><a href="#tab_d" data-toggle="pill">Offer Setup</a></li>
                 <li><a href="#tab_e" data-toggle="pill">Admin</a></li>
+                <li><a href="#tab_f" data-toggle="pill">Test</a></li>
             </ul>
         </div>
         <div class="tab-content col-md-10 pull-right main" ng-controller="panelController">
@@ -507,18 +509,19 @@
                     </div>
                 </div>
             </div>
+            <div class="tab-pane" id="tab_f">
+                <div id="grid1" ui-grid="gridOptions" class="grid"></div>
+            </div>
         </div>
     </div>
 
     <script src="./js/jquery.js" type="text/javascript"></script>
     <script src="./js/jquery-ui.min.js" type="text/javascript"></script>
     <script src="./js/angular.min.js" type="text/javascript"></script>
-
+    <script src="./js/ui-grid.min.js" type="text/javascript"></script>
     <script type="text/javascript" src="./js/date.js"></script>
     <script src="./js/bootstrap.min.js" type="text/javascript"></script>
-    
     <script src="./js/app.js" type="text/javascript"></script>
-
 </body>
 
 </html>

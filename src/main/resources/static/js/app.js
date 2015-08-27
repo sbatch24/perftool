@@ -1,8 +1,21 @@
     (function() {
-        var app = angular.module("perftool", ['ui.date']);
+        var app = angular.module("perftool", ['ui.date', 'ui.grid','ui.grid.exporter']);
 
 
-        var panelController = app.controller("panelController", function($scope, $http, $log, $interval,$window) {
+        var panelController = app.controller("panelController", function($scope, $http, $log, $interval, $window, uiGridConstants) {
+            $scope.gridOptions = {
+                enableFiltering: true,
+                columnDefs: [
+                  { field: 'awardId' , displayName : 'AwardId' },
+                  {field : 'cardRangeId', displayName : 'Card Range'},
+                  {field : 'channelCapDisabled', displayName : 'Channel Cap Disabled'},
+                  { field: 'channelMediaId ', displayName : "ChannelMediaId"},
+                  {field : 'mediaId', displayName : 'MediaId'},
+                  {field : 'promotionType', displayName : 'Promotion Type'},
+                  { field: 'rank', displayName :'Rank', visible:false },
+                ],
+            };
+           
             /*Initialize the data*/
             $scope.programData = {
                 edit: false
@@ -21,16 +34,16 @@
 
             $scope.activityLog = [];
             $scope.testGoingOn = true;
-            
+
             $scope.dateOptions = {
-        changeYear: true,
-        changeMonth: true,
-        yearRange: '1900:-0'
-    };
+                changeYear: true,
+                changeMonth: true,
+                yearRange: '1900:-0'
+            };
 
             $scope.CHANNEL_TYPES = ["CATALINA_IN_STORE", "LOAD_TO_CARD"];
             $scope.BOOLEAN_TYPES = [true, false];
-            $scope.PROMOTION_TYPES = ["StringPrints", "Threshold","GType","Transactional"]
+            $scope.PROMOTION_TYPES = ["StringPrints", "Threshold", "GType", "Transactional"]
 
             //        $interval(function() {
             //            $scope.checkStatus();
@@ -40,10 +53,14 @@
                 .success(function(response) {
                     $scope.config = response;
                     $scope.setup = response.server.setup;
+                    $scope.gridOptions.data = $scope.setup.promotionSetup;
+                
                 }).error(function(response) {
                     $log.error("Problem in calling config resource");
                 });
 
+             
+            
             $scope.updateConfiguration = function() {
                 $scope.config.server.setup = $scope.setup;
                 $http.post('/update', $scope.config).
@@ -180,7 +197,7 @@
                 $scope.promotionSetupData['index'] = index;
                 $scope.promotionSetupData['endDate'] = new Date($scope.setup.promotionSetup[index].endDate);
                 $scope.promotionSetupData['startDate'] = new Date($scope.setup.promotionSetup[index].startDate);
-                $scope.promotionSetupData.edit = true;                
+                $scope.promotionSetupData.edit = true;
             }
 
             /**/
@@ -226,7 +243,7 @@
                 clearModel($scope.promotionSetupData);
                 $scope.setup.promotionSetup.splice(index, 1);
             }
-         
+
             $scope.deleteCardRangeSetup = function(index) {
                 $log.info("Deleting card setup");
                 $scope.cardSetupData = {};
@@ -264,30 +281,30 @@
 
             $scope.savePromotionSetup = function() {
                 if ($scope.promotionSetupData.edit == false) {
-                    if($scope.promotionSetupData.rank == undefined) {
+                    if ($scope.promotionSetupData.rank == undefined) {
                         $scope.promotionSetupData.rank = 256;
                     }
-                    
+
                     $scope.setup.promotionSetup.push({
                         'awardId': $scope.promotionSetupData.awardId,
-                        'rank' : $scope.promotionSetupData.rank,
+                        'rank': $scope.promotionSetupData.rank,
                         'mediaId': $scope.promotionSetupData.mediaId,
-                        'channelMediaId' : $scope.promotionSetupData.channelMediaId,
+                        'channelMediaId': $scope.promotionSetupData.channelMediaId,
                         'awardCap': $scope.promotionSetupData.awardCap,
                         'awardVariance': $scope.promotionSetupData.awardVariance,
-                        'controlPercentage' : $scope.promotionSetupData.controlPercentage,
-                        'randomValue' : $scope.promotionSetupData.randomValue,
+                        'controlPercentage': $scope.promotionSetupData.controlPercentage,
+                        'randomValue': $scope.promotionSetupData.randomValue,
                         'mediaCap': $scope.promotionSetupData.mediaCap,
-                        'campaignId' : $scope.promotionSetupData.campaignId,
+                        'campaignId': $scope.promotionSetupData.campaignId,
                         'mediaVariance': $scope.promotionSetupData.mediaVariance,
-                        'mediaCapDisabled' : $scope.promotionSetupData.mediaCapDisabled,
-                        'channelMediaCap' : $scope.promotionSetupData.channelMediaCap,
-                        'channelMediaVariance' : $scope.promotionSetupData.channelMediaVariance,
-                        'channelCapDisabled' : $scope.promotionSetupData.channelCapDisabled,
-                        'unlimited' : $scope.promotionSetupData.unlimited,
-                        'thresholdSequence' : $scope.promotionSetupData.thresholdSequence,
-                        'promotionType' : $scope.promotionSetupData.promotionType,
-                        'houseHolded' : $scope.promotionSetupData.houseHolded,
+                        'mediaCapDisabled': $scope.promotionSetupData.mediaCapDisabled,
+                        'channelMediaCap': $scope.promotionSetupData.channelMediaCap,
+                        'channelMediaVariance': $scope.promotionSetupData.channelMediaVariance,
+                        'channelCapDisabled': $scope.promotionSetupData.channelCapDisabled,
+                        'unlimited': $scope.promotionSetupData.unlimited,
+                        'thresholdSequence': $scope.promotionSetupData.thresholdSequence,
+                        'promotionType': $scope.promotionSetupData.promotionType,
+                        'houseHolded': $scope.promotionSetupData.houseHolded,
                         'channelType': $scope.promotionSetupData.channelType,
                         'consumerCap': $scope.promotionSetupData.consumerCap,
                         'startDate': $scope.promotionSetupData.startDate,
@@ -297,7 +314,7 @@
                     });
 
                 } else {
-                      angular.copy($scope.promotionSetupData, $scope.setup.promotionSetup[$scope.promotionSetupData.index]);
+                    angular.copy($scope.promotionSetupData, $scope.setup.promotionSetup[$scope.promotionSetupData.index]);
                 }
                 clearModel($scope.promotionSetupData);
             };
@@ -307,9 +324,9 @@
                 $scope.promotionSetupData = {};
                 var temp = {};
                 angular.copy($scope.setup.promotionSetup[index], temp);
-                $scope.setup.promotionSetup.splice(index+1, 0, temp);    
-                angular.copy($scope.setup.promotionSetup[index+1], $scope.promotionSetupData);
-                $scope.promotionSetupData['index'] = index+1;
+                $scope.setup.promotionSetup.splice(index + 1, 0, temp);
+                angular.copy($scope.setup.promotionSetup[index + 1], $scope.promotionSetupData);
+                $scope.promotionSetupData['index'] = index + 1;
                 $scope.promotionSetupData['edit'] = true;
             }
 
