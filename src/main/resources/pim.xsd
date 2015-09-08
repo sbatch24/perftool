@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.catalinamarketing.com/pim" xmlns:tns="http://www.catalinamarketing.com/pim" elementFormDefault="qualified">
+	
+
+
+    <complexType name="campaign">
+    	<sequence>
+    		<element name="id" type="string"></element>
+    		<element name="offerList" type="string"></element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="offer"></complexType>
+</schema>

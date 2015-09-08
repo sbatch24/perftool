@@ -3,6 +3,7 @@ package com.catalinamarketing.omni.server;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.catalinamarketing.omni.PerfToolApplication;
 import com.catalinamarketing.omni.config.CardSetup;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.config.Environment;
@@ -41,13 +43,25 @@ import com.rabbitmq.client.ConnectionFactory;
 public class DataSetupHandler {
 	final static Logger logger = LoggerFactory.getLogger(DataSetupHandler.class);
 	private Config config;
-	private boolean publish;
 	private DataSetupActivityLog activityLog;
+	private int counter;
+	private boolean publishInAction;
 	
-	public DataSetupHandler(Config config, boolean publish, DataSetupActivityLog activityLog) {
+	public DataSetupHandler() {
+		activityLog = new DataSetupActivityLog();
+		publishInAction = false;
+	}
+	
+	public void setDataSetupActivityLog(DataSetupActivityLog log) {
+		
+	}
+	
+	public void setConfig(Config config) {
 		this.config = config;
-		this.publish = publish;
-		this.activityLog = activityLog;
+	}
+	
+	public Config getConfig() {
+		return this.config;
 	}
 	
 	/**
@@ -56,14 +70,30 @@ public class DataSetupHandler {
 	 * based on the Promotion/Program setup in config.xml 2. Use the card setup
 	 * data to create the consumer profiles.
 	 */
-	public void dataSetup() {
-		logger.info("Data setup will involve publishing data to PMR and to the DMP");
-		PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config, activityLog);
-		pmrDataOrganizer.initializePmrDataSetup();
-		publishPmrSetupData(pmrDataOrganizer);
-		publishDynamicControlData(pmrDataOrganizer);
-		publishStringPrintData(pmrDataOrganizer);
-		initializeDmpData();
+	public DataSetupActivityLog dataSetup() {
+		try {
+			publishInAction = true;
+			logger.info("Data setup will involve publishing data to PMR and to the DMP. Starting at " + new Date().toString());
+			activityLog.clearActivityLog();
+			PerfToolApplication.getControlServer().updateServerActivityLog("Data setup will involve publishing data to PMR and to the DMP. Starting at " + new Date().toString());
+			PmrDataOrganizer pmrDataOrganizer = new PmrDataOrganizer(config, activityLog);
+			pmrDataOrganizer.initializePmrDataSetup();
+			publishPmrSetupData(pmrDataOrganizer);
+			Thread.sleep(1000);
+			publishDynamicControlData(pmrDataOrganizer);
+			Thread.sleep(1000);
+			publishStringPrintData(pmrDataOrganizer);
+			Thread.sleep(1000);
+			initializeDmpData();
+			logger.info("Data publish completed at " + new Date().toString());
+			PerfToolApplication.getControlServer().updateServerActivityLog("Data publish completed at " + new Date().toString());
+		}catch(Exception ex) {
+			//tODO add error message here.
+		}finally {
+			publishInAction = false;
+		}
+		return activityLog;
+
 	}
 
 	/**
@@ -177,29 +207,29 @@ public class DataSetupHandler {
 	 * @param customerWallet 
 	 */
 	private void publishDmpData(Map<String, List<Wallet>> customerWallet) {
-		if (publish) {
-			logger.info("Publishing data to the consumer DMP");
-			Client client  = null;
-			HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(config.getDmpUserName(), config.getDmpPassword());
-
-			Stopwatch watch =  Stopwatch.createStarted();
-			client = ClientBuilder.newBuilder().register(feature).build();
-			for(Map.Entry<String, List<Wallet>> entry : customerWallet.entrySet()){
-				try {
-					updateWalletDataForConsumer(entry, client, feature);
-					Thread.sleep(10);	
-					logger.info("Publishing data for CID - " + entry.getKey());
-				}catch(Exception ex) {
-					
-					logger.error("Problems posting wallet to profile(cid - " + entry.getKey() + " ). Error " + ex.getMessage());
-					activityLog.addException("Problems posting wallet to profile(cid - " + entry.getKey() + " ). Error " + ex.getMessage());
-					client.close();
-					client = ClientBuilder.newBuilder().register(feature).build();
-				}
+		logger.info("Publishing data to the consumer DMP");
+		activityLog.addActivityMessage("Publishing promotions to DMP. Process started at " + new Date().toString());
+		counter = 0;
+		Client client  = null;
+		HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(config.getDmpUserName(), config.getDmpPassword());
+		Stopwatch watch =  Stopwatch.createStarted();
+		client = ClientBuilder.newBuilder().register(feature).build();
+		for(Map.Entry<String, List<Wallet>> entry : customerWallet.entrySet()){
+			try {
+				counter++;
+				updateWalletDataForConsumer(entry, client, feature);
+				Thread.sleep(10);	
+				logger.info("Publishing data for CID - " + entry.getKey());
+			}catch(Exception ex) {
+				logger.error("Problems posting wallet to profile(cid - " + entry.getKey() + " ). Error " + ex.getMessage());
+				activityLog.addException("Problems posting wallet to profile(cid - " + entry.getKey() + " ). Error " + ex.getMessage());
+				client.close();
+				client = ClientBuilder.newBuilder().register(feature).build();
 			}
-			logger.info("Time taken to publish wallet information for " +  customerWallet.size()+" ids is "+ watch.elapsed(TimeUnit.SECONDS) + " seconds");
-			client.close();
 		}
+		logger.info("Time taken to publish wallet information for " +  customerWallet.size()+" ids is "+ watch.elapsed(TimeUnit.SECONDS) + " seconds");
+		activityLog.addActivityMessage("Time taken to publish wallet information for " +  customerWallet.size()+" ids is "+ watch.elapsed(TimeUnit.SECONDS) + " seconds");
+		client.close();
 	}
 
 	/**
@@ -215,12 +245,27 @@ public class DataSetupHandler {
 				tokenizedId);
 	}
 	
-	public void clearEventsFromProfile() {
+	/**
+	 * Returns the current publish activities status in form of log messages in list.
+	 * @return List<String> activityLog of the current publish activity.
+	 */
+	public List<String> getPublishStatus() {
+		List<String> data = new ArrayList<String>();;
+		if(publishInAction) {
+			data.add(" " + counter + " consumer profiles finished publishing so far.");
+			data.addAll(activityLog.getActivityLog());
+		}
+		return data;
+	}
+	
+	public DataSetupActivityLog clearEventsFromProfile() {
 		logger.info("Clearing events from profile data");
+		activityLog.clearActivityLog();
 		List<CardSetup> cardSetupList = config.getCardSetupList();
 		Client client  = null;
 		HttpAuthenticationFeature feature = HttpAuthenticationFeature.basic(config.getDmpUserName(), config.getDmpPassword());
 		client = ClientBuilder.newBuilder().register(feature).build();
+		int counter = 0;
 		for (CardSetup cardSetup : cardSetupList) {
 			BigInteger firstId = new BigInteger(cardSetup.cardRange().get(0));
 			BigInteger lastId = new BigInteger(cardSetup.cardRange().get(1));
@@ -236,10 +281,14 @@ public class DataSetupHandler {
 								+ config.getNetworkId() + "-" + firstId  + " http code : " + resp.getStatus());
 					activityLog.addException("Problem clearing events from profile " + "USA-"
 								+ config.getNetworkId() + "-" + firstId  + " http code : " + resp.getStatus());
+				} else {
+					counter++;
 				}
 				resp.close();
 			}
+			activityLog.addActivityMessage("Successfully cleared " + counter + " profiles");
 		}
+		return activityLog;
 	}
 
 	/**
@@ -333,45 +382,51 @@ public class DataSetupHandler {
 	 * Publish the media data to the pmr.
 	 */
 	private void publishPmrSetupData(PmrDataOrganizer pmrDataOrganizer) {
-		if (publish) {
-			logger.info("Publishing PMR data to the " + config.getConfiguredEnvironmentName());
-			Environment environment = config.getConfiguredEnvironment();
-			ConnectionFactory factory = new ConnectionFactory();
-			factory.setUsername(environment.getQueueInfo().getUserName());
-			factory.setPassword(environment.getQueueInfo().getPassword());
-			factory.setPort(environment.getQueueInfo().getPort());
-			factory.setHost(environment.getQueueInfo().getHostName());
-			Connection connection = null;
-			Channel channel = null;
+		logger.info("Publishing PMR data to the " + config.getConfiguredEnvironmentName());
+		Environment environment = config.getConfiguredEnvironment();
+		ConnectionFactory factory = new ConnectionFactory();
+		factory.setUsername(environment.getQueueInfo().getUserName());
+		factory.setPassword(environment.getQueueInfo().getPassword());
+		factory.setPort(environment.getQueueInfo().getPort());
+		factory.setHost(environment.getQueueInfo().getHostName());
+		Connection connection = null;
+		Channel channel = null;
+		try {
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			channel.queueDeclare(environment.getQueueInfo().getSetupQueueName(),
+					true, false, false, null);
+			Map<String, Object> headers = new HashMap<String, Object>();
+			headers.put("__TypeId__", "offer-setup");
+			Gson gson = new Gson();
+			List<PmrSetupMessage> pmrMessageList = pmrDataOrganizer.getPmrSetupMessageList();
+			for (PmrSetupMessage message : pmrMessageList) {
+				String jsonMessage = gson.toJson(message);
+				channel.basicPublish("", environment.getQueueInfo()
+						.getSetupQueueName(), new AMQP.BasicProperties.Builder()
+						.contentType("application/json").headers(headers)
+						.build(), jsonMessage.getBytes());
+			}
+		} catch (IOException e) {
+			logger.error("Problem publish pmr data. Error :"+ e.getMessage());
+			activityLog.addException("Problem publish pmr data. Error :"+ e.getMessage());
+		} finally {
 			try {
-				connection = factory.newConnection();
-				channel = connection.createChannel();
-				channel.queueDeclare(environment.getQueueInfo().getSetupQueueName(),
-						true, false, false, null);
-				Map<String, Object> headers = new HashMap<String, Object>();
-				headers.put("__TypeId__", "offer-setup");
-				Gson gson = new Gson();
-				List<PmrSetupMessage> pmrMessageList = pmrDataOrganizer.getPmrSetupMessageList();
-				for (PmrSetupMessage message : pmrMessageList) {
-					String jsonMessage = gson.toJson(message);
-					channel.basicPublish("", environment.getQueueInfo()
-							.getSetupQueueName(), new AMQP.BasicProperties.Builder()
-							.contentType("application/json").headers(headers)
-							.build(), jsonMessage.getBytes());
+				if(channel != null && connection != null) {
+					channel.close();
+					connection.close();
 				}
 			} catch (IOException e) {
-				logger.error("Problem publish pmr data. Error :"+ e.getMessage());
-				activityLog.addException("Problem publish pmr data. Error :"+ e.getMessage());
-			} finally {
-				try {
-					if(channel != null && connection != null) {
-						channel.close();
-						connection.close();
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				e.printStackTrace();
 			}
 		}
+	}
+
+	public int getCounter() {
+		return counter;
+	}
+
+	public void setCounter(int counter) {
+		this.counter = counter;
 	}
 }

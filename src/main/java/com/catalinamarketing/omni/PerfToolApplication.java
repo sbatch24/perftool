@@ -125,33 +125,6 @@ public class PerfToolApplication  {
 	 * @param args
 	 */
 	public static void main(String args[]) {
-		
-		//PerfToolApplication.printCampaingMessage();
-		/*MetricRegistry metrics = new MetricRegistry();
-		final ConsoleReporter reporter = ConsoleReporter.forRegistry(metrics)
-                .convertRatesTo(TimeUnit.MILLISECONDS)
-                .convertDurationsTo(TimeUnit.SECONDS)
-                .build();
-		
-		//reporter.start(1, TimeUnit.MINUTES);
-		Timer TEST = metrics.timer("GetTargetedMedia");
-		Histogram hist = metrics.histogram("Something");
-		Random random = new Random();
-		for(int i=0; i < 100; i++) {
-			try {
-				Timer.Context eventContext = TEST.time();
-				int t = random.nextInt(1000);
-				//System.out.println(t);
-				Thread.sleep(t);
-				long tt = eventContext.stop();
-				hist.update(tt);
-			} catch (InterruptedException e) {
-			}
-		}
-		
-		reporter.forRegistry(metrics).outputTo(System.out);
-		reporter.report();*/
-		
 		if(args.length >=1 && args[0].contains("server")) {
 			try {
 				JAXBContext context = JAXBContext.newInstance(Config.class);

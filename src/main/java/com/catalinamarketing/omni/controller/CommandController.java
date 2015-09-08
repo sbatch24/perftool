@@ -6,9 +6,14 @@ import java.io.FileWriter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
 import com.catalinamarketing.omni.PerfToolApplication;
 import com.catalinamarketing.omni.config.Config;
 import com.catalinamarketing.omni.message.DataSetupActivityLog;
@@ -38,6 +44,14 @@ import com.google.gson.Gson;
 @RequestMapping("/")
 public class CommandController {
 	final static Logger logger = LoggerFactory.getLogger(CommandController.class);
+	
+	private DataSetupHandler handler;
+	private Lock publisherLock;
+	
+	public CommandController() {
+		handler = new DataSetupHandler();
+		publisherLock = new ReentrantLock(true);
+	}
 
 	@RequestMapping(method = RequestMethod.GET, value="/config")
 	public @ResponseBody String getConfig() {
@@ -74,21 +88,44 @@ public class CommandController {
 		return new ResponseEntity<String>("{\"status\":\"Configuration updated\"}", HttpStatus.OK);
 	}
 	
+	/**
+	 * Publish endpoint is called by the UX to submit promotion and customer data
+	 * @return ActivityLog detailing what happened when publish was executed.
+	 */
 	@RequestMapping(method = RequestMethod.GET, value="/publish")
 	public ResponseEntity<String> publishData() {
-		DataSetupActivityLog activityLog = new DataSetupActivityLog();
+		DataSetupActivityLog activityLog = null;
+		boolean locked = false;
+		System.out.println("Publish got called at " + new Date().toString());
+		
 		try {
 			JAXBContext context = JAXBContext
 					.newInstance(Config.class);
 			Unmarshaller um = context.createUnmarshaller();
 			Config config = (Config) um.unmarshal(new FileReader(
 					"config.xml"));
-			DataSetupHandler handler = new DataSetupHandler(config, true,activityLog);
-			handler.dataSetup();
+			
+			if(publisherLock.tryLock(1, TimeUnit.SECONDS)) {
+				handler.setConfig(config);
+				locked = true;
+				activityLog = handler.dataSetup();
+			} else {
+				activityLog = new DataSetupActivityLog();
+				System.out.println("I am locked");
+				activityLog.addException("Unable to service request at this time. Reason - Prior publish activity is still not complete.");
+				return new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.SERVICE_UNAVAILABLE);
+			}
 		}catch(Exception ex) {
+			if(activityLog == null) {
+				activityLog = new DataSetupActivityLog();
+			}
 			logger.error("Problem occured during publishing data. Error : " +ex.getMessage());
 			activityLog.addException("Problem occured during setting data. Error : " +ex.getMessage());	
 			//return new ResponseEntity<String> (new Gson().toJson(activityLog), HttpStatus.INTERNAL_SERVER_ERROR);
+		}finally {
+			if(locked) {
+				publisherLock.unlock();
+			}
 		}
 		if(activityLog.errorOccured()) {
 			PerfToolApplication.getControlServer().updateServerActivityLog("Problem occured while publishing data to PMR and DMP [" + new Date().toString() +"]" );
@@ -102,26 +139,32 @@ public class CommandController {
 	
 	@RequestMapping(method = RequestMethod.GET, value="/reset")
 	public ResponseEntity<String> resetData() {
-		DataSetupActivityLog activityLog = new DataSetupActivityLog();
+		DataSetupActivityLog activityLog = null;
 		try {
 			JAXBContext context = JAXBContext
 					.newInstance(Config.class);
 			Unmarshaller um = context.createUnmarshaller();
 			Config config = (Config) um.unmarshal(new FileReader(
 					"config.xml"));
-			DataSetupHandler handler = new DataSetupHandler(config, false,activityLog);
-			handler.clearEventsFromProfile();
+			if(publisherLock.tryLock(1, TimeUnit.SECONDS)) {
+				handler.setConfig(config);
+				activityLog = handler.clearEventsFromProfile();	
+			}
 		}catch(Exception ex) {
 			logger.error("Problem occured during resetting data. Error : " +ex.getMessage());
+			if(activityLog == null) {
+				activityLog = new DataSetupActivityLog();
+			}
 			activityLog.addException("Problem occured during resetting data. Error : " +ex.getMessage());	
 			return new ResponseEntity<String> (new Gson().toJson(activityLog), HttpStatus.INTERNAL_SERVER_ERROR);
+		} finally {
+			publisherLock.unlock();
 		}
 		if(activityLog.errorOccured()) {
 			PerfToolApplication.getControlServer().updateServerActivityLog("Problem occured while resetting data ["+ new Date().toString()+ "]" );
 			new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.INTERNAL_SERVER_ERROR);
 		}
-		activityLog.addActivityMessage("Resetting data successful");
-		PerfToolApplication.getControlServer().updateServerActivityLog("Data reset successfully executed [" + new Date().toString() +"]");
+		PerfToolApplication.getControlServer().updateServerActivityLog("Data reset was requested at [" + new Date().toString() +"]");
 		return new ResponseEntity<String>(new Gson().toJson(activityLog),HttpStatus.OK);
 	}
 	
@@ -143,10 +186,10 @@ public class CommandController {
 				workerInfo.setApiExceptionList(clientCommHandler.getApiExceptionList());
 				workerInfo.setApiResponseCounterList(clientCommHandler.getApiResponseCounterList());
 				workerInfo.setMetricRegistryList(clientCommHandler.getMetricRegistryList());
-				
 			}
 		}
 		statusMessage.updateStatus(PerfToolApplication.getControlServer().getServerActivityLog());
+		statusMessage.updateStatus(this.handler.getPublishStatus());
 		//statusMessage.setTestGoingOn(ControlServer.isTestInProgress() );
 		return new ResponseEntity<String>(new Gson().toJson(statusMessage),HttpStatus.OK);
 	}

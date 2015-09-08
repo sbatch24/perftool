@@ -100,6 +100,7 @@ public class TestPlanExecutor implements Runnable {
 			                                                  .build(graphite);
 			reporters.start(1, TimeUnit.MINUTES);*/
 			finishedSignal.await();
+			System.out.println("The TPS based on time takene / no.of targeting calls");
 			final ConsoleReporter reporter = ConsoleReporter.forRegistry(apiExecutorList.get(0).metrics)
 	                .convertRatesTo(TimeUnit.MILLISECONDS)
 	                .convertDurationsTo(TimeUnit.SECONDS)
