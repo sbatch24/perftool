@@ -7,13 +7,7 @@
            edit: false
         };
         
-        configService.getConfig(CONFIG_URL).then(function(response){
-        console.log(response.data);
-            $scope.config = response.data.config;
-            $scope.setup = response.data.server.setup;
-        },function(response){
-            
-        });
+        $scope.setup = configService.getConfig();
         
         $scope.editProgramSetup = function (index) {
             $log.info("Index selected " + index);
