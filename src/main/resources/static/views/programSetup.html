@@ -1,0 +1,72 @@
+<div class="tab-pane active" id="tab_a">
+    <h4>Program setup</h4>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Edit</th>
+                <th>Delete</th>
+                <th>Program Id</th>
+                <th>Contract Id</th>
+                <th>Cap</th>
+                <th>Variance</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="programSetupInfo in setup.programSetup">
+                <td>
+                    <button class="btn btn-xs" ng-click="editProgramSetup($index)">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-xs" ng-click="deleteProgram($index)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+                </td>
+                <td>{{programSetupInfo.programId }}</td>
+                <td>{{programSetupInfo.contractId }}</td>
+                <td>{{programSetupInfo.cap }}</td>
+                <td>{{programSetupInfo.variance }}</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <button class="btn btn-success btn-sm" ng-click="newProgramSetup()">
+        <span class="glyphicon glyphicon-user"></span> New Program Setup
+    </button>
+    <hr>
+    <h3 ng-show="edit">New Program Setup:</h3>
+    <h3 ng-hide="edit">Program Setup:</h3>
+    <form class="form-horizontal">
+        <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label">Program ID :</label>
+            <div class="col-sm-10">
+                <input type="text" ng-model="programData.programId" placeholder="Program Id" class="form-control">
+            </div>
+        </div>
+        <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label">Contract ID :</label>
+            <div class="col-sm-10">
+                <input type="text" ng-model="programData.contractId" placeholder="Contract Id" class="form-control">
+            </div>
+        </div>
+        <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label">Cap:</label>
+            <div class="col-sm-10">
+                <input type="text" ng-model="programData.cap" placeholder="Cap (optional)" class="form-control">
+            </div>
+        </div>
+        <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label">Variance:</label>
+            <div class="col-sm-10">
+                <input type="text" ng-model="programData.variance" placeholder="Variance (optional)" class="form-control">
+            </div>
+        </div>
+    </form>
+
+    <hr>
+    <button class="btn btn-success btn-sm" ng-click="saveProgramData()">
+        <span class="glyphicon glyphicon-save"></span>  Save Changes
+    </button>
+
+</div>

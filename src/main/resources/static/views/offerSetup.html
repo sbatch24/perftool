@@ -1,0 +1,55 @@
+<div class="tab-pane" id="tab_d">
+    <h4>Offer Setup</h4>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th>Edit</th>
+                <th>Delete</th>
+                <th>Campaign Id</th>
+                <th>Offers</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr ng-repeat="offer in setup.offerSetup">
+                <td>
+                    <button class="btn btn-xs" ng-click="editOfferSetup($index)">
+                        <span class="glyphicon glyphicon-pencil"></span>
+                    </button>
+                </td>
+                <td>
+                    <button class="btn btn-xs" ng-click="deleteOfferSetup($index)">
+                        <span class="glyphicon glyphicon-trash"></span>
+                    </button>
+                </td>
+                <td>{{offer.campaignId}}</td>
+                <td>{{offer.offerList.join()}}</td>
+            </tr>
+        </tbody>
+    </table>
+    <hr>
+    <button class="btn btn-success btn-sm" ng-click="newOfferSetup()">
+        <span class="glyphicon glyphicon-user"></span> New Campaign setup
+    </button>
+    <hr>
+    <h3 ng-show="edit">New Campaign Setup:</h3>
+    <h3 ng-hide="edit">Campaign Setup:</h3>
+    <form class="form-horizontal">
+        <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label">Campaign Id :</label>
+            <div class="col-sm-10">
+                <input type="text" ng-model="offerSetupData.campaignId" placeholder="Campaign Id" class="form-control">
+            </div>
+        </div>
+        <div class="form-group form-group-sm">
+            <label class="col-sm-2 control-label">Offers(comma seperated) :</label>
+            <div class="col-sm-10">
+                <input type="text" ng-model="offerSetupData.offerList" placeholder="Offers" class="form-control">
+            </div>
+        </div>
+    </form>
+
+    <hr>
+    <button class="btn btn-success btn-sm" ng-click="saveOfferSetup()">
+        <span class="glyphicon glyphicon-save"></span>  Save Changes
+    </button>
+</div>
