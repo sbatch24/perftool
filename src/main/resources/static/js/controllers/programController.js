@@ -7,7 +7,15 @@
            edit: false
         };
         
-        $scope.setup = configService.getConfig();
+        if(configService.getConfig() == undefined) {
+            configService.getConfigFromServer(CONFIG_URL).then(function(response){            
+             $scope.setup = response.data.server.setup;
+            },function(response){
+
+            });
+        } else {
+            $scope.setup = configService.getConfig();
+        }      
         
         $scope.editProgramSetup = function (index) {
             $log.info("Index selected " + index);
@@ -43,6 +51,12 @@
 
             configService.clearModel($scope.programData);
         };
+        
+        
+        
+        $scope.$on("$destroy", function() {
+            configService.setConfig($scope.setup);
+        });
     }
     
     angular.module("perftool").controller('programController', programController);    

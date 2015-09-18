@@ -5,6 +5,10 @@
             edit: false
         };
         
+        if(configService.getConfig() != undefined) {
+            $scope.setup = configService.getConfig();
+        }
+        
         $scope.editPromotionSetup = function (index) {
             $log.info("Index selected " + index);
             angular.copy($scope.setup.promotionSetup[index], $scope.promotionSetupData);
@@ -82,10 +86,13 @@
             $scope.promotionSetupData['index'] = index + 1;
             $scope.promotionSetupData['edit'] = true;
         }
+        
+        $scope.$on("destroy", function() {
+            configService.setConfig($scope.setup);
+        });
 
     }
     
-    angular.module("perftool").service('promotionController', promotionController);
+    angular.module("perftool").controller('promotionController', promotionController);
     promotionController.$inject = ['$scope', 'configService', '$log'];
-    
 })();

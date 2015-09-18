@@ -1,11 +1,10 @@
 (function(){
-    
-    
+     
     var configService = function($http) {
-        var config = {};
-            
+        this.model = undefined;
+        
         this.getConfig = function() {
-            return this.config;
+            return this.model;
         }
         
         this.getConfigFromServer = function(url) {
@@ -18,14 +17,11 @@
             }
         }
         
-        getConfigFromServer("/config").then(function(response){            
-            this.config = response.data.config;
-        },function(response){
-            
-        });
+        this.setConfig = function(val) {
+            this.model = val;
+        }
     }
     
     angular.module("perftool").service('configService', configService);
     configService.$inject = ['$http'];
-    
 })();
