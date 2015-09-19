@@ -34,6 +34,10 @@
         this.updateConfig = function(url,val) {
             return $http.post(url, val);
         }
+        
+        this.executeTask = function(url) {
+            return $http.get(url);
+        }
     }
     
     angular.module("perftool").service('configService', configService);
