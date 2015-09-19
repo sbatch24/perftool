@@ -7,14 +7,15 @@
            edit: false
         };
         
-        if(configService.getConfig() == undefined) {
+        if(configService.getModel() == undefined) {
             configService.getConfigFromServer(CONFIG_URL).then(function(response){            
-             $scope.setup = response.data.server.setup;
-            },function(response){
-
-            });
+            $scope.setup = response.data.server.setup;
+            $scope.config = response.data;
+        },function(response){
+            
+        });
         } else {
-            $scope.setup = configService.getConfig();
+            $scope.setup = configService.getModel();
         }      
         
         $scope.editProgramSetup = function (index) {
@@ -52,10 +53,9 @@
             configService.clearModel($scope.programData);
         };
         
-        
-        
         $scope.$on("$destroy", function() {
-            configService.setConfig($scope.setup);
+            configService.setModel($scope.setup);
+            configService.setConfig($scope.config);
         });
     }
     

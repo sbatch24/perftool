@@ -5,8 +5,12 @@
             edit: false
         };
         
-        if(configService.getConfig() != undefined) {
-            $scope.setup = configService.getConfig();
+        $scope.CHANNEL_TYPES = ["CATALINA_IN_STORE", "LOAD_TO_CARD"];
+        $scope.BOOLEAN_TYPES = [true, false];
+        $scope.PROMOTION_TYPES = ["StringPrints", "Threshold", "GType", "Transactional"];
+        
+        if(configService.getModel() != undefined) {
+            $scope.setup = configService.getModel();
         }
         
         $scope.editPromotionSetup = function (index) {
@@ -88,7 +92,7 @@
         }
         
         $scope.$on("destroy", function() {
-            configService.setConfig($scope.setup);
+            configService.setModel($scope.setup);
         });
 
     }
