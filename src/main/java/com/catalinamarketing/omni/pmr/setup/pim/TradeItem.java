@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,24 +28,34 @@ import java.util.Map;
 public class TradeItem {
 
     @JsonProperty("trade_item_coding_std_code")
+    @SerializedName("trade_item_coding_std_code")
     private String tradeItemCodingStdCode;
     @JsonProperty("trade_item_code")
+    @SerializedName("trade_item_code")
     private String tradeItemCode;
     @JsonProperty("trade_item_owner_base_price_amount")
+    @SerializedName("trade_item_owner_base_price_amount")
     private String tradeItemOwnerBasePriceAmount;
     @JsonProperty("trade_item_owner_sale_price_amount")
+    @SerializedName("trade_item_owner_sale_price_amount")
     private String tradeItemOwnerSalePriceAmount;
     @JsonProperty("trade_item_hierarchy_owner")
+    @SerializedName("trade_item_hierarchy_owner")
     private String tradeItemHierarchyOwner;
     @JsonProperty("trade_item_hierarchy_level_5")
+    @SerializedName("trade_item_hierarchy_level_5")
     private String tradeItemHierarchyLevel5;
     @JsonProperty("trade_item_hierarchy_level_4")
+    @SerializedName("trade_item_hierarchy_level_4")
     private String tradeItemHierarchyLevel4;
     @JsonProperty("trade_item_hierarchy_level_3")
+    @SerializedName("trade_item_hierarchy_level_3")
     private String tradeItemHierarchyLevel3;
     @JsonProperty("trade_item_hierarchy_level_2")
+    @SerializedName("trade_item_hierarchy_level_2")
     private String tradeItemHierarchyLevel2;
     @JsonProperty("trade_item_hierarchy_level_1")
+    @SerializedName("trade_item_hierarchy_level_1")
     private String tradeItemHierarchyLevel1;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

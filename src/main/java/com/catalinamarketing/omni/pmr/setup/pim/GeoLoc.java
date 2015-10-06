@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import java.util.Map;
 public class GeoLoc {
 
     @JsonProperty("attributes")
+    @SerializedName("attributes")
     private List<Attribute> attributes;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

@@ -7,6 +7,7 @@ package com.catalinamarketing.omni.pmr.setup.pim;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.gson.annotations.SerializedName;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -21,18 +22,25 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class PromotionGraphicsDetail {
 
     @JsonProperty("creative_external_id")
+    @SerializedName("creative_external_id")
     protected String creativeExternalId;
     @JsonProperty("creative_internal_id")
+    @SerializedName("creative_internal_id")
     protected String creativeInternalId;
     @JsonProperty("creative_external_url")
+    @SerializedName("creative_external_url")
     protected String creativeExternalUrl;
     @JsonProperty("creative_internal_url")
+    @SerializedName("creative_internal_url")
     protected String creativeInternalUrl;
     @JsonProperty("creative_external_source_system_name")
+    @SerializedName("creative_external_source_system_name")
     protected String creativeExternalSourceSystemName;
     @JsonProperty("creative_internal_source_system_name")
+    @SerializedName("creative_internal_source_system_name")
     protected String creativeInternalSourceSystemName;
     @JsonProperty("channel_type")
+    @SerializedName("channel_type")
     protected String channelType;
 
     @JsonProperty("creative_external_id")

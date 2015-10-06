@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,14 +23,19 @@ import java.util.Map;
 public class TriggerPurchaseEvent {
 
     @JsonProperty("trigger_type")
+    @SerializedName("trigger_type")
     private String triggerType;
     @JsonProperty("trigger_trade_item_amount")
+    @SerializedName("trigger_trade_item_amount")
     private String triggerTradeItemAmount;
     @JsonProperty("creative_discount_type_code")
+    @SerializedName("creative_discount_type_code")
     private String creativeDiscountTypeCode;
     @JsonProperty("creative_discount_value_amount")
+    @SerializedName("creative_discount_value_amount")
     private String creativeDiscountValueAmount;
     @JsonProperty("description")
+    @SerializedName("description")
     private String description;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

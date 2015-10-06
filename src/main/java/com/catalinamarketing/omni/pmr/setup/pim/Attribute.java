@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.gson.annotations.SerializedName;
 
 
 import java.util.HashMap;
@@ -20,8 +21,10 @@ import java.util.Map;
 public class Attribute {
 
     @JsonProperty("key")
+    @SerializedName("key")
     private String key;
     @JsonProperty("value")
+    @SerializedName("value")
     private String value;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

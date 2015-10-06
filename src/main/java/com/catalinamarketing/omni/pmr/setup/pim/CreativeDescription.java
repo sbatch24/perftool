@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,8 +20,10 @@ import java.util.Map;
 public class CreativeDescription {
 
     @JsonProperty("creative_text_type_code")
+    @SerializedName("creative_text_type_code")
     private String creativeTextTypeCode;
     @JsonProperty("creative_text_type_value")
+    @SerializedName("creative_text_type_value")
     private String creativeTextTypeValue;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();

@@ -1,16 +1,17 @@
 
 package com.catalinamarketing.omni.pmr.setup.pim;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.gson.annotations.SerializedName;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -31,30 +32,43 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 public class PimSetup {
 
     @JsonProperty("promotion_id")
+    @SerializedName("promotion_id")
     private String promotionId;
     @JsonProperty("promotion_status")
+    @SerializedName("promotion_status")
     private String promotionStatus;
     @JsonProperty("legal_entity_id")
+    @SerializedName("legal_entity_id")
     private String legalEntityId;
     @JsonProperty("legal_entity_subsidiary_id")
+    @SerializedName("legal_entity_subsidiary_id")
     private String legalEntitySubsidiaryId;
     @JsonProperty("promotion_distribution_start_date")
+    @SerializedName("promotion_distribution_start_date")
     private String promotionDistributionStartDate;
     @JsonProperty("promotion_distribution_end_date")
+    @SerializedName("promotion_distribution_end_date")
     private String promotionDistributionEndDate;
     @JsonProperty("creative_image_graphic_rank_number")
+    @SerializedName("creative_image_graphic_rank_number")
     private String creativeImageGraphicRankNumber;
     @JsonProperty("promo_name")
+    @SerializedName("promo_name")
     private String promoName;
     @JsonProperty("geo_loc")
+    @SerializedName("geo_loc")
     private GeoLoc geoLoc;
     @JsonProperty("creative_description")
+    @SerializedName("creative_description")
     private List<CreativeDescription> creativeDescription;
     @JsonProperty("promotion_graphics_details")
+    @SerializedName("promotion_graphics_details")
     private PromotionGraphicsDetail promotionGraphicsDetails;
     @JsonProperty("trigger_purchase_event")
+    @SerializedName("trigger_purchase_event")
     private List<TriggerPurchaseEvent> triggerPurchaseEvent;
     @JsonProperty("trade_items")
+    @SerializedName("trade_items")
     private List<TradeItem> tradeItems;
     @JsonIgnore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
