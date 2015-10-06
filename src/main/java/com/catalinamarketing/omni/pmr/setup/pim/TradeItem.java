@@ -1,16 +1,10 @@
 
 package com.catalinamarketing.omni.pmr.setup.pim;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.gson.annotations.SerializedName;
-
-import java.util.HashMap;
-import java.util.Map;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonPropertyOrder({
@@ -57,8 +51,6 @@ public class TradeItem {
     @JsonProperty("trade_item_hierarchy_level_1")
     @SerializedName("trade_item_hierarchy_level_1")
     private String tradeItemHierarchyLevel1;
-    @JsonIgnore
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
      * 
@@ -307,21 +299,6 @@ public class TradeItem {
 
     public TradeItem withTradeItemHierarchyLevel1(String tradeItemHierarchyLevel1) {
         this.tradeItemHierarchyLevel1 = tradeItemHierarchyLevel1;
-        return this;
-    }
-
-    @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
-    }
-
-    @JsonAnySetter
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
-    }
-
-    public TradeItem withAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
         return this;
     }
 
