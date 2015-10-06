@@ -38,6 +38,10 @@
         this.executeTask = function(url) {
             return $http.get(url);
         }
+        
+        this.postPimMessage = function(url, val) {
+            return $http.post(url,val);
+        }
     }
     
     angular.module("perftool").service('configService', configService);

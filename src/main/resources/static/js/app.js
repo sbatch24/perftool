@@ -28,7 +28,10 @@
                 controller : 'adminController',
                 templateUrl : '/views/adminSetup.html'
             })
-            .otherwise( { redirectTo: '/' } );
+            .when('/pimSetup', {
+                controller : 'pimController',
+                templateUrl : '/views/pimSetup.html'
+            }).otherwise( { redirectTo: '/' } );
     });
     
     

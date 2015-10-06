@@ -3,8 +3,11 @@ package com.catalinamarketing.omni.controller;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -26,11 +29,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.catalinamarketing.omni.PerfToolApplication;
 import com.catalinamarketing.omni.config.Config;
+import com.catalinamarketing.omni.config.Environment;
 import com.catalinamarketing.omni.message.DataSetupActivityLog;
 import com.catalinamarketing.omni.message.StatusMessage;
 import com.catalinamarketing.omni.message.TestActivityMessage;
 import com.catalinamarketing.omni.message.WorkerInfo;
 import com.catalinamarketing.omni.pmr.setup.PmrDataOrganizer;
+import com.catalinamarketing.omni.pmr.setup.PmrSetupMessage;
+import com.catalinamarketing.omni.pmr.setup.pim.PimSetup;
 import com.catalinamarketing.omni.protocol.message.HaltExecutionMsg;
 import com.catalinamarketing.omni.server.ClientCommunicationHandler;
 import com.catalinamarketing.omni.server.ClientCommunicationHandler.STATUS;
@@ -39,6 +45,10 @@ import com.catalinamarketing.omni.server.ControlServer.TESTSTATUS;
 import com.catalinamarketing.omni.server.DataSetupHandler;
 import com.catalinamarketing.omni.server.TestPlanDispatcherThread;
 import com.google.gson.Gson;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 
 @RestController
 @RequestMapping("/")
@@ -71,6 +81,50 @@ public class CommandController {
 		}
 		return response;
 	}
+	
+	@RequestMapping(value = "/publishPimData",
+					method = RequestMethod.POST)
+	public ResponseEntity<String> publishPimData(@RequestBody PimSetup message) {
+		Channel channel = null;
+		Connection connection = null;
+		try {
+			JAXBContext context = JAXBContext.newInstance(Config.class);
+			Unmarshaller um = context.createUnmarshaller();
+		    Config config = (Config) um.unmarshal(new FileReader("config.xml"));
+		    Environment environment = config.getConfiguredEnvironment();
+		    ConnectionFactory factory = new ConnectionFactory();
+			factory.setUsername(environment.getQueueInfo().getUserName());
+			factory.setPassword(environment.getQueueInfo().getPassword());
+			factory.setPort(environment.getQueueInfo().getPort());
+			factory.setHost(environment.getQueueInfo().getHostName());
+			connection = factory.newConnection();
+			channel = connection.createChannel();
+			channel.queueDeclare(environment.getQueueInfo().getPimSetupQueue(),
+					true, false, false, null);
+			Map<String, Object> headers = new HashMap<String, Object>();
+			headers.put("__TypeId__", "pim-setup");
+			Gson gson = new Gson();
+			String jsonMessage = gson.toJson(message);
+			channel.basicPublish("", environment.getQueueInfo()
+					.getSetupQueueName(), new AMQP.BasicProperties.Builder()
+					.contentType("application/json").headers(headers)
+					.build(), jsonMessage.getBytes());
+		}catch(Exception ex) {
+			logger.error("Problem publishing pim message. Reason " + ex.getMessage());
+			return new ResponseEntity<String>("Problem publishing pim message. Reason " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+		}finally {
+			try {
+				if(channel != null && connection != null) {
+					channel.close();
+					connection.close();
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		return new ResponseEntity<String>("{\"status\":\"Pim Message published updated\"}", HttpStatus.OK);
+	}
+				
 	
 	@RequestMapping(value = "/update",
 	        method = RequestMethod.POST)

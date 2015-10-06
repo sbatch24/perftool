@@ -16,6 +16,7 @@ public class Queue {
 	private String dcQueueName;
 	private String stringPrintQueueName;
 	private String routingKey;
+	private String pimSetupQueue;
 	
 	public Queue(String host, int port, String userName, String password, String exchange,
 			String queue, String routingKey) {
@@ -90,5 +91,13 @@ public class Queue {
 
 	public void setStringPrintQueueName(String stringPrintQueueName) {
 		this.stringPrintQueueName = stringPrintQueueName;
+	}
+
+	public String getPimSetupQueue() {
+		return pimSetupQueue;
+	}
+
+	public void setPimSetupQueue(String pimSetupQueue) {
+		this.pimSetupQueue = pimSetupQueue;
 	}
 }
