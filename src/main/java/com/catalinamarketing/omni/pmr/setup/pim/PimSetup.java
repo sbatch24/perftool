@@ -58,7 +58,7 @@ public class PimSetup {
     private List<CreativeDescription> creativeDescription;
     @JsonProperty("promotion_graphics_details")
     @SerializedName("promotion_graphics_details")
-    private PromotionGraphicsDetail promotionGraphicsDetails;
+    private List<PromotionGraphicsDetail> promotionGraphicsDetails;
     @JsonProperty("trigger_purchase_event")
     @SerializedName("trigger_purchase_event")
     private List<TriggerPurchaseEvent> triggerPurchaseEvent;
@@ -322,7 +322,7 @@ public class PimSetup {
      *     The promotionGraphicsDetails
      */
     @JsonProperty("promotion_graphics_details")
-    public PromotionGraphicsDetail getPromotionGraphicsDetails() {
+    public List<PromotionGraphicsDetail> getPromotionGraphicsDetails() {
         return promotionGraphicsDetails;
     }
 
@@ -332,11 +332,11 @@ public class PimSetup {
      *     The promotionGraphicsDetails
      */
     @JsonProperty("promotion_graphics_details")
-    public void setPromotionGraphicsDetails(PromotionGraphicsDetail promotionGraphicsDetails) {
+    public void setPromotionGraphicsDetails(List<PromotionGraphicsDetail> promotionGraphicsDetails) {
         this.promotionGraphicsDetails = promotionGraphicsDetails;
     }
 
-    public PimSetup withPromotionGraphicsDetail(PromotionGraphicsDetail promotionGraphicsDetail) {
+    public PimSetup withPromotionGraphicsDetail(List<PromotionGraphicsDetail> promotionGraphicsDetail) {
         this.promotionGraphicsDetails = promotionGraphicsDetail;
         return this;
     }
