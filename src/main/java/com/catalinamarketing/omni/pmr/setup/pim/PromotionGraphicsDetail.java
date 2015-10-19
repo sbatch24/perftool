@@ -13,8 +13,8 @@ import com.google.gson.annotations.SerializedName;
 @JsonPropertyOrder({
         "creative_external_id",
         "creative_internal_id",
-        "creative_external_url",
-        "creative_internal_url",
+        "creative_external_value",
+        "creative_internal_value",
         "creative_external_source_system_name",
         "creative_internal_source_system_name",
         "channel_type"
@@ -27,12 +27,12 @@ public class PromotionGraphicsDetail {
     @JsonProperty("creative_internal_id")
     @SerializedName("creative_internal_id")
     protected String creativeInternalId;
-    @JsonProperty("creative_external_url")
-    @SerializedName("creative_external_url")
-    protected String creativeExternalUrl;
-    @JsonProperty("creative_internal_url")
-    @SerializedName("creative_internal_url")
-    protected String creativeInternalUrl;
+    @JsonProperty("creative_external_value")
+    @SerializedName("creative_external_value")
+    protected String creativeExternalValue;
+    @JsonProperty("creative_internal_value")
+    @SerializedName("creative_internal_value")
+    protected String creativeInternalValue;
     @JsonProperty("creative_external_source_system_name")
     @SerializedName("creative_external_source_system_name")
     protected String creativeExternalSourceSystemName;
@@ -63,24 +63,24 @@ public class PromotionGraphicsDetail {
         this.creativeInternalId = creativeInternalId;
     }
 
-    @JsonProperty("creative_external_url")
-    public String getCreativeExternalUrl() {
-        return creativeExternalUrl;
+    @JsonProperty("creative_external_value")
+    public String getCreativeExternalValue() {
+        return creativeExternalValue;
     }
 
-    @JsonProperty("creative_external_url")
-    public void setCreativeExternalUrl(String creativeExternalUrl) {
-        this.creativeExternalUrl = creativeExternalUrl;
+    @JsonProperty("creative_external_value")
+    public void setCreativeExternalValue(String creativeExternalValue) {
+        this.creativeExternalValue = creativeExternalValue;
     }
 
-    @JsonProperty("creative_internal_url")
-    public String getCreativeInternalUrl() {
-        return creativeInternalUrl;
+    @JsonProperty("creative_internal_value")
+    public String getCreativeInternalValue() {
+        return creativeInternalValue;
     }
 
-    @JsonProperty("creative_internal_url")
-    public void setCreativeInternalUrl(String creativeInternalUrl) {
-        this.creativeInternalUrl = creativeInternalUrl;
+    @JsonProperty("creative_internal_value")
+    public void setCreativeInternalValue(String creativeInternalValue) {
+        this.creativeInternalValue = creativeInternalValue;
     }
 
     @JsonProperty("creative_external_source_system_name")
